@@ -35,6 +35,7 @@ yarn upgrade-interactive -i --latest
 | @ledgerhq/hw-app-str                        | Ethereum coin integration                                         | weekly                                                               |
 | @ledgerhq/hw-app-tezos                      | Tezos coin integration                                            | weekly                                                               |
 | @ledgerhq/hw-app-trx                        | TRON coin integration                                             | weekly                                                               |
+| @ledgerhq/hw-app-vet                        | VeChain coin integration                                          | weekly                                                               |
 | @ledgerhq/hw-app-xrp                        | XRP coin integration                                              | weekly                                                               |
 | @ledgerhq/hw-transport                      | device communication                                              | weekly                                                               |
 | @ledgerhq/hw-transport-mocker               | used by tests                                                     | weekly                                                               |

@@ -158,6 +158,7 @@
     "@ledgerhq/hw-app-str": "workspace:^",
     "@ledgerhq/hw-app-tezos": "workspace:^",
     "@ledgerhq/hw-app-trx": "workspace:^",
+    "@ledgerhq/hw-app-vet": "workspace:^",
     "@ledgerhq/hw-app-xrp": "workspace:^",
     "@ledgerhq/hw-transport": "workspace:^",
     "@ledgerhq/hw-transport-mocker": "workspace:^",

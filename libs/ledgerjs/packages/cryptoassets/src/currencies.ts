@@ -2776,15 +2776,22 @@ export const cryptocurrenciesById: Record<string, CryptoCurrency> = {
       {
         name: "VET",
         code: "VET",
-        magnitude: 8,
+        magnitude: 18,
+      },
+      {
+        name: "WEI",
+        code: "WEI",
+        magnitude: 0,
       },
     ],
     explorerViews: [
       {
-        tx: "https://explore.veforge.com/transactions/$hash",
+        tx: "https://vechainstats.com/transaction/$hash",
+        address: "https://vechainstats.com/account/$address",
       },
     ],
   },
+
   vertcoin: {
     type: "CryptoCurrency",
     id: "vertcoin",

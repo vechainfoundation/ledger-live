@@ -40,6 +40,7 @@
 | Stellar | XLM | YES | stellar |
 | Tezos | XTZ | YES | tezos |
 | Tron | TRX | YES | tron |
+| VeChain | VET | YES | vechain |
 | Vertcoin | VTC | YES | vertcoin |
 | Viacoin | VIA | YES | viacoin |
 | XRP | XRP | YES | ripple |
@@ -104,7 +105,6 @@
 | Thundercore | TT | NO | thundercore |
 | TomoChain | TOMO | NO | tomo |
 | Ubiq | UBQ | NO | ubiq |
-| VeChain | VET | NO | vechain |
 | Wanchain | WAN | NO | wanchain |
 | Waves | WAVES | NO | waves |
 | ZClassic | ZCL | NO | zclassic |
