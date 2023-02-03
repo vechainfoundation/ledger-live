@@ -20,7 +20,6 @@ export const getOperations = async (
   addr: string,
   startAt: number
 ): Promise<Operation[]> => {
-
   const query: VetTxsQuery = {
     range: {
       unit: "block",
