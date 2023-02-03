@@ -1,7 +1,6 @@
 import { getEnv } from "../../../env";
 import network from "../../../network";
 import { AccountResponse, VetTxsQuery } from "./types";
-import { log } from "@ledgerhq/logs";
 import type { Operation } from "@ledgerhq/types-live";
 import { mapVetTransfersToOperations } from "../utils/mapping-utils";
 
@@ -21,10 +20,6 @@ export const getOperations = async (
   addr: string,
   startAt: number
 ): Promise<Operation[]> => {
-  log(
-    "info",
-    `Daithi accountId: ${accountId} addr: ${addr} startAt: ${startAt}`
-  );
 
   const query: VetTxsQuery = {
     range: {
