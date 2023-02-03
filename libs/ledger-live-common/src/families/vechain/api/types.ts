@@ -17,3 +17,21 @@ export interface TransferLog {
     clauseIndex: number;
   };
 }
+
+export interface VetCriteria {
+  recipient?: string;
+  sender?: string;
+}
+export interface VetTxsQuery {
+  range?: {
+    unit: "block";
+    from: number;
+    to?: number;
+  };
+  options?: {
+    offset: number;
+    limit: number;
+  };
+  criteriaSet: VetCriteria[];
+  order: "desc" | "asc";
+}
