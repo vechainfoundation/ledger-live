@@ -96,6 +96,7 @@ import { CeloAccount, CeloAccountRaw } from "../families/celo/types";
 import type { TronAccount, TronAccountRaw } from "../families/tron/types";
 import { getAccountBridge } from "../bridge";
 import { NearAccount, NearAccountRaw } from "../families/near/types";
+import { fromEnergyRaw, toEnergyRaw } from "../families/vechain/serialization";
 
 export { toCosmosResourcesRaw, fromCosmosResourcesRaw };
 export { toBitcoinResourcesRaw, fromBitcoinResourcesRaw };
@@ -569,6 +570,7 @@ export function fromAccountRaw(rawAccount: AccountRaw): Account {
     swapHistory,
     syncHash,
     nfts,
+    energy,
   } = rawAccount;
 
   const subAccounts =
@@ -645,6 +647,10 @@ export function fromAccountRaw(rawAccount: AccountRaw): Account {
 
   if (subAccounts) {
     res.subAccounts = subAccounts as SubAccount[];
+  }
+
+  if (energy) {
+    res.energy = fromEnergyRaw(energy);
   }
 
   switch (res.currency.family) {
@@ -776,6 +782,7 @@ export function toAccountRaw(account: Account): AccountRaw {
     swapHistory,
     syncHash,
     nfts,
+    energy,
   } = account;
   const res: AccountRaw = {
     id,
@@ -816,6 +823,10 @@ export function toAccountRaw(account: Account): AccountRaw {
 
   if (subAccounts) {
     res.subAccounts = subAccounts.map(toSubAccountRaw);
+  }
+
+  if (energy) {
+    res.energy = toEnergyRaw(energy);
   }
 
   switch (account.currency.family) {

@@ -8,6 +8,7 @@ import type { OperationRaw, Operation } from "./operation";
 import type { DerivationMode } from "./derivation";
 import type { SwapOperation, SwapOperationRaw } from "./swap";
 import { ProtoNFT, ProtoNFTRaw } from "./nft";
+import { EnergyCommon, EnergyRawCommon } from "./energy";
 
 export type GranularityId = "HOUR" | "DAY" | "WEEK";
 
@@ -188,6 +189,8 @@ export type Account = {
   syncHash?: string;
   // Array of NFTs computed by diffing NFTOperations ordered from newest to oldest
   nfts?: ProtoNFT[];
+  //Energy field for Vechain account
+  energy?: EnergyCommon;
 };
 
 /** super type that is either a token or a child account */
@@ -276,6 +279,7 @@ export type AccountRaw = {
   swapHistory?: SwapOperationRaw[];
   syncHash?: string;
   nfts?: ProtoNFTRaw[];
+  energy?: EnergyRawCommon;
 };
 
 /** */

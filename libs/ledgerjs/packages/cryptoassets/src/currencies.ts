@@ -2770,7 +2770,7 @@ export const cryptocurrenciesById: Record<string, CryptoCurrency> = {
     managerAppName: "VeChain",
     ticker: "VET",
     scheme: "vechain",
-    color: "#00C2FF",
+    color: "#28008C",
     family: "vechain",
     units: [
       {
@@ -2786,8 +2786,32 @@ export const cryptocurrenciesById: Record<string, CryptoCurrency> = {
     ],
     explorerViews: [
       {
-        tx: "https://vechainstats.com/transaction/$hash",
-        address: "https://vechainstats.com/account/$address",
+        tx: "https://explore-testnet.vechain.org/transactions/$hash",
+        address: "https://explore-testnet.vechain.org/accounts/$address",
+      },
+    ],
+  },
+  vechainThor: {
+    type: "CryptoCurrency",
+    id: "vechainThor",
+    coinType: 818,
+    name: "VeThor",
+    managerAppName: "VeThor",
+    ticker: "VTHO",
+    scheme: "vechain",
+    color: "#00C2FF",
+    family: "vechain",
+    units: [
+      {
+        name: "VTHO",
+        code: "VTHO",
+        magnitude: 18,
+      },
+    ],
+    explorerViews: [
+      {
+        tx: "https://explore-testnet.vechain.org/transactions/$hash",
+        address: "https://explore-testnet.vechain.org/accounts/$address",
       },
     ],
   },

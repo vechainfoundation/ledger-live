@@ -3,6 +3,8 @@ import type {
   TransactionCommonRaw,
   TransactionStatusCommon,
   TransactionStatusCommonRaw,
+  EnergyCommon,
+  EnergyRawCommon,
 } from "@ledgerhq/types-live";
 
 export type NetworkInfo = {
@@ -79,3 +81,7 @@ export type TransactionRaw = TransactionCommonRaw & {
 export type TransactionStatus = TransactionStatusCommon;
 
 export type TransactionStatusRaw = TransactionStatusCommonRaw;
+
+export type Energy = EnergyCommon;
+
+export type EnergyRaw = EnergyRawCommon;

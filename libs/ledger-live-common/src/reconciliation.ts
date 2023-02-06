@@ -55,6 +55,7 @@ import { TronAccount, TronAccountRaw } from "./families/tron/types";
 import { CeloAccount, CeloAccountRaw } from "./families/celo/types";
 import { getAccountBridge } from "./bridge";
 import { NearAccount, NearAccountRaw } from "./families/near/types";
+import { fromEnergyRaw, toEnergyRaw } from "./families/vechain/serialization";
 
 // aim to build operations with the minimal diff & call to coin implementation possible
 export async function minimalOperationsBuilder<CO>(
@@ -295,6 +296,15 @@ export function patchAccount(
       next.balanceHistoryCache = balanceHistoryCache;
       changed = true;
     }
+  }
+
+  if (
+    updatedRaw.energy &&
+    account.energy &&
+    toEnergyRaw(account.energy) !== updatedRaw.energy
+  ) {
+    next.energy = fromEnergyRaw(updatedRaw.energy);
+    changed = true;
   }
 
   // TODO This will be reworked to belong in each coin family
