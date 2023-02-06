@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import { getCryptoCurrencyIcon } from "@ledgerhq/live-common/react";
+import { getCryptoCurrencyById } from "@ledgerhq/live-common/currencies/index";
 import type { CryptoCurrency, TokenCurrency } from "@ledgerhq/types-cryptoassets";
 import { rgba } from "~/renderer/styles/helpers";
 import IconCheckFull from "~/renderer/icons/CheckFull";
@@ -88,23 +89,44 @@ export function CurrencyCircleIcon({
 }
 
 function CurrencyBadge({ currency }: { currency: CryptoCurrency | TokenCurrency }) {
+  const vechainAdditionalCoin = getCryptoCurrencyById("vechainThor");
   return (
-    <Box horizontal alignItems={"center"} flow={3} id="currency-badge">
-      <CurrencyCircleIcon size={40} currency={currency} />
-      <Box ml={2}>
-        <Box
-          ff="Inter|SemiBold"
-          color="palette.text.shade50"
-          fontSize={2}
-          style={{ letterSpacing: 1 }}
-        >
-          {currency.ticker}
-        </Box>
-        <Box ff="Inter|SemiBold" color="palette.text.shade100" fontSize={4}>
-          {currency.name}
+    <>
+      <Box horizontal alignItems={"center"} flow={3} id="currency-badge">
+        <CurrencyCircleIcon size={40} currency={currency} />
+        <Box ml={2}>
+          <Box
+            ff="Inter|SemiBold"
+            color="palette.text.shade50"
+            fontSize={2}
+            style={{ letterSpacing: 1 }}
+          >
+            {currency.ticker}
+          </Box>
+          <Box ff="Inter|SemiBold" color="palette.text.shade100" fontSize={4}>
+            {currency.name}
+          </Box>
         </Box>
       </Box>
-    </Box>
+      {currency.id == "vechain" && (
+        <Box horizontal alignItems={"center"} flow={3} id="currency-badge" space={8}>
+          <CurrencyCircleIcon size={40} currency={vechainAdditionalCoin} />
+          <Box ml={2}>
+            <Box
+              ff="Inter|SemiBold"
+              color="palette.text.shade50"
+              fontSize={2}
+              style={{ letterSpacing: 1 }}
+            >
+              {vechainAdditionalCoin.ticker}
+            </Box>
+            <Box ff="Inter|SemiBold" color="palette.text.shade100" fontSize={4}>
+              {vechainAdditionalCoin.name}
+            </Box>
+          </Box>
+        </Box>
+      )}
+    </>
   );
 }
 
