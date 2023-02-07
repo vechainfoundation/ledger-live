@@ -78,6 +78,7 @@ export type GetAccountShapeArg0 = {
   derivationMode: DerivationMode;
   transport?: Transport;
   rest?: any;
+  energy?: any;
 };
 
 export type GetAccountShape = (

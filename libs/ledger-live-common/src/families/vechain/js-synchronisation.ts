@@ -1,16 +1,18 @@
-import BigNumber from "bignumber.js";
-import {
-  GetAccountShape,
-  makeScanAccounts,
-  makeSync,
-} from "../../bridge/jsHelpers";
 import type { Account } from "@ledgerhq/types-live";
-import api from "./api";
+import { Energy, EnergyRaw } from "./types";
+import type { GetAccountShape } from "../../bridge/jsHelpers";
+import { BigNumber } from "bignumber.js";
+import { makeSync, makeScanAccounts, mergeOps } from "../../bridge/jsHelpers";
 import { encodeAccountId } from "../../account";
 
-// TODO: Implement getAccountShape() properly
-export const getAccountShape: GetAccountShape = async (info) => {
-  const { currency, address, derivationMode } = info;
+import { getAccount, getOperations } from "./api";
+
+const getAccountShape: GetAccountShape = async (info) => {
+  const { address, initialAccount, currency, derivationMode } = info;
+  const oldOperations = initialAccount?.operations || [];
+  const startAt = oldOperations.length
+    ? (oldOperations[0].blockHeight || 0) + 1
+    : 0;
 
   const accountId = encodeAccountId({
     type: "js",
@@ -20,13 +22,22 @@ export const getAccountShape: GetAccountShape = async (info) => {
     derivationMode,
   });
 
-  const acct = await api.getAccount(address);
+  // get the current account balance state depending your api implementation
+  const { balance, energy } = await getAccount(address);
 
-  const response: Partial<Account> = {
-    id: accountId,
-    balance: new BigNumber(acct.balance),
+  // Merge new operations with the previously synced ones
+  const newOperations = await getOperations(accountId, address, startAt);
+  const operations = mergeOps(oldOperations, newOperations);
+
+  const shape = {
+    accountId,
+    balance: BigNumber(balance),
+    spendableBalance: BigNumber(balance),
+    operationsCount: operations.length,
+    energy: { energy: BigNumber(5) },
   };
-  return response;
+
+  return { ...shape, operations };
 };
 
 export const scanAccounts = makeScanAccounts({ getAccountShape });

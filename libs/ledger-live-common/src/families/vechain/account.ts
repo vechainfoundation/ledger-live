@@ -24,9 +24,7 @@ function formatAccountSpecifics(account: Account): string {
     " spendable. ";
 
   if (energy?.energy) {
-    str +=
-      formatCurrencyUnit(unit, BigNumber(energy.energy), formatConfig) +
-      " additional. ";
+    str += account.energy ? `${account.energy.energy.toString()} VTHO` : "no_VTHO_data";
   }
 
   return str;
