@@ -30,7 +30,8 @@ const getAccountShape: GetAccountShape = async (info) => {
   const operations = mergeOps(oldOperations, newOperations);
 
   const shape = {
-    accountId,
+    ...info,
+    id: accountId,
     balance: BigNumber(balance),
     spendableBalance: BigNumber(balance),
     operationsCount: operations.length,
