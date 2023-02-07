@@ -56,6 +56,7 @@ import { CeloAccount, CeloAccountRaw } from "./families/celo/types";
 import { getAccountBridge } from "./bridge";
 import { NearAccount, NearAccountRaw } from "./families/near/types";
 import { fromEnergyRaw, toEnergyRaw } from "./families/vechain/serialization";
+import { VechainAccount, VechainAccountRaw } from "./families/vechain/types";
 
 // aim to build operations with the minimal diff & call to coin implementation possible
 export async function minimalOperationsBuilder<CO>(
@@ -298,15 +299,6 @@ export function patchAccount(
     }
   }
 
-  if (
-    updatedRaw.energy &&
-    account.energy &&
-    toEnergyRaw(account.energy) !== updatedRaw.energy
-  ) {
-    next.energy = fromEnergyRaw(updatedRaw.energy);
-    changed = true;
-  }
-
   // TODO This will be reworked to belong in each coin family
   // Temporary logic to patch resources for each coin is:
   // - there is raw data to patch from
@@ -506,6 +498,22 @@ export function patchAccount(
         changed = true;
       }
       break;
+    }
+    case "vechain": {
+      const vecAccount = account as VechainAccount;
+      const vecUpdatedRaw = updatedRaw as VechainAccountRaw;
+
+      if (
+        !vecAccount.energy &&
+        (!vecAccount.energy ||
+          !areSameResources(
+            toEnergyRaw(vecAccount.energy),
+            vecUpdatedRaw.energy
+          ))
+      ) {
+        (next as VechainAccount).energy = fromEnergyRaw(vecUpdatedRaw.energy);
+        changed = true;
+      }
     }
     default: {
       const bridge = getAccountBridge(account);

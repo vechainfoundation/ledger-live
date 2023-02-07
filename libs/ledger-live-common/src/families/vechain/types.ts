@@ -1,4 +1,6 @@
 import type {
+  Account,
+  AccountRaw,
   TransactionCommon,
   TransactionCommonRaw,
   TransactionStatusCommon,
@@ -85,3 +87,7 @@ export type TransactionStatusRaw = TransactionStatusCommonRaw;
 export type Energy = EnergyCommon;
 
 export type EnergyRaw = EnergyRawCommon;
+
+export type VechainAccount = Account & { energy: Energy };
+
+export type VechainAccountRaw = AccountRaw & { energy: EnergyRaw };
