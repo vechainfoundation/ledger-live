@@ -10,6 +10,7 @@ import Ellipsis from "~/renderer/components/Ellipsis";
 import Tooltip from "~/renderer/components/Tooltip";
 import CryptoCurrencyIcon from "~/renderer/components/CryptoCurrencyIcon";
 import AccountTagDerivationMode from "~/renderer/components/AccountTagDerivationMode";
+import { useState } from "react";
 
 type Props = {
   account: AccountLike,
@@ -31,6 +32,57 @@ const Header = ({ account, nested }: Props) => {
   const color =
     currency.type === "CryptoCurrency" ? currency.color : theme.colors.palette.text.shade60;
   const title = currency.type === "CryptoCurrency" ? currency.name : "token";
+  const toggleStyle = {
+    position: "relative",
+    width: "55px",
+    height: "30px",
+    backgroundColor: "rgb(19, 20, 21)",
+    borderRadius: "8px",
+    cursor: "pointer",
+  };
+  const togglerStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    top: 0,
+    left: "1px",
+    borderRadius: "8px",
+    width: "30px",
+    height: "30px",
+    backgroundColor: "rgba(155, 115, 255, 0.6)",
+  };
+  const togglerStyleActive = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    top: 0,
+    right: "1px",
+    borderRadius: "8px",
+    width: "30px",
+    height: "30px",
+    backgroundColor: "#2A5284",
+  };
+  const buttonText = {
+    fontSize: "9px",
+    lineHeight: "9px",
+    color: "white",
+  };
+
+  const togglerStyles = [togglerStyle, togglerStyleActive];
+  const [curr, setCurr] = useState(0);
+
+  const changeStatus = e => {
+    console.log("click");
+    e.stopPropagation();
+    e.nativeEvent.stopImmediatePropagation();
+    if (curr == 0) {
+      setCurr(1);
+    } else {
+      setCurr(0);
+    }
+  };
   return (
     <Box
       horizontal
@@ -40,29 +92,38 @@ const Header = ({ account, nested }: Props) => {
       pr={1}
       alignItems="center"
     >
-      {nested && <NestedIndicator />}
-      <Box alignItems="center" justifyContent="center" style={{ color }}>
-        <CryptoCurrencyIcon currency={currency} size={20} />
-      </Box>
-      <Box style={{ flexShrink: 1 }}>
-        {!nested && account.type === "Account" && (
-          <Box
-            style={{ textTransform: "uppercase" }}
-            horizontal
-            fontSize={9}
-            color="palette.text.shade60"
-            alignItems="center"
-            className="accounts-account-row-crypto-name"
-          >
-            {title} <AccountTagDerivationMode account={account} />
-          </Box>
+      <>
+        {nested && <NestedIndicator />}
+        <Box alignItems="center" justifyContent="center" style={{ color }}>
+          <CryptoCurrencyIcon currency={currency} size={20} />
+        </Box>
+        <Box style={{ flexShrink: 1 }}>
+          {!nested && account.type === "Account" && (
+            <Box
+              style={{ textTransform: "uppercase" }}
+              horizontal
+              fontSize={9}
+              color="palette.text.shade60"
+              alignItems="center"
+              className="accounts-account-row-crypto-name"
+            >
+              {title} <AccountTagDerivationMode account={account} />
+            </Box>
+          )}
+          <Tooltip delay={1200} content={name}>
+            <Ellipsis fontSize={12} color="palette.text.shade100">
+              {name}
+            </Ellipsis>
+          </Tooltip>
+        </Box>
+        {account.currency.id == "vechain" && (
+          <div style={toggleStyle} onClick={changeStatus}>
+            <div style={togglerStyles[curr]}>
+              <span style={buttonText}>{curr == 0 ? "VET" : "VTHO"}</span>
+            </div>
+          </div>
         )}
-        <Tooltip delay={1200} content={name}>
-          <Ellipsis fontSize={12} color="palette.text.shade100">
-            {name}
-          </Ellipsis>
-        </Tooltip>
-      </Box>
+      </>
     </Box>
   );
 };
