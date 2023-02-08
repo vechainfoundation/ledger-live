@@ -1,5 +1,3 @@
-import type { Account } from "@ledgerhq/types-live";
-import { Energy, EnergyRaw } from "./types";
 import type { GetAccountShape } from "../../bridge/jsHelpers";
 import { BigNumber } from "bignumber.js";
 import { makeSync, makeScanAccounts, mergeOps } from "../../bridge/jsHelpers";
@@ -35,7 +33,7 @@ const getAccountShape: GetAccountShape = async (info) => {
     balance: BigNumber(balance),
     spendableBalance: BigNumber(balance),
     operationsCount: operations.length,
-    energy: { energy: BigNumber(5) },
+    energy: { energy: BigNumber(energy) },
   };
 
   return { ...shape, operations };

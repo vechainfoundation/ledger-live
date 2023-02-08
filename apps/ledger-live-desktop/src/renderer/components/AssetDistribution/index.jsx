@@ -53,12 +53,12 @@ export default function AssetDistribution() {
   if (vechainAccPos) {
     let VTHORamnt = {
       accounts: vechainAccPos.accounts,
-      amount: BigNumber(vechainAccPos.accounts[0].energy.energy).toString(),
+      amount: BigNumber(vechainAccPos.accounts[0].energy.energy).toNumber(),
       countervalue: 0,
       currency: getCryptoCurrencyById("vechainThor"),
       distribution: 1,
     };
-    subList.splice(vechainAccPos+1, 0, VTHORamnt);
+    subList.splice(vechainAccPos + 1, 0, VTHORamnt);
   }
 
   console.log(subList);
