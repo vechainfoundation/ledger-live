@@ -61,8 +61,6 @@ export default function AssetDistribution() {
     subList.splice(vechainAccPos + 1, 0, VTHORamnt);
   }
 
-  console.log(subList);
-
   return distribution.list.length ? (
     <TableContainer>
       <TableHeader
