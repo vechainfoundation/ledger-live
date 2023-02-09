@@ -8,7 +8,7 @@ import type { TFunction } from "react-i18next";
 import { Redirect } from "react-router";
 import type { AccountLike, Account } from "@ledgerhq/types-live";
 import { SyncOneAccountOnMount } from "@ledgerhq/live-common/bridge/react/index";
-import { findCompoundToken } from "@ledgerhq/live-common/currencies/index";
+import { findCompoundToken, getCryptoCurrencyById } from "@ledgerhq/live-common/currencies/index";
 import { isNFTActive } from "@ledgerhq/live-common/nft/support";
 import { getCurrencyColor } from "~/renderer/getCurrencyColor";
 import { accountSelector } from "~/renderer/reducers/accounts";
@@ -123,6 +123,12 @@ const AccountPage = ({
   const currency = getAccountCurrency(account);
   const color = getCurrencyColor(currency, bgColor);
 
+  const [coin, setCoin] = useState("");
+  const setNewCoin = () => {
+    if (coin == "VTHO") setCoin("VET");
+    else setCoin("VTHO");
+  };
+
   return (
     <Box key={account.id}>
       <TrackPage
@@ -159,14 +165,31 @@ const AccountPage = ({
         <>
           <Box mb={7}>
             <BalanceSummary
-              mainAccount={mainAccount}
-              account={account}
+              mainAccount={
+                !coin || coin == "VET"
+                  ? mainAccount
+                  : {
+                      ...account,
+                      balance: account.energy.energy,
+                      currency: getCryptoCurrencyById("vechainThor"),
+                    }
+              }
+              account={
+                !coin || coin == "VET"
+                  ? account
+                  : {
+                      ...account,
+                      balance: account.energy.energy,
+                      currency: getCryptoCurrencyById("vechainThor"),
+                    }
+              }
               parentAccount={parentAccount}
               chartColor={color}
               countervalueFirst={countervalueFirst}
               setCountervalueFirst={setCountervalueFirst}
               isCompoundEnabled={isCompoundEnabled}
               ctoken={ctoken}
+              setNewCoin={setNewCoin}
             />
           </Box>
           {banner.display && <AccountBanner {...banner} />}
