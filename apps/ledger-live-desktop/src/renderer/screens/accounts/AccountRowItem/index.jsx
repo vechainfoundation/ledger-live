@@ -189,6 +189,7 @@ class AccountRowItem extends PureComponent<Props, State> {
     ) {
       const { account, parentAccount, onClick } = this.props;
       onClick(account, parentAccount);
+      account.selected = this.state.coin;
     } else {
       if (this.state.coin == "VET") {
         this.setState({ ...this.state, coin: "VTHO" });

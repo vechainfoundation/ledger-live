@@ -39,10 +39,12 @@ export default function Toggler(props) {
     color: "white",
   };
   const togglerStyles = [togglerStyle, togglerStyleActive];
-  const [curr, setCurr] = useState(0);
+
+  let init = props.props.currency.id == "vechain" ? 0 : 1;
+
+  const [curr, setCurr] = useState(init);
 
   const changeStatus = e => {
-    console.log("click");
     if (curr == 0) {
       setCurr(1);
     } else {

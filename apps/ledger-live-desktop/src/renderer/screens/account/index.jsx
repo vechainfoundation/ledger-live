@@ -123,7 +123,9 @@ const AccountPage = ({
   const currency = getAccountCurrency(account);
   const color = getCurrencyColor(currency, bgColor);
 
-  const [coin, setCoin] = useState("");
+  let init = "";
+  if (account.selected) init = account.selected;
+  const [coin, setCoin] = useState(init);
   const setNewCoin = () => {
     if (coin == "VTHO") setCoin("VET");
     else setCoin("VTHO");
@@ -172,6 +174,7 @@ const AccountPage = ({
                       ...account,
                       balance: account.energy.energy,
                       currency: getCryptoCurrencyById("vechainThor"),
+                      unit: getCryptoCurrencyById("vechainThor").units[0],
                     }
               }
               account={
@@ -181,6 +184,7 @@ const AccountPage = ({
                       ...account,
                       balance: account.energy.energy,
                       currency: getCryptoCurrencyById("vechainThor"),
+                      unit: getCryptoCurrencyById("vechainThor").units[0],
                     }
               }
               parentAccount={parentAccount}

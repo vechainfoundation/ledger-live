@@ -191,6 +191,7 @@ export type Account = {
   nfts?: ProtoNFT[];
   //Energy field for Vechain account
   energy?: EnergyCommon;
+  selected?: string;
 };
 
 /** super type that is either a token or a child account */
