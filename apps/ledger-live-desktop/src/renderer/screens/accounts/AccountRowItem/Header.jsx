@@ -73,16 +73,18 @@ const Header = ({ account, nested }: Props) => {
   const togglerStyles = [togglerStyle, togglerStyleActive];
   const [curr, setCurr] = useState(0);
 
-  const changeStatus = e => {
-    console.log("click");
-    e.stopPropagation();
-    e.nativeEvent.stopImmediatePropagation();
+  function changeStatus(e) {
     if (curr == 0) {
       setCurr(1);
     } else {
       setCurr(0);
     }
-  };
+  }
+
+  function checkCoin(coin: string) {
+    if (coin == "vechain" || coin == "vechainThor") return true;
+    return false;
+  }
   return (
     <Box
       horizontal
@@ -116,10 +118,12 @@ const Header = ({ account, nested }: Props) => {
             </Ellipsis>
           </Tooltip>
         </Box>
-        {account.currency.id == "vechain" && (
-          <div style={toggleStyle} onClick={changeStatus}>
-            <div style={togglerStyles[curr]}>
-              <span style={buttonText}>{curr == 0 ? "VET" : "VTHO"}</span>
+        {checkCoin(account.currency.id) && (
+          <div id="togglercontainer" style={toggleStyle} onClick={changeStatus}>
+            <div id="togglerbg" style={togglerStyles[curr]}>
+              <span id="togglertxt" style={buttonText}>
+                {curr == 0 ? "VET" : "VTHO"}
+              </span>
             </div>
           </div>
         )}
