@@ -10,7 +10,7 @@ const getAccountShape: GetAccountShape = async (info) => {
   const oldOperations = initialAccount?.operations || [];
   const startAt = oldOperations.length
     ? (oldOperations[0].blockHeight || 0) + 1
-    : 0;
+    : 1;
 
   const accountId = encodeAccountId({
     type: "js",

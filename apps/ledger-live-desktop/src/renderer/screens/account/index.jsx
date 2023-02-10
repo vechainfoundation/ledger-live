@@ -82,6 +82,8 @@ const AccountPage = ({
   countervalueFirst,
   setCountervalueFirst,
 }: Props) => {
+  const [coin, setCoin] = useState("");
+
   const mainAccount = account ? getMainAccount(account, parentAccount) : null;
   const AccountBodyHeader = mainAccount
     ? perFamilyAccountBodyHeader[mainAccount.currency.family]
@@ -123,9 +125,6 @@ const AccountPage = ({
   const currency = getAccountCurrency(account);
   const color = getCurrencyColor(currency, bgColor);
 
-  let init = "";
-  if (account.selected) init = account.selected;
-  const [coin, setCoin] = useState(init);
   const setNewCoin = () => {
     if (coin == "VTHO") setCoin("VET");
     else setCoin("VTHO");
