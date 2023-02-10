@@ -1,12 +1,14 @@
 import { getEnv } from "../../../env";
 import network from "../../../network";
-import { AccountResponse, VetTxsQuery, TokenTxsQuery } from "./types";
+import { AccountResponse, VetTxsQuery, TokenTxsQuery, Query } from "./types";
 import type { Operation } from "@ledgerhq/types-live";
 import {
   mapVetTransfersToOperations,
   mapTokenTransfersToOperations,
 } from "../utils/mapping-utils";
 import { TransferEventSignature } from "../contracts/constants";
+import { Transaction } from "thor-devkit";
+import { HEX_PREFIX } from "../constants";
 
 const BASE_URL = getEnv("API_VECHAIN_THOREST");
 
@@ -93,4 +95,49 @@ export const getTokenOperations = async (
   });
 
   return mapTokenTransfersToOperations(data, accountId, addr);
+};
+
+/**
+ * Submit a transaction and return the ID
+ * @param tx - The transaction to submit
+ * @returns transaction ID
+ */
+export const submit = async (tx: Transaction): Promise<string> => {
+  const encodedRawTx = {
+    raw: `${HEX_PREFIX}${tx.encode().toString("hex")}`,
+  };
+
+  const { data } = await network({
+    method: "POST",
+    url: `${BASE_URL}/transactions`,
+    data: encodedRawTx,
+  });
+
+  // Expect a transaction ID
+  if (!data.id) throw Error("Expected an ID to be returned");
+
+  return data.id;
+};
+
+/**
+ * Query the blockchain
+ * @param queryData - The query data
+ * @returns a result of the query
+ */
+export const query = async (queryData: Query): Promise<any> => {
+  const { data } = await network({
+    method: "POST",
+    url: `${BASE_URL}/accounts/*`,
+    data: { clauses: [queryData] },
+  });
+
+  // Expect 1 value
+  if (data.length != 1) throw Error("Unexpected response received for query");
+
+  const response = data[0].data;
+
+  // Expect data to be returned
+  if (!response) throw Error("Unexpected response received for query");
+
+  return response;
 };

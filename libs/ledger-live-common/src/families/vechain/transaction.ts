@@ -1,8 +1,15 @@
-import type { Transaction, TransactionRaw } from "./types";
+import type {
+  Transaction,
+  TransactionRaw,
+  TransactionStatus,
+  TransactionStatusRaw,
+} from "./types";
 import {
   formatTransactionStatusCommon as formatTransactionStatus,
   fromTransactionCommonRaw,
+  fromTransactionStatusRawCommon,
   toTransactionCommonRaw,
+  toTransactionStatusRawCommon,
 } from "../../transaction/common";
 
 // TODO: Implement formatTransaction() properly
@@ -28,9 +35,33 @@ export const toTransactionRaw = (t: Transaction): TransactionRaw => {
   };
 };
 
+export const fromTransactionStatusRaw = (
+  ts: TransactionStatusRaw
+): TransactionStatus => {
+  const common = fromTransactionStatusRawCommon(ts);
+
+  return {
+    ...ts,
+    ...common,
+  };
+};
+
+export const toTransactionStatusRaw = (
+  ts: TransactionStatus
+): TransactionStatusRaw => {
+  const common = toTransactionStatusRawCommon(ts);
+
+  return {
+    ...ts,
+    ...common,
+  };
+};
+
 export default {
   formatTransaction,
   formatTransactionStatus,
   fromTransactionRaw,
   toTransactionRaw,
+  fromTransactionStatusRaw,
+  toTransactionStatusRaw,
 };
