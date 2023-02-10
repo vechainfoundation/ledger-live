@@ -33,6 +33,7 @@ const getAccountShape: GetAccountShape = async (info) => {
     balance: BigNumber(balance),
     spendableBalance: BigNumber(balance),
     operationsCount: operations.length,
+    operations: operations,
     energy: { energy: BigNumber(energy) },
   };
 
