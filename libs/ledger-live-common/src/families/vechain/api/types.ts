@@ -65,3 +65,8 @@ export interface TokenTxsQuery {
   criteriaSet: TokenCriteria[];
   order: "desc" | "asc";
 }
+
+export interface Query {
+  to: string;
+  data: string;
+}

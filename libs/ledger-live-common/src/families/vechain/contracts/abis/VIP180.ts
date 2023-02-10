@@ -150,7 +150,7 @@ const name: abi.Function.Definition = {
   stateMutability: "view",
   type: "function",
 };
-const supportsInterface = {
+const supportsInterface: abi.Function.Definition = {
   inputs: [
     {
       internalType: "bytes4",
@@ -250,16 +250,16 @@ const transferFrom: abi.Function.Definition = {
 };
 
 export default {
-  ApprovalEvent,
-  TransferEvent,
-  allowance,
-  approve,
-  balanceOf,
-  decimals,
-  name,
-  supportsInterface,
-  symbol,
-  totalSupply,
-  transfer,
-  transferFrom,
+  ApprovalEvent: new abi.Event(ApprovalEvent),
+  TransferEvent: new abi.Event(TransferEvent),
+  allowance: new abi.Function(allowance),
+  approve: new abi.Function(approve),
+  balanceOf: new abi.Function(balanceOf),
+  decimals: new abi.Function(decimals),
+  name: new abi.Function(name),
+  supportsInterface: new abi.Function(supportsInterface),
+  symbol: new abi.Function(symbol),
+  totalSupply: new abi.Function(totalSupply),
+  transfer: new abi.Function(transfer),
+  transferFrom: new abi.Function(transferFrom),
 };

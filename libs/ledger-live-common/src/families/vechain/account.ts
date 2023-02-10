@@ -1,4 +1,3 @@
-import { BigNumber } from "bignumber.js";
 import type { Account, Operation } from "@ledgerhq/types-live";
 import { getAccountUnit } from "../../account";
 import { formatCurrencyUnit } from "../../currencies";
@@ -24,7 +23,9 @@ function formatAccountSpecifics(account: Account): string {
     " spendable. ";
 
   if (energy?.energy) {
-    str += account.energy ? `${account.energy.energy.toString()} VTHO` : "no_VTHO_data";
+    str += account.energy
+      ? `${account.energy.energy.toString()} VTHO`
+      : "no_VTHO_data";
   }
 
   return str;
