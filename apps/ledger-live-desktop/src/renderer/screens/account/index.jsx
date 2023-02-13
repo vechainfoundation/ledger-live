@@ -17,6 +17,8 @@ import {
   getAccountCurrency,
   getMainAccount,
   findSubAccountById,
+  getAccountHistoryBalances,
+  generateHistoryFromOperations,
 } from "@ledgerhq/live-common/account/index";
 import { setCountervalueFirst } from "~/renderer/actions/settings";
 import {
@@ -40,6 +42,7 @@ import TokensList from "./TokensList";
 import CompoundBodyHeader from "~/renderer/screens/lend/Account/AccountBodyHeader";
 import useCompoundAccountEnabled from "~/renderer/screens/lend/useCompoundAccountEnabled";
 import { getBannerProps, AccountBanner } from "./AccountBanner";
+import AccountRow from "~/renderer/components/AccountsList/AccountRow";
 
 const mapStateToProps = (
   state,
@@ -130,6 +133,27 @@ const AccountPage = ({
     else setCoin("VTHO");
   };
 
+  let VTHOaccount;
+  if (coin == "VTHO") {
+    VTHOaccount = {
+      ...account,
+      balance: account.energy.energy,
+      balanceHistoryCache: generateHistoryFromOperations({
+        ...account,
+        balanceHistoryCache: account.energy.history,
+        balance: account.energy.energy,
+        currency: getCryptoCurrencyById("vechainThor"),
+        unit: getCryptoCurrencyById("vechainThor").units[0],
+        operations: account.energy.transactions,
+      }),
+      currency: getCryptoCurrencyById("vechainThor"),
+      unit: getCryptoCurrencyById("vechainThor").units[0],
+      operations: account.energy.transactions,
+    };
+    account.energy.history = VTHOaccount.balanceHistoryCache;
+  }
+  console.log(account);
+
   return (
     <Box key={account.id}>
       <TrackPage
@@ -166,26 +190,8 @@ const AccountPage = ({
         <>
           <Box mb={7}>
             <BalanceSummary
-              mainAccount={
-                !coin || coin == "VET"
-                  ? mainAccount
-                  : {
-                      ...account,
-                      balance: account.energy.energy,
-                      currency: getCryptoCurrencyById("vechainThor"),
-                      unit: getCryptoCurrencyById("vechainThor").units[0],
-                    }
-              }
-              account={
-                !coin || coin == "VET"
-                  ? account
-                  : {
-                      ...account,
-                      balance: account.energy.energy,
-                      currency: getCryptoCurrencyById("vechainThor"),
-                      unit: getCryptoCurrencyById("vechainThor").units[0],
-                    }
-              }
+              mainAccount={!coin || coin == "VET" ? mainAccount : VTHOaccount}
+              account={!coin || coin == "VET" ? account : VTHOaccount}
               parentAccount={parentAccount}
               chartColor={color}
               countervalueFirst={countervalueFirst}
@@ -207,7 +213,7 @@ const AccountPage = ({
           ) : null}
           {account.type === "Account" ? <TokensList account={account} /> : null}
           <OperationsList
-            account={account}
+            account={!coin || coin == "VET" ? mainAccount : VTHOaccount}
             parentAccount={parentAccount}
             title={t("account.lastOperations")}
             filterOperation={filterOperations}

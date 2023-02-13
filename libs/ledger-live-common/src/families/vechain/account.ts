@@ -24,14 +24,31 @@ function formatAccountSpecifics(account: Account): string {
     formatCurrencyUnit(unit, account.spendableBalance, formatConfig) +
     " spendable. ";
 
-  if (energy?.energy) {
+  if (energy.energy) {
     str += account.energy
       ? `${formatCurrencyUnit(
           getCryptoCurrencyById("vechainThor").units[0],
           account.energy.energy,
           formatConfig
-        )}`
-      : "no_VTHO_data";
+        )}\n`
+      : "no_VTHO_data\n";
+    str += account.energy ? `\n\nOperations VTHO:\n` : "";
+    if (account.energy?.transactions)
+      account.energy.transactions.forEach((c) => {
+        str +=
+          (c.type == "IN" ? "+" : "-") +
+          `${formatCurrencyUnit(
+            getCryptoCurrencyById("vechainThor").units[0],
+            c.value,
+            formatConfig
+          )}\t` +
+          (c.type == "IN" ? "IN" : "OUT") +
+          "\t" +
+          c.recipients[0] +
+          "\t" +
+          c.date +
+          "\n";
+      });
   }
 
   return str;

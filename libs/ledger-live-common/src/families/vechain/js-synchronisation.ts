@@ -3,7 +3,7 @@ import { BigNumber } from "bignumber.js";
 import { makeSync, makeScanAccounts, mergeOps } from "../../bridge/jsHelpers";
 import { encodeAccountId } from "../../account";
 
-import { getAccount, getOperations } from "./api";
+import { getAccount, getOperations, getTokenOperations } from "./api";
 
 const getAccountShape: GetAccountShape = async (info) => {
   const { address, initialAccount, currency, derivationMode } = info;
@@ -25,6 +25,12 @@ const getAccountShape: GetAccountShape = async (info) => {
 
   // Merge new operations with the previously synced ones
   const newOperations = await getOperations(accountId, address, startAt);
+  const VTHOoperations = await getTokenOperations(
+    accountId,
+    address,
+    "0x0000000000000000000000000000456e65726779",
+    1
+  );
   const operations = mergeOps(oldOperations, newOperations);
 
   const shape = {
@@ -34,7 +40,17 @@ const getAccountShape: GetAccountShape = async (info) => {
     spendableBalance: BigNumber(balance),
     operationsCount: operations.length,
     operations: operations,
-    energy: { energy: BigNumber(energy) },
+    energy: {
+      history: info.energy.history
+        ? info.energy.history
+        : {
+            HOUR: { balances: [], latestDate: 0 },
+            DAY: { balances: [], latestDate: 0 },
+            WEEK: { balances: [], latestDate: 0 },
+          },
+      energy: BigNumber(energy),
+      transactions: VTHOoperations,
+    },
   };
 
   return { ...shape, operations };
