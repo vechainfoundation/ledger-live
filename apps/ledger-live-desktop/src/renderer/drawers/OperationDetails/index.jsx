@@ -16,7 +16,10 @@ import {
   getAccountUnit,
   getMainAccount,
 } from "@ledgerhq/live-common/account/index";
-import { listTokenTypesForCryptoCurrency } from "@ledgerhq/live-common/currencies/index";
+import {
+  getCryptoCurrencyById,
+  listTokenTypesForCryptoCurrency,
+} from "@ledgerhq/live-common/currencies/index";
 import { getDefaultExplorerView, getTransactionExplorer } from "@ledgerhq/live-common/explorers";
 import {
   findOperationInAccount,
@@ -84,16 +87,40 @@ const mapStateToProps = (state, { operationId, accountId, parentId }) => {
   } else {
     account = accountSelector(state, { accountId });
   }
-  const mainCurrency = parentAccount
+  let mainCurrency = parentAccount
     ? parentAccount.currency
     : account && account.type !== "TokenAccount"
     ? account.currency
     : null;
+
+  if (account.currency.id == "vechain") {
+    if (account.selected == "VTHO") {
+      mainCurrency = getCryptoCurrencyById("vechainThor");
+    }
+  }
+
   const confirmationsNb = mainCurrency
     ? confirmationsNbForCurrencySelector(state, { currency: mainCurrency })
     : 0;
 
-  const operation = account ? findOperationInAccount(account, operationId) : null;
+  let VTHOaccount = {};
+  VTHOaccount = {
+    ...account,
+    balance: account.energy.energy,
+    currency: getCryptoCurrencyById("vechainThor"),
+    unit: getCryptoCurrencyById("vechainThor").units[0],
+    operations: account.energy.transactions,
+  };
+
+  const operation = account
+    ? findOperationInAccount(
+        account.currency.id != "vechain" ||
+          (account.currency.id == "vechain" && account.selected == "VET")
+          ? account
+          : VTHOaccount,
+        operationId,
+      )
+    : null;
 
   return {
     marketIndicator,
@@ -146,7 +173,11 @@ const OperationD: React$ComponentType<Props> = (props: Props) => {
   const { status, metadata } = useNftMetadata(contract, tokenId, currency.id);
   const show = useMemo(() => status === "loading", [status]);
 
-  const unit = getAccountUnit(account);
+  const unit =
+    account.currency.id != "vechain" ||
+    (account.currency.id == "vechain" && account.selected == "VET")
+      ? getAccountUnit(account)
+      : getCryptoCurrencyById("vechainThor").units[0];
 
   const amount = getOperationAmountNumber(operation);
   const isNegative = amount.isNegative();

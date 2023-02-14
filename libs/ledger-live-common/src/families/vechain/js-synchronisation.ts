@@ -41,7 +41,7 @@ const getAccountShape: GetAccountShape = async (info) => {
     operationsCount: operations.length,
     operations: operations,
     energy: {
-      history: info.energy.history
+      history: info.energy?.history
         ? info.energy.history
         : {
             HOUR: { balances: [], latestDate: 0 },

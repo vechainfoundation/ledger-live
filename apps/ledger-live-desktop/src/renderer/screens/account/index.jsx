@@ -129,8 +129,13 @@ const AccountPage = ({
   const color = getCurrencyColor(currency, bgColor);
 
   const setNewCoin = () => {
-    if (coin == "VTHO") setCoin("VET");
-    else setCoin("VTHO");
+    if (coin == "VTHO") {
+      setCoin("VET");
+      account.selected = "VET";
+    } else {
+      setCoin("VTHO");
+      account.selected = "VTHO";
+    }
   };
 
   let VTHOaccount;
