@@ -1,10 +1,20 @@
-import type { Transaction } from "../types";
+import type { Transaction, VechainAccount } from "../types";
 import { makeAccountBridgeReceive } from "../../../bridge/jsHelpers";
 
 import { sync, scanAccounts } from "../js-synchronisation";
 import { AccountBridge, CurrencyBridge } from "@ledgerhq/types-live";
+import {
+  createTransaction,
+  updateTransaction,
+  prepareTransaction,
+} from "../js-transaction";
+import getTransactionStatus from "../js-getTransactionStatus";
+import signOperation from "../js-signOperation";
+import broadcast from "../js-broadcast";
+import BigNumber from "bignumber.js";
 
-const receive = makeAccountBridgeReceive();
+const receive: AccountBridge<Transaction>["receive"] =
+  makeAccountBridgeReceive();
 
 const currencyBridge: CurrencyBridge = {
   scanAccounts,
@@ -14,32 +24,11 @@ const currencyBridge: CurrencyBridge = {
   hydrate: (): void => {},
 };
 
-const createTransaction = () => {
-  throw new Error("createTransaction not implemented");
-};
-
-const prepareTransaction = () => {
-  throw new Error("prepareTransaction not implemented");
-};
-
-const updateTransaction = () => {
-  throw new Error("updateTransaction not implemented");
-};
-
-const getTransactionStatus = () => {
-  throw new Error("getTransactionStatus not implemented");
-};
-
-const estimateMaxSpendable = () => {
-  throw new Error("estimateMaxSpendable not implemented");
-};
-
-const signOperation = () => {
-  throw new Error("signOperation not implemented");
-};
-
-const broadcast = () => {
-  throw new Error("broadcast not implemented");
+// TODO: Handle VTHO
+const estimateMaxSpendable = async (inputs: {
+  account: VechainAccount;
+}): Promise<BigNumber> => {
+  return inputs.account.balance;
 };
 
 const accountBridge: AccountBridge<Transaction> = {
