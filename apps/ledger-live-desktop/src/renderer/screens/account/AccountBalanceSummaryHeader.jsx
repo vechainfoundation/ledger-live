@@ -17,6 +17,7 @@ import PillsDaysCount from "~/renderer/components/PillsDaysCount";
 import Swap from "~/renderer/icons/Swap";
 import type { ThemedComponent } from "~/renderer/styles/StyleProvider";
 import { NoCountervaluePlaceholder } from "~/renderer/components/CounterValue";
+import Toggler from "~/renderer/components/Toggler";
 
 type Props = {
   isAvailable: boolean,
@@ -61,52 +62,55 @@ export default function AccountBalanceSummaryHeader({
             <Swap />
           </SwapButton>
         )}
-        <BalanceTotal
-          account={account}
-          withTransactionsPendingConfirmationWarning
-          key={primaryKey}
-          style={{
-            cursor: isAvailable ? "pointer" : "",
-            overflow: "hidden",
-            flexShrink: 1,
-          }}
-          onClick={() => setCountervalueFirst(!countervalueFirst)}
-          showCryptoEvenIfNotAvailable
-          isAvailable={isAvailable}
-          totalBalance={data[0].balance}
-          unit={data[0].unit}
-          dynamicSignificantDigits={data[0].dynamicSignificantDigits}
-        >
-          <Wrapper style={{ marginTop: 4 }}>
-            <div style={{ width: "auto", marginRight: 20 }}>
-              {typeof data[1].balance === "number" ? (
-                <FormattedVal
-                  key={secondaryKey}
-                  animateTicker
-                  alwaysShowSign={false}
-                  color="warmGrey"
-                  unit={data[1].unit}
-                  fontSize={6}
-                  showCode
-                  val={data[1].balance}
-                  dynamicSignificantDigits={data[1].dynamicSignificantDigits}
-                />
-              ) : (
-                <NoCountervaluePlaceholder style={{}} />
-              )}
-            </div>
-            <Price
-              unit={unit}
-              from={currency}
-              withActivityCurrencyColor
-              withEquality
-              color="warmGrey"
-              fontSize={6}
-              iconSize={16}
-              placeholder={typeof data[1].balance !== "number" ? " " : undefined}
-            />
-          </Wrapper>
-        </BalanceTotal>
+        <>
+          <BalanceTotal
+            account={account}
+            withTransactionsPendingConfirmationWarning
+            key={primaryKey}
+            style={{
+              cursor: isAvailable ? "pointer" : "",
+              overflow: "hidden",
+              flexShrink: 1,
+            }}
+            onClick={() => setCountervalueFirst(!countervalueFirst)}
+            showCryptoEvenIfNotAvailable
+            isAvailable={isAvailable}
+            totalBalance={data[0].balance}
+            unit={data[0].unit}
+            dynamicSignificantDigits={data[0].dynamicSignificantDigits}
+          >
+            <Wrapper style={{ marginTop: 4 }}>
+              <div style={{ width: "auto", marginRight: 20 }}>
+                {typeof data[1].balance === "number" ? (
+                  <FormattedVal
+                    key={secondaryKey}
+                    animateTicker
+                    alwaysShowSign={false}
+                    color="warmGrey"
+                    unit={data[1].unit}
+                    fontSize={6}
+                    showCode
+                    val={data[1].balance}
+                    dynamicSignificantDigits={data[1].dynamicSignificantDigits}
+                  />
+                ) : (
+                  <NoCountervaluePlaceholder style={{}} />
+                )}
+              </div>
+              <Price
+                unit={unit}
+                from={currency}
+                withActivityCurrencyColor
+                withEquality
+                color="warmGrey"
+                fontSize={6}
+                iconSize={16}
+                placeholder={typeof data[1].balance !== "number" ? " " : undefined}
+              />
+            </Wrapper>
+          </BalanceTotal>
+          <Toggler props={account} />
+        </>
       </Box>
       <Box
         key={primaryKey}

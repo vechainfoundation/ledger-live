@@ -13,7 +13,8 @@ export const mapVetTransfersToOperations = (
     return {
       id: tx.meta.txID,
       hash: tx.meta.txID,
-      type: tx.recipient === addr ? "IN" : "OUT",
+      type:
+        tx.recipient === addr.toLowerCase() ? ("IN" as "IN") : ("OUT" as "OUT"),
       value: new BigNumber(tx.amount),
       fee: new BigNumber(0),
       senders: [tx.sender],
@@ -21,7 +22,7 @@ export const mapVetTransfersToOperations = (
       blockHeight: tx.meta.blockNumber,
       blockHash: tx.meta.blockID,
       accountId,
-      date: new Date(tx.meta.blockTimestamp),
+      date: new Date(tx.meta.blockTimestamp * 1000),
       extra: {},
     };
   });
@@ -38,7 +39,7 @@ export const mapTokenTransfersToOperations = (
     return {
       id: evnt.meta.txID,
       hash: evnt.meta.txID,
-      type: decoded.to === addr ? "IN" : "OUT",
+      type: decoded.to === addr.toLowerCase() ? "IN" : "OUT",
       value: new BigNumber(decoded.value),
       fee: new BigNumber(0),
       senders: [decoded.from],
@@ -46,7 +47,7 @@ export const mapTokenTransfersToOperations = (
       blockHeight: evnt.meta.blockNumber,
       blockHash: evnt.meta.blockID,
       accountId,
-      date: new Date(evnt.meta.blockTimestamp),
+      date: new Date(evnt.meta.blockTimestamp * 1000),
       extra: {},
     };
   });

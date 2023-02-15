@@ -110,7 +110,11 @@ const Row = ({ item: { currency, amount, distribution }, isVisible }: Props) => 
   const icon = <CryptoCurrencyIcon currency={currency} size={16} />;
   const onClick = useCallback(() => {
     setTrackingSource("asset allocation");
-    history.push({ pathname: `/asset/${currency.id}` });
+    if (currency.id == "vechainThor") {
+      history.push({ pathname: `/asset/vechain` });
+    } else {
+      history.push({ pathname: `/asset/${currency.id}` });
+    }
   }, [currency, history]);
 
   return (

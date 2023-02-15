@@ -10,6 +10,8 @@ import Header from "./Header";
 import type { ThemedComponent } from "~/renderer/styles/StyleProvider";
 import { useDistribution } from "~/renderer/actions/general";
 import TableContainer, { TableHeader } from "../TableContainer";
+import BigNumber from "bignumber.js";
+import { getCryptoCurrencyById } from "@ledgerhq/live-common/currencies/index";
 
 export default function AssetDistribution() {
   const distribution = useDistribution();
@@ -47,6 +49,17 @@ export default function AssetDistribution() {
 
   const almostAll = initialRowCount + 3 > totalRowCount;
   const subList = showAll || almostAll ? list : list.slice(0, initialRowCount);
+  const vechainAccPos = subList.find(curr => curr.currency.id == "vechain");
+  if (vechainAccPos) {
+    let VTHORamnt = {
+      accounts: vechainAccPos.accounts,
+      amount: BigNumber(vechainAccPos.accounts[0].energy.energy).toNumber(),
+      countervalue: 0,
+      currency: getCryptoCurrencyById("vechainThor"),
+      distribution: 1,
+    };
+    subList.splice(vechainAccPos + 1, 0, VTHORamnt);
+  }
 
   return distribution.list.length ? (
     <TableContainer>

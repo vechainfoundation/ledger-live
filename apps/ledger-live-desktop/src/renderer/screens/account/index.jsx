@@ -8,7 +8,7 @@ import type { TFunction } from "react-i18next";
 import { Redirect } from "react-router";
 import type { AccountLike, Account } from "@ledgerhq/types-live";
 import { SyncOneAccountOnMount } from "@ledgerhq/live-common/bridge/react/index";
-import { findCompoundToken } from "@ledgerhq/live-common/currencies/index";
+import { findCompoundToken, getCryptoCurrencyById } from "@ledgerhq/live-common/currencies/index";
 import { isNFTActive } from "@ledgerhq/live-common/nft/support";
 import { getCurrencyColor } from "~/renderer/getCurrencyColor";
 import { accountSelector } from "~/renderer/reducers/accounts";
@@ -17,6 +17,8 @@ import {
   getAccountCurrency,
   getMainAccount,
   findSubAccountById,
+  getAccountHistoryBalances,
+  generateHistoryFromOperations,
 } from "@ledgerhq/live-common/account/index";
 import { setCountervalueFirst } from "~/renderer/actions/settings";
 import {
@@ -40,6 +42,7 @@ import TokensList from "./TokensList";
 import CompoundBodyHeader from "~/renderer/screens/lend/Account/AccountBodyHeader";
 import useCompoundAccountEnabled from "~/renderer/screens/lend/useCompoundAccountEnabled";
 import { getBannerProps, AccountBanner } from "./AccountBanner";
+import AccountRow from "~/renderer/components/AccountsList/AccountRow";
 
 const mapStateToProps = (
   state,
@@ -82,6 +85,8 @@ const AccountPage = ({
   countervalueFirst,
   setCountervalueFirst,
 }: Props) => {
+  const [coin, setCoin] = useState("");
+
   const mainAccount = account ? getMainAccount(account, parentAccount) : null;
   const AccountBodyHeader = mainAccount
     ? perFamilyAccountBodyHeader[mainAccount.currency.family]
@@ -123,6 +128,37 @@ const AccountPage = ({
   const currency = getAccountCurrency(account);
   const color = getCurrencyColor(currency, bgColor);
 
+  const setNewCoin = () => {
+    if (coin == "VTHO") {
+      setCoin("VET");
+      account.selected = "VET";
+    } else {
+      setCoin("VTHO");
+      account.selected = "VTHO";
+    }
+  };
+
+  let VTHOaccount;
+  if (coin == "VTHO") {
+    VTHOaccount = {
+      ...account,
+      balance: account.energy.energy,
+      balanceHistoryCache: generateHistoryFromOperations({
+        ...account,
+        balanceHistoryCache: account.energy.history,
+        balance: account.energy.energy,
+        currency: getCryptoCurrencyById("vechainThor"),
+        unit: getCryptoCurrencyById("vechainThor").units[0],
+        operations: account.energy.transactions,
+      }),
+      currency: getCryptoCurrencyById("vechainThor"),
+      unit: getCryptoCurrencyById("vechainThor").units[0],
+      operations: account.energy.transactions,
+    };
+    account.energy.history = VTHOaccount.balanceHistoryCache;
+  }
+  console.log(account);
+
   return (
     <Box key={account.id}>
       <TrackPage
@@ -159,14 +195,15 @@ const AccountPage = ({
         <>
           <Box mb={7}>
             <BalanceSummary
-              mainAccount={mainAccount}
-              account={account}
+              mainAccount={!coin || coin == "VET" ? mainAccount : VTHOaccount}
+              account={!coin || coin == "VET" ? account : VTHOaccount}
               parentAccount={parentAccount}
               chartColor={color}
               countervalueFirst={countervalueFirst}
               setCountervalueFirst={setCountervalueFirst}
               isCompoundEnabled={isCompoundEnabled}
               ctoken={ctoken}
+              setNewCoin={setNewCoin}
             />
           </Box>
           {banner.display && <AccountBanner {...banner} />}
@@ -181,7 +218,7 @@ const AccountPage = ({
           ) : null}
           {account.type === "Account" ? <TokensList account={account} /> : null}
           <OperationsList
-            account={account}
+            account={!coin || coin == "VET" ? mainAccount : VTHOaccount}
             parentAccount={parentAccount}
             title={t("account.lastOperations")}
             filterOperation={filterOperations}

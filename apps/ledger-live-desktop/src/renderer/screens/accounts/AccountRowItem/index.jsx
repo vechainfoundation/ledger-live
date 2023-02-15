@@ -6,7 +6,10 @@ import { connect } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import styled from "styled-components";
 import { listSubAccounts } from "@ledgerhq/live-common/account/helpers";
-import { listTokenTypesForCryptoCurrency } from "@ledgerhq/live-common/currencies/index";
+import {
+  getCryptoCurrencyById,
+  listTokenTypesForCryptoCurrency,
+} from "@ledgerhq/live-common/currencies/index";
 import type { Account, TokenAccount, AccountLike, PortfolioRange } from "@ledgerhq/types-live";
 import Box from "~/renderer/components/Box";
 import AccountContextMenu from "~/renderer/components/ContextMenu/AccountContextMenu";
@@ -26,6 +29,8 @@ import { hideEmptyTokenAccountsSelector } from "~/renderer/reducers/settings";
 import Button from "~/renderer/components/Button";
 
 import perFamilyTokenList from "~/renderer/generated/TokenList";
+
+import { findCryptoCurrencyByTicker } from "@ledgerhq/live-common/currencies/index";
 
 const Row: ThemedComponent<{}> = styled(Box)`
   background: ${p => p.theme.colors.palette.background.paper};
@@ -138,6 +143,7 @@ type Props = {
 
 type State = {
   expanded: boolean,
+  coin: string,
 };
 
 const expandedStates: { [key: string]: boolean } = {};
@@ -150,6 +156,7 @@ class AccountRowItem extends PureComponent<Props, State> {
 
     this.state = {
       expanded: expandedStates[accountId],
+      coin: account.currency.id == "vechain" ? "VET" : "",
     };
   }
 
@@ -174,16 +181,29 @@ class AccountRowItem extends PureComponent<Props, State> {
 
   scrollTopFocusRef: * = React.createRef();
 
-  onClick = () => {
-    const { account, parentAccount, onClick } = this.props;
-    onClick(account, parentAccount);
+  onClick = e => {
+    if (
+      e.nativeEvent.target.id !== "togglercontainer" &&
+      e.nativeEvent.target.id !== "togglerbg" &&
+      e.nativeEvent.target.id !== "togglertxt"
+    ) {
+      const { account, parentAccount, onClick } = this.props;
+      onClick(account, parentAccount);
+      account.selected = this.state.coin;
+    } else {
+      if (this.state.coin == "VET") {
+        this.setState({ ...this.state, coin: "VTHO" });
+      } else if (this.state.coin == "VTHO") {
+        this.setState({ ...this.state, coin: "VET" });
+      }
+    }
   };
 
   toggleAccordion = (e: SyntheticEvent<*>) => {
     e.stopPropagation();
     const { account } = this.props;
     expandedStates[account.id] = !expandedStates[account.id];
-    this.setState({ expanded: expandedStates[account.id] });
+    this.setState({ ...this.state, expanded: expandedStates[account.id] });
   };
 
   render() {
@@ -261,14 +281,45 @@ class AccountRowItem extends PureComponent<Props, State> {
               onClick={this.onClick}
               data-test-id={`account-component-${account.name}`}
             >
-              <Header account={account} name={mainAccount.name} />
+              <Header
+                account={
+                  this.state.coin == "" || this.state.coin == "VET"
+                    ? account
+                    : { ...account, currency: getCryptoCurrencyById("vechainThor") }
+                }
+                name={mainAccount.name}
+              />
               <Box flex="12%">
                 <div>
                   <AccountSyncStatusIndicator accountId={mainAccount.id} account={account} />
                 </div>
               </Box>
-              <Balance unit={unit} balance={account.balance} disableRounding={disableRounding} />
-              <Countervalue account={account} currency={currency} range={range} />
+              <Balance
+                unit={
+                  this.state.coin == "" || this.state.coin == "VET"
+                    ? unit
+                    : getCryptoCurrencyById("vechainThor").units[0]
+                }
+                balance={
+                  this.state.coin == "" || this.state.coin == "VET"
+                    ? account.balance
+                    : account.energy.energy
+                }
+                disableRounding={disableRounding}
+              />
+              <Countervalue
+                account={
+                  this.state.coin == "" || this.state.coin == "VET"
+                    ? account
+                    : { ...account, balance: account.energy.energy }
+                }
+                currency={
+                  this.state.coin == "" || this.state.coin == "VET"
+                    ? currency
+                    : getCryptoCurrencyById("vechainThor")
+                }
+                range={range}
+              />
               <Delta account={account} range={range} />
               <Star
                 accountId={account.id}

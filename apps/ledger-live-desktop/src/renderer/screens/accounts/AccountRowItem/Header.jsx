@@ -10,6 +10,7 @@ import Ellipsis from "~/renderer/components/Ellipsis";
 import Tooltip from "~/renderer/components/Tooltip";
 import CryptoCurrencyIcon from "~/renderer/components/CryptoCurrencyIcon";
 import AccountTagDerivationMode from "~/renderer/components/AccountTagDerivationMode";
+import Toggler from "~/renderer/components/Toggler";
 
 type Props = {
   account: AccountLike,
@@ -40,29 +41,32 @@ const Header = ({ account, nested }: Props) => {
       pr={1}
       alignItems="center"
     >
-      {nested && <NestedIndicator />}
-      <Box alignItems="center" justifyContent="center" style={{ color }}>
-        <CryptoCurrencyIcon currency={currency} size={20} />
-      </Box>
-      <Box style={{ flexShrink: 1 }}>
-        {!nested && account.type === "Account" && (
-          <Box
-            style={{ textTransform: "uppercase" }}
-            horizontal
-            fontSize={9}
-            color="palette.text.shade60"
-            alignItems="center"
-            className="accounts-account-row-crypto-name"
-          >
-            {title} <AccountTagDerivationMode account={account} />
-          </Box>
-        )}
-        <Tooltip delay={1200} content={name}>
-          <Ellipsis fontSize={12} color="palette.text.shade100">
-            {name}
-          </Ellipsis>
-        </Tooltip>
-      </Box>
+      <>
+        {nested && <NestedIndicator />}
+        <Box alignItems="center" justifyContent="center" style={{ color }}>
+          <CryptoCurrencyIcon currency={currency} size={20} />
+        </Box>
+        <Box style={{ flexShrink: 1 }}>
+          {!nested && account.type === "Account" && (
+            <Box
+              style={{ textTransform: "uppercase" }}
+              horizontal
+              fontSize={9}
+              color="palette.text.shade60"
+              alignItems="center"
+              className="accounts-account-row-crypto-name"
+            >
+              {title} <AccountTagDerivationMode account={account} />
+            </Box>
+          )}
+          <Tooltip delay={1200} content={name}>
+            <Ellipsis fontSize={12} color="palette.text.shade100">
+              {name}
+            </Ellipsis>
+          </Tooltip>
+        </Box>
+        <Toggler props={account} />
+      </>
     </Box>
   );
 };

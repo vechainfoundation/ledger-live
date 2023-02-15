@@ -504,7 +504,7 @@ export function patchAccount(
       const vecUpdatedRaw = updatedRaw as VechainAccountRaw;
 
       if (
-        !vecAccount.energy &&
+        vecAccount.energy &&
         (!vecAccount.energy ||
           !areSameResources(
             toEnergyRaw(vecAccount.energy),

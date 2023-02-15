@@ -1,18 +1,16 @@
-import type { Account } from "@ledgerhq/types-live";
-import { Energy, EnergyRaw } from "./types";
 import type { GetAccountShape } from "../../bridge/jsHelpers";
 import { BigNumber } from "bignumber.js";
 import { makeSync, makeScanAccounts, mergeOps } from "../../bridge/jsHelpers";
 import { encodeAccountId } from "../../account";
 
-import { getAccount, getOperations } from "./api";
+import { getAccount, getOperations, getTokenOperations } from "./api";
 
 const getAccountShape: GetAccountShape = async (info) => {
   const { address, initialAccount, currency, derivationMode } = info;
   const oldOperations = initialAccount?.operations || [];
   const startAt = oldOperations.length
     ? (oldOperations[0].blockHeight || 0) + 1
-    : 0;
+    : 1;
 
   const accountId = encodeAccountId({
     type: "js",
@@ -27,6 +25,12 @@ const getAccountShape: GetAccountShape = async (info) => {
 
   // Merge new operations with the previously synced ones
   const newOperations = await getOperations(accountId, address, startAt);
+  const VTHOoperations = await getTokenOperations(
+    accountId,
+    address,
+    "0x0000000000000000000000000000456e65726779",
+    1
+  );
   const operations = mergeOps(oldOperations, newOperations);
 
   const shape = {
@@ -35,7 +39,18 @@ const getAccountShape: GetAccountShape = async (info) => {
     balance: BigNumber(balance),
     spendableBalance: BigNumber(balance),
     operationsCount: operations.length,
-    energy: { energy: BigNumber(5) },
+    operations: operations,
+    energy: {
+      history: info.energy?.history
+        ? info.energy.history
+        : {
+            HOUR: { balances: [], latestDate: 0 },
+            DAY: { balances: [], latestDate: 0 },
+            WEEK: { balances: [], latestDate: 0 },
+          },
+      energy: BigNumber(energy),
+      transactions: VTHOoperations,
+    },
   };
 
   return { ...shape, operations };

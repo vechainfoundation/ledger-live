@@ -6,6 +6,7 @@ import {
   mapVetTransfersToOperations,
   mapTokenTransfersToOperations,
 } from "../utils/mapping-utils";
+import { padAddress } from "../utils/pad-address";
 import { TransferEventSignature } from "../contracts/constants";
 import { Transaction } from "thor-devkit";
 import { HEX_PREFIX } from "../constants";
@@ -67,7 +68,8 @@ export const getTokenOperations = async (
   tokenAddr: string,
   startAt: number
 ): Promise<Operation[]> => {
-  const paddedAddress = addr;
+  const paddedAddress = padAddress(addr);
+
   const query: TokenTxsQuery = {
     range: {
       unit: "block",

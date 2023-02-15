@@ -28,6 +28,7 @@ type Props = {
   mainAccount: ?Account,
   isCompoundEnabled?: boolean,
   ctoken: ?TokenCurrency,
+  setNewCoin: any,
 };
 
 export default function AccountBalanceSummary({
@@ -39,6 +40,7 @@ export default function AccountBalanceSummary({
   isCompoundEnabled,
   parentAccount,
   ctoken,
+  setNewCoin,
 }: Props) {
   const [range] = useTimeRange();
   const counterValue = useSelector(counterValueCurrencySelector);
@@ -100,9 +102,13 @@ export default function AccountBalanceSummary({
     ? counterValue.units[0].magnitude
     : getAccountUnit(account).magnitude;
 
+  function triggerNewCoin(e) {
+    const id = e.target.id;
+    if (id && (id == "togglercontainer" || id == "togglerbg" || id == "togglertxt")) setNewCoin();
+  }
   return (
     <Card p={0} py={5}>
-      <Box px={6}>
+      <Box px={6} onClick={triggerNewCoin}>
         <AccountBalanceSummaryHeader
           account={account}
           counterValue={counterValue}
