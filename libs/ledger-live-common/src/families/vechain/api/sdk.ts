@@ -1,6 +1,12 @@
 import { getEnv } from "../../../env";
 import network from "../../../network";
-import { AccountResponse, VetTxsQuery, TokenTxsQuery, Query } from "./types";
+import {
+  AccountResponse,
+  VetTxsQuery,
+  TokenTxsQuery,
+  Query,
+  QueryResponse,
+} from "./types";
 import type { Operation } from "@ledgerhq/types-live";
 import {
   mapVetTransfersToOperations,
@@ -126,20 +132,12 @@ export const submit = async (tx: Transaction): Promise<string> => {
  * @param queryData - The query data
  * @returns a result of the query
  */
-export const query = async (queryData: Query): Promise<any> => {
+export const query = async (queryData: Query[]): Promise<QueryResponse[]> => {
   const { data } = await network({
     method: "POST",
     url: `${BASE_URL}/accounts/*`,
-    data: { clauses: [queryData] },
+    data: { clauses: queryData },
   });
 
-  // Expect 1 value
-  if (data.length != 1) throw Error("Unexpected response received for query");
-
-  const response = data[0].data;
-
-  // Expect data to be returned
-  if (!response) throw Error("Unexpected response received for query");
-
-  return response;
+  return data;
 };

@@ -70,3 +70,12 @@ export interface Query {
   to: string;
   data: string;
 }
+
+export interface QueryResponse {
+  data: string;
+  events: any[];
+  transfers: any[];
+  gasUsed: number;
+  reverted: boolean;
+  vmError: string;
+}

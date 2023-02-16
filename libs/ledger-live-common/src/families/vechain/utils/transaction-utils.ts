@@ -1,14 +1,19 @@
 import { getEnv } from "../../../env";
 import network from "../../../network";
-import { HEX_PREFIX } from "../constants";
+import { HEX_PREFIX, ZERO_ADDRESS } from "../constants";
 import crypto from "crypto";
-import { Transaction } from "../types";
 import BigNumber from "bignumber.js";
 import { Transaction as ThorTransaction } from "thor-devkit";
 import params from "../contracts/abis/params";
-import { BASE_GAS_PRICE_KEY, PARAMS_ADDRESS } from "../contracts/constants";
+import {
+  BASE_GAS_PRICE_KEY,
+  PARAMS_ADDRESS,
+  VTHO_ADDRESS,
+} from "../contracts/constants";
 import { Query } from "../api/types";
 import { query } from "../api/sdk";
+import addressUtils from "./address-utils";
+import { Transaction } from "../types";
 
 const BASE_URL = getEnv("API_VECHAIN_THOREST");
 
@@ -43,8 +48,30 @@ export const generateNonce = (): string => {
  * @param transaction - The transaction to estimate the gas for
  * @returns an estimate of the gas usage
  */
-export const estimateGas = (transaction: Transaction): number =>
-  ThorTransaction.intrinsicGas(transaction.body.clauses);
+export const estimateGas = async (t: Transaction): Promise<number> => {
+  const intrinsicGas = ThorTransaction.intrinsicGas(t.body.clauses);
+
+  const tx = new ThorTransaction(t.body);
+
+  const queryData: Query[] = [];
+
+  t.body.clauses.forEach((c) => {
+    const recipient =
+      t.mode === "send_vtho" ? VTHO_ADDRESS : c.to || ZERO_ADDRESS;
+
+    queryData.push({
+      to: addressUtils.isValid(recipient) ? recipient : ZERO_ADDRESS,
+      data: `${HEX_PREFIX}${tx.encode().toString("hex")}`,
+    });
+  });
+
+  const response = await query(queryData);
+
+  const execGas = response.reduce((sum, out) => sum + out.gasUsed, 0);
+
+  // TODO: remove this hardcoded value
+  return intrinsicGas + (execGas ? execGas + 15000 : 0);
+};
 
 const getBaseGasPrice = async (): Promise<string> => {
   const queryData: Query = {
@@ -52,7 +79,13 @@ const getBaseGasPrice = async (): Promise<string> => {
     data: params.get.encode(BASE_GAS_PRICE_KEY),
   };
 
-  return await query(queryData);
+  const response = await query([queryData]);
+
+  // Expect 1 value
+  if (response.length != 1)
+    throw Error("Unexpected response received for query");
+
+  return response[0].data;
 };
 
 /**

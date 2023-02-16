@@ -15,7 +15,6 @@ import {
 } from "./utils/transaction-utils";
 import { VTHO_ADDRESS } from "./contracts/constants";
 import VIP180 from "./contracts/abis/VIP180";
-import { scaleNumberUp } from "./utils/mapping-utils";
 
 /**
  * Create an empty transaction
@@ -139,9 +138,9 @@ const updateVthoTransaction = (
 
   const updatedValues = {
     to: t.recipient,
-    amount: scaleNumberUp(t.amount, 18),
+    amount: t.amount.toFixed(),
   };
-  if (patch.amount) updatedValues.amount = scaleNumberUp(patch.amount, 18);
+  if (patch.amount) updatedValues.amount = patch.amount.toFixed();
   if (patch.recipient) updatedValues.to = patch.recipient;
 
   updatedClause.data = VIP180.transfer.encode(
@@ -168,10 +167,9 @@ export const prepareTransaction = async (
 ): Promise<Transaction> => {
   const blockRef = await getBlockRef();
 
-  const gas = estimateGas(t);
+  const gas = await estimateGas(t);
 
-  // TODO: Calculate the fees in VTHO?
-  const updatedBody = { ...t.body, gas, blockRef };
+  const body = { ...t.body, gas, blockRef };
 
-  return { ...t, body: updatedBody };
+  return { ...t, body };
 };
