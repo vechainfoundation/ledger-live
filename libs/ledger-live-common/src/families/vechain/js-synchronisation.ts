@@ -2,11 +2,15 @@ import type { GetAccountShape } from "../../bridge/jsHelpers";
 import { BigNumber } from "bignumber.js";
 import { makeSync, makeScanAccounts, mergeOps } from "../../bridge/jsHelpers";
 import { encodeAccountId } from "../../account";
+import eip55 from "eip55";
 
 import { getAccount, getOperations, getTokenOperations } from "./api";
 
 const getAccountShape: GetAccountShape = async (info) => {
-  const { address, initialAccount, currency, derivationMode } = info;
+  const { initialAccount, currency, derivationMode } = info;
+  let { address } = info;
+  address = eip55.encode(address);
+
   const oldOperations = initialAccount?.operations || [];
   const startAt = oldOperations.length
     ? (oldOperations[0].blockHeight || 0) + 1
