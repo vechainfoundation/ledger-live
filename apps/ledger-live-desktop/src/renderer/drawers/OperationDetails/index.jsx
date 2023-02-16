@@ -94,7 +94,7 @@ const mapStateToProps = (state, { operationId, accountId, parentId }) => {
     : null;
 
   if (account.currency.id == "vechain") {
-    if (account.selected == "VTHO") {
+    if (account.energy.selected == "VTHO") {
       mainCurrency = getCryptoCurrencyById("vechainThor");
     }
   }
@@ -115,7 +115,7 @@ const mapStateToProps = (state, { operationId, accountId, parentId }) => {
   const operation = account
     ? findOperationInAccount(
         account.currency.id != "vechain" ||
-          (account.currency.id == "vechain" && account.selected == "VET")
+          (account.currency.id == "vechain" && account.energy.selected == "VET")
           ? account
           : VTHOaccount,
         operationId,
@@ -175,7 +175,7 @@ const OperationD: React$ComponentType<Props> = (props: Props) => {
 
   const unit =
     account.currency.id != "vechain" ||
-    (account.currency.id == "vechain" && account.selected == "VET")
+    (account.currency.id == "vechain" && account.energy.selected == "VET")
       ? getAccountUnit(account)
       : getCryptoCurrencyById("vechainThor").units[0];
 

@@ -66,6 +66,27 @@ const mapStateToProps = (
   };
 };
 
+const createVTHOaccount = (account: AccountLike) => {
+  const tmp = {
+    ...account,
+    balance: account.energy.energy,
+    balanceHistoryCache: generateHistoryFromOperations({
+      ...account,
+      balanceHistoryCache: account.energy.history,
+      balance: account.energy.energy,
+      currency: getCryptoCurrencyById("vechainThor"),
+      unit: getCryptoCurrencyById("vechainThor").units[0],
+      operations: account.energy.transactions,
+    }),
+    currency: getCryptoCurrencyById("vechainThor"),
+    unit: getCryptoCurrencyById("vechainThor").units[0],
+    operations: account.energy.transactions,
+  };
+  //saves new VTHO history inside account
+  account.energy.history = tmp.balanceHistoryCache;
+  return tmp;
+};
+
 const mapDispatchToProps = {
   setCountervalueFirst,
 };
@@ -85,7 +106,9 @@ const AccountPage = ({
   countervalueFirst,
   setCountervalueFirst,
 }: Props) => {
-  const [coin, setCoin] = useState("");
+  const [coin, setCoin] = useState(
+    account.energy && account.energy.selected == "VTHO" ? "VTHO" : "",
+  );
 
   const mainAccount = account ? getMainAccount(account, parentAccount) : null;
   const AccountBodyHeader = mainAccount
@@ -128,35 +151,18 @@ const AccountPage = ({
   const currency = getAccountCurrency(account);
   const color = getCurrencyColor(currency, bgColor);
 
+  let VTHOaccount;
+  if (account.currency.id == "vechain") VTHOaccount = createVTHOaccount(account);
+
   const setNewCoin = () => {
     if (coin == "VTHO") {
+      account.energy.selected = "VET";
       setCoin("VET");
-      account.selected = "VET";
     } else {
+      account.energy.selected = "VTHO";
       setCoin("VTHO");
-      account.selected = "VTHO";
     }
   };
-
-  let VTHOaccount;
-  if (coin == "VTHO") {
-    VTHOaccount = {
-      ...account,
-      balance: account.energy.energy,
-      balanceHistoryCache: generateHistoryFromOperations({
-        ...account,
-        balanceHistoryCache: account.energy.history,
-        balance: account.energy.energy,
-        currency: getCryptoCurrencyById("vechainThor"),
-        unit: getCryptoCurrencyById("vechainThor").units[0],
-        operations: account.energy.transactions,
-      }),
-      currency: getCryptoCurrencyById("vechainThor"),
-      unit: getCryptoCurrencyById("vechainThor").units[0],
-      operations: account.energy.transactions,
-    };
-    account.energy.history = VTHOaccount.balanceHistoryCache;
-  }
   console.log(account);
 
   return (

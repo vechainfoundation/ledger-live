@@ -188,8 +188,8 @@ class AccountRowItem extends PureComponent<Props, State> {
       e.nativeEvent.target.id !== "togglertxt"
     ) {
       const { account, parentAccount, onClick } = this.props;
+      if (account.energy) account.energy.selected = this.state.coin;
       onClick(account, parentAccount);
-      account.selected = this.state.coin;
     } else {
       if (this.state.coin == "VET") {
         this.setState({ ...this.state, coin: "VTHO" });

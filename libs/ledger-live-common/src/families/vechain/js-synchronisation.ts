@@ -41,13 +41,18 @@ const getAccountShape: GetAccountShape = async (info) => {
     operationsCount: operations.length,
     operations: operations,
     energy: {
-      history: info.energy?.history
-        ? info.energy.history
-        : {
-            HOUR: { balances: [], latestDate: 0 },
-            DAY: { balances: [], latestDate: 0 },
-            WEEK: { balances: [], latestDate: 0 },
-          },
+      selected:
+        initialAccount && initialAccount.energy?.selected
+          ? initialAccount.energy.selected
+          : "VET",
+      history:
+        initialAccount && initialAccount.energy?.history
+          ? initialAccount.energy.history
+          : {
+              HOUR: { balances: [], latestDate: 0 },
+              DAY: { balances: [], latestDate: 0 },
+              WEEK: { balances: [], latestDate: 0 },
+            },
       energy: BigNumber(energy),
       transactions: VTHOoperations,
     },

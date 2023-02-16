@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { BigNumber } from "bignumber.js";
 import { Trans, TFunction } from "react-i18next";
 import { getAccountBridge } from "@ledgerhq/live-common/bridge/index";
@@ -10,6 +10,10 @@ import Label from "~/renderer/components/Label";
 import RequestAmount from "~/renderer/components/RequestAmount";
 import Switch from "~/renderer/components/Switch";
 import Text from "~/renderer/components/Text";
+import Toggler from "~/renderer/components/Toggler";
+
+import { generateHistoryFromOperations } from "@ledgerhq/live-common/account/index";
+import { getCryptoCurrencyById } from "@ledgerhq/live-common/currencies/index";
 
 type Props = {
   parentAccount?: Account;
@@ -25,6 +29,34 @@ type Props = {
   withUseMaxLabel?: boolean;
 };
 
+const createVTHOaccount = (account: Account | undefined) => {
+  if (account) {
+    const tmp = {
+      ...account,
+      balance: account?.energy?.energy,
+      balanceHistoryCache: generateHistoryFromOperations({
+        ...account,
+        balanceHistoryCache: account.energy?.history || {
+          DAY: { balances: [], latestDate: 0 },
+          HOUR: { balances: [], latestDate: 0 },
+          WEEK: { balances: [], latestDate: 0 },
+        },
+        balance: account.energy?.energy || BigNumber(0),
+        currency: getCryptoCurrencyById("vechainThor"),
+        unit: getCryptoCurrencyById("vechainThor").units[0],
+        operations: account.energy?.transactions || [],
+      }),
+      currency: getCryptoCurrencyById("vechainThor"),
+      unit: getCryptoCurrencyById("vechainThor").units[0],
+      operations: account.energy?.transactions || [],
+    };
+    //saves new VTHO history inside account
+    if (account.energy) account.energy.history = tmp.balanceHistoryCache;
+    return tmp;
+  } else {
+  }
+};
+
 const AmountField = ({
   account,
   parentAccount,
@@ -38,6 +70,7 @@ const AmountField = ({
   walletConnectProxy,
   withUseMaxLabel,
 }: Props) => {
+  const [selection, setSelection] = useState("VET");
   const bridge = getAccountBridge(account, parentAccount);
 
   useEffect(() => {
@@ -49,10 +82,20 @@ const AmountField = ({
 
   const onChange = useCallback(
     (amount: BigNumber) => {
+      if ((selection == "VET" || selection == "VTHO") && transaction?.mode)
+        transaction.mode = selection == "VET" ? "send_vet" : "send_vtho";
       onChangeTransaction(bridge.updateTransaction(transaction, { amount }));
+      console.log(transaction);
     },
     [bridge, transaction, onChangeTransaction],
   );
+
+  // const onSelectionChange = useCallback(() => {
+  //   if ((selection == "VET" || selection == "VTHO") && transaction?.mode)
+  //     transaction.mode = selection == "VET" ? "send_vet" : "send_vtho";
+  //   onChangeTransaction(bridge.updateTransaction(transaction, { amount: BigNumber(0) }));
+  //   console.log(transaction);
+  // }, [selection]);
 
   const onChangeSendMax = useCallback(
     (useAllAmount: boolean) => {
@@ -65,6 +108,20 @@ const AmountField = ({
     },
     [bridge, transaction, onChangeTransaction],
   );
+
+  let VTHOaccount = createVTHOaccount(account.type == "Account" ? account : undefined);
+  const handleToggle = e => {
+    if (
+      e.nativeEvent.target.id == "togglercontainer" ||
+      e.nativeEvent.target.id == "togglerbg" ||
+      e.nativeEvent.target.id == "togglertxt"
+    ) {
+      selection == "VTHO" ? setSelection("VET") : setSelection("VTHO");
+      if (selection == "VTHO" && account.type == "Account")
+        VTHOaccount = createVTHOaccount(account);
+      // onSelectionChange();
+    }
+  };
 
   if (!status) return null;
 
@@ -89,39 +146,45 @@ const AmountField = ({
         alignItems="center"
         justifyContent="space-between"
         style={{ width: "50%", paddingRight: 28 }}
+        onClick={e => {
+          handleToggle(e);
+        }}
       >
         <Label>{t("send.steps.details.amount")}</Label>
-        {typeof useAllAmount === "boolean" ? (
-          <Box horizontal alignItems="center">
-            <Text
-              color="palette.text.shade40"
-              ff="Inter|Medium"
-              fontSize={10}
-              style={{ paddingRight: 5 }}
-              onClick={() => {
-                if (!walletConnectProxy) {
-                  onChangeSendMax(!useAllAmount);
-                }
-              }}
-            >
-              <Trans
-                i18nKey={
-                  withUseMaxLabel ? "send.steps.details.useMax" : "send.steps.details.sendMax"
-                }
+        <>
+          <Toggler props={account}></Toggler>
+          {typeof useAllAmount === "boolean" ? (
+            <Box horizontal alignItems="center">
+              <Text
+                color="palette.text.shade40"
+                ff="Inter|Medium"
+                fontSize={10}
+                style={{ paddingRight: 5 }}
+                onClick={() => {
+                  if (!walletConnectProxy) {
+                    onChangeSendMax(!useAllAmount);
+                  }
+                }}
+              >
+                <Trans
+                  i18nKey={
+                    withUseMaxLabel ? "send.steps.details.useMax" : "send.steps.details.sendMax"
+                  }
+                />
+              </Text>
+              <Switch
+                small
+                isChecked={useAllAmount}
+                onChange={onChangeSendMax}
+                disabled={walletConnectProxy}
               />
-            </Text>
-            <Switch
-              small
-              isChecked={useAllAmount}
-              onChange={onChangeSendMax}
-              disabled={walletConnectProxy}
-            />
-          </Box>
-        ) : null}
+            </Box>
+          ) : null}
+        </>
       </Box>
       <RequestAmount
         disabled={!!useAllAmount || walletConnectProxy}
-        account={account}
+        account={selection == "VET" ? account : VTHOaccount}
         validTransactionError={amountErrMessage || messageGas || messageDust}
         validTransactionWarning={amountWarnMessage}
         onChange={onChange}

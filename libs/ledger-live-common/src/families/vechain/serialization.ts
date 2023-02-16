@@ -3,7 +3,7 @@ import { Energy, EnergyRaw } from "./types";
 import { Operation } from "@ledgerhq/types-live";
 
 export function toEnergyRaw(r: Energy): EnergyRaw {
-  const { history, energy, transactions } = r;
+  const { selected, history, energy, transactions } = r;
   const transactionStrings: string[] = [];
   if (transactions)
     transactions.forEach((c) => {
@@ -13,6 +13,7 @@ export function toEnergyRaw(r: Energy): EnergyRaw {
     });
 
   return {
+    selected:selected,
     history: JSON.stringify(history),
     energy: energy.toString(),
     transactions: transactionStrings,
@@ -20,7 +21,7 @@ export function toEnergyRaw(r: Energy): EnergyRaw {
 }
 
 export function fromEnergyRaw(r: EnergyRaw): Energy {
-  const { history, energy, transactions } = r;
+  const { selected, history, energy, transactions } = r;
   const transactionObj: Operation[] = [];
   if (transactions)
     transactions.forEach((c) => {
@@ -32,6 +33,7 @@ export function fromEnergyRaw(r: EnergyRaw): Energy {
   });
 
   return {
+    selected: selected,
     history: history
       ? JSON.parse(history)
       : {

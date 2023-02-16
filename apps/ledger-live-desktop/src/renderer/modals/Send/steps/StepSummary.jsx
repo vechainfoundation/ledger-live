@@ -27,6 +27,7 @@ import NFTSummary from "~/renderer/screens/nft/Send/Summary";
 import type { ThemedComponent } from "~/renderer/styles/StyleProvider";
 import type { StepProps } from "../types";
 import AccountTagDerivationMode from "~/renderer/components/AccountTagDerivationMode";
+import { getCryptoCurrencyById } from "@ledgerhq/live-common/currencies/index";
 
 const FromToWrapper: ThemedComponent<{}> = styled.div``;
 const Circle: ThemedComponent<{}> = styled.div`
@@ -158,7 +159,11 @@ export default class StepSummary extends PureComponent<StepProps> {
                 <FormattedVal
                   color={"palette.text.shade80"}
                   disableRounding
-                  unit={unit}
+                  unit={
+                    !transaction.mode || (transaction.mode && transaction.mode == "send_vet")
+                      ? unit
+                      : getCryptoCurrencyById("vechainThor").units[0]
+                  }
                   val={amount}
                   fontSize={4}
                   inline
