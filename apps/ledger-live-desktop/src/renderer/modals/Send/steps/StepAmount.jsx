@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Fragment, PureComponent } from "react";
+import React, { Fragment, PureComponent, useState } from "react";
 import { Trans } from "react-i18next";
 import { getMainAccount } from "@ledgerhq/live-common/account/index";
 import TrackPage from "~/renderer/analytics/TrackPage";
@@ -39,6 +39,7 @@ const StepAmount = (props: StepProps) => {
     walletConnectProxy,
   } = props;
 
+  const [change, setChange] = useState(account.energy ? account.energy.selected : "");
   const allNfts = useSelector(getAllNFTs);
   const nft = allNfts?.find(nft => nft.tokenId === transaction?.tokenIds?.[0]);
   if (!status) return null;
@@ -62,6 +63,7 @@ const StepAmount = (props: StepProps) => {
               account={account}
               parentAccount={parentAccount}
               transaction={transaction}
+              change={change}
             />
           ) : null}
           {isNFTSend && nft ? (
@@ -87,6 +89,8 @@ const StepAmount = (props: StepProps) => {
               t={t}
               initValue={maybeAmount}
               resetInitValue={onResetMaybeAmount}
+              change={change}
+              setChange={setChange}
             />
           )}
           <SendAmountFields

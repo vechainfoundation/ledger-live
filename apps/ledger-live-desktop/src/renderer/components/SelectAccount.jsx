@@ -26,6 +26,8 @@ import Button from "~/renderer/components//Button";
 import Plus from "~/renderer/icons/Plus";
 import Text from "./Text";
 import { openModal } from "../actions/modals";
+import { getCryptoCurrencyById } from "@ledgerhq/live-common/currencies/index";
+import { BigNumber } from "bignumber.js";
 
 const mapStateToProps = createStructuredSelector({
   accounts: shallowAccountsSelector,
@@ -60,7 +62,13 @@ const defaultFilter = createFilter({
   stringify: ({ data: account }) => {
     const currency = getAccountCurrency(account);
     const name = getAccountName(account);
-    return `${currency.ticker}|${currency.name}|${name}`;
+    if (account.currency.id == "vechain") {
+      return `${currency.ticker}|${currency.name}|${name}|${
+        getCryptoCurrencyById("vechainThor").units[0].code
+      }`;
+    } else {
+      return `${currency.ticker}|${currency.name}|${name}`;
+    }
   },
 });
 const filterOption = o => (candidate, input) => {
@@ -123,6 +131,16 @@ export const AccountOption = React.memo<AccountOptionProps>(function AccountOpti
       <Box>
         <FormattedVal color="palette.text.shade60" val={balance} unit={unit} showCode />
       </Box>
+      {account.currency.id == "vechain" && (
+        <Box>
+          <FormattedVal
+            color="palette.text.shade60"
+            val={account?.energy?.energy || BigNumber(0)}
+            unit={getCryptoCurrencyById("vechainThor").units[0]}
+            showCode
+          />
+        </Box>
+      )}
     </>
   ) : (
     <OptionMultilineContainer flex="1">

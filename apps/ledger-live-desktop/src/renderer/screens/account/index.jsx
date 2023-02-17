@@ -163,7 +163,6 @@ const AccountPage = ({
       setCoin("VTHO");
     }
   };
-  console.log(account);
 
   return (
     <Box key={account.id}>

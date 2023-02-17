@@ -15,6 +15,7 @@ import { CurrencyCircleIcon } from "~/renderer/components/CurrencyBadge";
 import FormattedVal from "~/renderer/components/FormattedVal";
 import Label from "~/renderer/components/Label";
 import CounterValue from "~/renderer/components/CounterValue";
+import { getCryptoCurrencyById } from "@ledgerhq/live-common/currencies/index";
 
 type Props = {
   account: AccountLike,
@@ -23,10 +24,19 @@ type Props = {
 };
 
 const AccountFooter = ({ account, parentAccount, status }: Props) => {
-  const currency = getAccountCurrency(account);
+  const currency =
+    account.currency.id != "vechain"
+      ? getAccountCurrency(account)
+      : getCryptoCurrencyById("vechainThor");
   const mainAccount = getMainAccount(account, parentAccount);
-  const accountUnit = getAccountUnit(mainAccount);
-  const feesCurrency = getAccountCurrency(mainAccount);
+  const accountUnit =
+    account.currency.id != "vechain"
+      ? getAccountUnit(mainAccount)
+      : getCryptoCurrencyById("vechainThor").units[0];
+  const feesCurrency =
+    account.currency.id != "vechain"
+      ? getAccountCurrency(mainAccount)
+      : getCryptoCurrencyById("vechainThor");
   return (
     <>
       <CurrencyCircleIcon size={40} currency={currency} />

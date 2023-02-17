@@ -65,8 +65,14 @@ export default class StepSummary extends PureComponent<StepProps> {
     const { estimatedFees, amount, totalSpent, warnings, txInputs } = status;
     const feeTooHigh = warnings.feeTooHigh;
     const currency = getAccountCurrency(account);
-    const feesUnit = getAccountUnit(mainAccount);
-    const feesCurrency = getAccountCurrency(mainAccount);
+    const feesUnit =
+      account.currency.id != "vechain"
+        ? getAccountUnit(mainAccount)
+        : getCryptoCurrencyById("vechainThor").units[0];
+    const feesCurrency =
+      account.currency.id != "vechain"
+        ? getAccountCurrency(mainAccount)
+        : getCryptoCurrencyById("vechainThor");
     const unit = getAccountUnit(account);
     const utxoLag = txInputs ? txInputs.length >= WARN_FROM_UTXO_COUNT : null;
     const hasNonEmptySubAccounts =
@@ -173,7 +179,11 @@ export default class StepSummary extends PureComponent<StepProps> {
                   <CounterValue
                     color="palette.text.shade60"
                     fontSize={3}
-                    currency={currency}
+                    currency={
+                      !transaction.mode || (transaction.mode && transaction.mode == "send_vet")
+                        ? currency
+                        : getCryptoCurrencyById("vechainThor")
+                    }
                     value={amount}
                     alwaysShowSign={false}
                   />

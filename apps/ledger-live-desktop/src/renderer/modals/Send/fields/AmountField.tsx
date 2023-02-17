@@ -27,34 +27,31 @@ type Props = {
   walletConnectProxy?: boolean;
   resetInitValue?: () => void;
   withUseMaxLabel?: boolean;
+  change: string;
+  setChange?: () => void;
 };
 
-const createVTHOaccount = (account: Account | undefined) => {
-  if (account) {
-    const tmp = {
+const createVTHOaccount = (account: Account): Account => {
+  const tmp = {
+    ...account,
+    balance: account?.energy?.energy || BigNumber(0),
+    balanceHistoryCache: generateHistoryFromOperations({
       ...account,
-      balance: account?.energy?.energy,
-      balanceHistoryCache: generateHistoryFromOperations({
-        ...account,
-        balanceHistoryCache: account.energy?.history || {
-          DAY: { balances: [], latestDate: 0 },
-          HOUR: { balances: [], latestDate: 0 },
-          WEEK: { balances: [], latestDate: 0 },
-        },
-        balance: account.energy?.energy || BigNumber(0),
-        currency: getCryptoCurrencyById("vechainThor"),
-        unit: getCryptoCurrencyById("vechainThor").units[0],
-        operations: account.energy?.transactions || [],
-      }),
+      balanceHistoryCache: account.energy?.history || {
+        DAY: { balances: [], latestDate: 0 },
+        HOUR: { balances: [], latestDate: 0 },
+        WEEK: { balances: [], latestDate: 0 },
+      },
+      balance: account.energy?.energy || BigNumber(0),
       currency: getCryptoCurrencyById("vechainThor"),
       unit: getCryptoCurrencyById("vechainThor").units[0],
       operations: account.energy?.transactions || [],
-    };
-    //saves new VTHO history inside account
-    if (account.energy) account.energy.history = tmp.balanceHistoryCache;
-    return tmp;
-  } else {
-  }
+    }),
+    currency: getCryptoCurrencyById("vechainThor"),
+    unit: getCryptoCurrencyById("vechainThor").units[0],
+    operations: account.energy?.transactions || [],
+  };
+  return tmp;
 };
 
 const AmountField = ({
@@ -69,9 +66,25 @@ const AmountField = ({
   resetInitValue,
   walletConnectProxy,
   withUseMaxLabel,
+  change,
+  setChange,
 }: Props) => {
-  const [selection, setSelection] = useState("VET");
   const bridge = getAccountBridge(account, parentAccount);
+  let VTHOaccount: Account;
+  let selectedAccount;
+
+  if (account.type == "Account" && account.currency.id == "vechain") {
+    if (change == "" && account.energy) account.energy.selected = "VET";
+  }
+
+  if (!change || change == "VET") {
+    selectedAccount = account;
+  } else if (change == "VTHO") {
+    if (account.type == "Account") {
+      VTHOaccount = createVTHOaccount(account);
+      selectedAccount = VTHOaccount;
+    }
+  }
 
   useEffect(() => {
     if (initValue && !initValue.eq(transaction.amount || new BigNumber(0))) {
@@ -82,20 +95,15 @@ const AmountField = ({
 
   const onChange = useCallback(
     (amount: BigNumber) => {
-      if ((selection == "VET" || selection == "VTHO") && transaction?.mode)
-        transaction.mode = selection == "VET" ? "send_vet" : "send_vtho";
       onChangeTransaction(bridge.updateTransaction(transaction, { amount }));
-      console.log(transaction);
     },
     [bridge, transaction, onChangeTransaction],
   );
 
-  // const onSelectionChange = useCallback(() => {
-  //   if ((selection == "VET" || selection == "VTHO") && transaction?.mode)
-  //     transaction.mode = selection == "VET" ? "send_vet" : "send_vtho";
-  //   onChangeTransaction(bridge.updateTransaction(transaction, { amount: BigNumber(0) }));
-  //   console.log(transaction);
-  // }, [selection]);
+  const onSelectionChange = () => {
+    transaction.mode = change == "VET" || change == "" ? "send_vtho" : "send_vet";
+    onChangeTransaction(bridge.updateTransaction(transaction, { amount }));
+  };
 
   const onChangeSendMax = useCallback(
     (useAllAmount: boolean) => {
@@ -109,17 +117,14 @@ const AmountField = ({
     [bridge, transaction, onChangeTransaction],
   );
 
-  let VTHOaccount = createVTHOaccount(account.type == "Account" ? account : undefined);
   const handleToggle = e => {
     if (
       e.nativeEvent.target.id == "togglercontainer" ||
       e.nativeEvent.target.id == "togglerbg" ||
       e.nativeEvent.target.id == "togglertxt"
     ) {
-      selection == "VTHO" ? setSelection("VET") : setSelection("VTHO");
-      if (selection == "VTHO" && account.type == "Account")
-        VTHOaccount = createVTHOaccount(account);
-      // onSelectionChange();
+      onSelectionChange();
+      change == "VET" || change == "" ? setChange("VTHO") : setChange("VET");
     }
   };
 
@@ -152,7 +157,7 @@ const AmountField = ({
       >
         <Label>{t("send.steps.details.amount")}</Label>
         <>
-          <Toggler props={account}></Toggler>
+          <Toggler props={selectedAccount}></Toggler>
           {typeof useAllAmount === "boolean" ? (
             <Box horizontal alignItems="center">
               <Text
@@ -184,7 +189,7 @@ const AmountField = ({
       </Box>
       <RequestAmount
         disabled={!!useAllAmount || walletConnectProxy}
-        account={selection == "VET" ? account : VTHOaccount}
+        account={selectedAccount}
         validTransactionError={amountErrMessage || messageGas || messageDust}
         validTransactionWarning={amountWarnMessage}
         onChange={onChange}

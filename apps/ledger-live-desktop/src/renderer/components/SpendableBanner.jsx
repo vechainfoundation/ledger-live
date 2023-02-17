@@ -17,9 +17,10 @@ type Props = {
   account: AccountLike,
   transaction: TransactionCommon,
   parentAccount: ?Account,
+  change: string,
 };
 
-const SpendableBanner = ({ account, parentAccount, transaction }: Props) => (
+const SpendableBanner = ({ account, parentAccount, transaction, change }: Props) => (
   <Alert type="secondary" small learnMoreUrl={urls.maxSpendable} learnMoreOnRight>
     <TextContent>
       <Trans i18nKey="send.steps.amount.banner" />
@@ -28,6 +29,7 @@ const SpendableBanner = ({ account, parentAccount, transaction }: Props) => (
         parentAccount={parentAccount}
         transaction={transaction}
         prefix=" ~"
+        change={change}
       />
     </TextContent>
   </Alert>

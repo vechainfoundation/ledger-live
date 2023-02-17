@@ -28,7 +28,12 @@ const currencyBridge: CurrencyBridge = {
 const estimateMaxSpendable = async (inputs: {
   account: VechainAccount;
 }): Promise<BigNumber> => {
-  return inputs.account.balance;
+  if (
+    inputs.account.energy.selected == "VET" ||
+    inputs.account.energy.selected == ""
+  )
+    return inputs.account.balance;
+  else return inputs.account.energy.energy;
 };
 
 const accountBridge: AccountBridge<Transaction> = {

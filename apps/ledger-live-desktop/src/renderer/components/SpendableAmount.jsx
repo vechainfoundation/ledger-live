@@ -7,6 +7,7 @@ import { getAccountUnit } from "@ledgerhq/live-common/account/index";
 import { getAccountBridge } from "@ledgerhq/live-common/bridge/index";
 
 import FormattedVal from "~/renderer/components/FormattedVal";
+import { getCryptoCurrencyById } from "@ledgerhq/live-common/currencies/index";
 
 type Props = {
   account: AccountLike,
@@ -15,6 +16,7 @@ type Props = {
   prefix?: string,
   showAllDigits?: boolean,
   disableRounding?: boolean,
+  change: string,
 };
 
 const SpendableAmount = ({
@@ -24,12 +26,19 @@ const SpendableAmount = ({
   prefix,
   showAllDigits,
   disableRounding,
+  change,
 }: Props) => {
   const [maxSpendable, setMaxSpendable] = useState(null);
+  let current = account.energy.selected;
 
   const debouncedTransaction = useDebounce(transaction, 500);
 
   useEffect(() => {
+    if (change == "VTHO") {
+      account.energy.selected = "VTHO";
+    } else {
+      account.energy.selected = "VET";
+    }
     if (!account) return;
     let cancelled = false;
     getAccountBridge(account, parentAccount)
@@ -42,13 +51,19 @@ const SpendableAmount = ({
         if (cancelled) return;
         setMaxSpendable(estimate);
       });
+    current = change;
 
     return () => {
       cancelled = true;
     };
   }, [account, parentAccount, debouncedTransaction]);
 
-  const accountUnit = getAccountUnit(account);
+  let accountUnit;
+  if (current == "VTHO") {
+    accountUnit = getCryptoCurrencyById("vechainThor").units[0];
+  } else {
+    accountUnit = getAccountUnit(account);
+  }
 
   return maxSpendable ? (
     <FormattedVal
