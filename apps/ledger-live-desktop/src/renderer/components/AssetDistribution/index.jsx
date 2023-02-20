@@ -49,17 +49,6 @@ export default function AssetDistribution() {
 
   const almostAll = initialRowCount + 3 > totalRowCount;
   const subList = showAll || almostAll ? list : list.slice(0, initialRowCount);
-  const vechainAccPos = subList.find(curr => curr.currency.id == "vechain");
-  if (vechainAccPos) {
-    let VTHORamnt = {
-      accounts: vechainAccPos.accounts,
-      amount: BigNumber(vechainAccPos.accounts[0].energy.energy).toNumber(),
-      countervalue: 0,
-      currency: getCryptoCurrencyById("vechainThor"),
-      distribution: 1,
-    };
-    subList.splice(vechainAccPos + 1, 0, VTHORamnt);
-  }
 
   return distribution.list.length ? (
     <TableContainer>
@@ -73,14 +62,6 @@ export default function AssetDistribution() {
             <Row key={item.currency.id} item={item} isVisible={isVisible} />
           ))}
         </div>
-        {!almostAll && (
-          <SeeAllButton expanded={showAll} onClick={() => setShowAll(state => !state)}>
-            <Text color="wallet" ff="Inter|SemiBold" fontSize={4}>
-              <Trans i18nKey={showAll ? "distribution.showLess" : "distribution.showAll"} />
-            </Text>
-            <IconAngleDown size={16} />
-          </SeeAllButton>
-        )}
       </Box>
     </TableContainer>
   ) : null;

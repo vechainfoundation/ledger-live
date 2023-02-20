@@ -7,6 +7,7 @@ export type EnergyCommon = {
   history: BalanceHistoryCache;
   energy: BigNumber;
   transactions: Operation[];
+  pendingOperations: Operation[];
 };
 
 export type EnergyRawCommon = {
@@ -14,4 +15,5 @@ export type EnergyRawCommon = {
   history: string;
   energy: string;
   transactions: string[];
+  pendingOperations: string[];
 };

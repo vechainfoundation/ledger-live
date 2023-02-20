@@ -33,6 +33,7 @@ import type {
   Currency,
   TokenCurrency,
 } from "@ledgerhq/types-cryptoassets";
+import { getCryptoCurrencyById } from "@ledgerhq/cryptoassets/currencies";
 
 export function getPortfolioCount(
   accounts: AccountLike[],
@@ -364,6 +365,22 @@ export function getAssetsDistribution(
       if (showEmptyAccounts || account.balance.isGreaterThan(0)) {
         idCurrencies[id] = cur;
         idBalances[id] = (idBalances[id] ?? 0) + account.balance.toNumber();
+      }
+    }
+
+    if (account.type == "Account" && account.currency.id == "vechain") {
+      const id = "vechainThor";
+      const cur = getCryptoCurrencyById("vechainThor");
+      if (!currenciesAccounts[id]) {
+        currenciesAccounts[id] = [account];
+      } else {
+        currenciesAccounts[id].push(account);
+      }
+      if (showEmptyAccounts || account.balance.isGreaterThan(0)) {
+        idCurrencies[id] = cur;
+        idBalances[id] =
+          (idBalances[id] ?? 0) +
+          (account.energy ? account.energy?.energy.toNumber() : 0);
       }
     }
   }

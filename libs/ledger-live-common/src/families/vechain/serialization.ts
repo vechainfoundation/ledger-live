@@ -3,26 +3,34 @@ import { Energy, EnergyRaw } from "./types";
 import { Operation } from "@ledgerhq/types-live";
 
 export function toEnergyRaw(r: Energy): EnergyRaw {
-  const { selected, history, energy, transactions } = r;
+  const { selected, history, energy, transactions, pendingOperations } = r;
   const transactionStrings: string[] = [];
+  const pendingOperationsStrings: string[] = [];
   if (transactions)
     transactions.forEach((c) => {
       transactionStrings.push(
         JSON.stringify({ ...c, value: c.value.toString() })
       );
     });
+  if (pendingOperations)
+    pendingOperations.forEach((c) => {
+      pendingOperationsStrings.push(JSON.stringify({ ...c }));
+    });
 
   return {
-    selected:selected,
+    selected: selected,
     history: JSON.stringify(history),
     energy: energy.toString(),
     transactions: transactionStrings,
+    pendingOperations: pendingOperationsStrings,
   };
 }
 
 export function fromEnergyRaw(r: EnergyRaw): Energy {
-  const { selected, history, energy, transactions } = r;
+  const { selected, history, energy, transactions, pendingOperations } = r;
   const transactionObj: Operation[] = [];
+  let pendingOperationsObj: Operation[] = [];
+
   if (transactions)
     transactions.forEach((c) => {
       transactionObj.push(JSON.parse(c));
@@ -31,6 +39,11 @@ export function fromEnergyRaw(r: EnergyRaw): Energy {
     c.date = new Date(c.date);
     c.value = new BigNumber(c.value);
   });
+
+  if (pendingOperations)
+    pendingOperations.forEach((c) => {
+      pendingOperationsObj.push(JSON.parse(c));
+    });
 
   return {
     selected: selected,
@@ -43,5 +56,6 @@ export function fromEnergyRaw(r: EnergyRaw): Energy {
         },
     energy: BigNumber(energy),
     transactions: transactionObj,
+    pendingOperations: pendingOperationsObj,
   };
 }

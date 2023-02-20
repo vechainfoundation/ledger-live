@@ -75,7 +75,12 @@ export function groupAccountsOperationsByDay(
 
       // look in pending operations
       let opP = account.pendingOperations[indexesPending[i]];
-
+      if (
+        account.type == "Account" &&
+        account.energy &&
+        account.energy.selected == "VTHO"
+      )
+        opP = account.energy.pendingOperations[indexesPending[i]];
       while (
         opP && // skip all pending operations that are already in operations
         (hasStableOperation(account, opP.hash) || // but also if we want to filter it

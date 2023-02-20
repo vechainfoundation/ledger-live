@@ -59,6 +59,12 @@ const getAccountShape: GetAccountShape = async (info) => {
             },
       energy: BigNumber(energy),
       transactions: VTHOoperations,
+      pendingOperations:
+        initialAccount &&
+        initialAccount.energy &&
+        initialAccount?.energy.pendingOperations
+          ? initialAccount.energy.pendingOperations
+          : [],
     },
   };
 
