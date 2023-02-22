@@ -2770,7 +2770,7 @@ export const cryptocurrenciesById: Record<string, CryptoCurrency> = {
     managerAppName: "VeChain",
     ticker: "VET",
     scheme: "vechain",
-    color: "#00C2FF",
+    color: "#28008C",
     family: "vechain",
     units: [
       {
