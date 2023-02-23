@@ -28,7 +28,7 @@ type Props = {
   mainAccount: ?Account,
   isCompoundEnabled?: boolean,
   ctoken: ?TokenCurrency,
-  setNewCoin: any,
+  setNewCoin: () => void,
 };
 
 export default function AccountBalanceSummary({

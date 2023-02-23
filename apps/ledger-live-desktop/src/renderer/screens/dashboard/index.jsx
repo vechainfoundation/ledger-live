@@ -82,6 +82,10 @@ export default function DashboardPage() {
     [hiddenNftCollections],
   );
 
+  accounts.forEach(c => {
+    if (c.type === "Account" && c.currency.id === "vechain" && c.energy) c.energy.selected = "VET";
+  });
+
   return (
     <>
       <TopBannerContainer>

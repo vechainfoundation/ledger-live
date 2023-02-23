@@ -8,7 +8,7 @@ import type { TFunction } from "react-i18next";
 import { Redirect } from "react-router";
 import type { AccountLike, Account } from "@ledgerhq/types-live";
 import { SyncOneAccountOnMount } from "@ledgerhq/live-common/bridge/react/index";
-import { findCompoundToken, getCryptoCurrencyById } from "@ledgerhq/live-common/currencies/index";
+import { findCompoundToken } from "@ledgerhq/live-common/currencies/index";
 import { isNFTActive } from "@ledgerhq/live-common/nft/support";
 import { getCurrencyColor } from "~/renderer/getCurrencyColor";
 import { accountSelector } from "~/renderer/reducers/accounts";
@@ -17,8 +17,6 @@ import {
   getAccountCurrency,
   getMainAccount,
   findSubAccountById,
-  getAccountHistoryBalances,
-  generateHistoryFromOperations,
 } from "@ledgerhq/live-common/account/index";
 import { setCountervalueFirst } from "~/renderer/actions/settings";
 import {
@@ -42,7 +40,9 @@ import TokensList from "./TokensList";
 import CompoundBodyHeader from "~/renderer/screens/lend/Account/AccountBodyHeader";
 import useCompoundAccountEnabled from "~/renderer/screens/lend/useCompoundAccountEnabled";
 import { getBannerProps, AccountBanner } from "./AccountBanner";
-import AccountRow from "~/renderer/components/AccountsList/AccountRow";
+
+import EnergyBalance from "~/renderer/families/vechain/EnergyBalance";
+import EnergyOperations from "~/renderer/families/vechain/EnergyOperations";
 
 const mapStateToProps = (
   state,
@@ -66,27 +66,6 @@ const mapStateToProps = (
   };
 };
 
-const createVTHOaccount = (account: AccountLike) => {
-  const tmp = {
-    ...account,
-    balance: account.energy.energy,
-    balanceHistoryCache: generateHistoryFromOperations({
-      ...account,
-      balanceHistoryCache: account.energy.history,
-      balance: account.energy.energy,
-      currency: getCryptoCurrencyById("vechainThor"),
-      unit: getCryptoCurrencyById("vechainThor").units[0],
-      operations: account.energy.transactions,
-    }),
-    currency: getCryptoCurrencyById("vechainThor"),
-    unit: getCryptoCurrencyById("vechainThor").units[0],
-    operations: account.energy.transactions,
-  };
-  //saves new VTHO history inside account
-  account.energy.history = tmp.balanceHistoryCache;
-  return tmp;
-};
-
 const mapDispatchToProps = {
   setCountervalueFirst,
 };
@@ -106,9 +85,8 @@ const AccountPage = ({
   countervalueFirst,
   setCountervalueFirst,
 }: Props) => {
-  const [coin, setCoin] = useState(
-    account.energy && account.energy.selected == "VTHO" ? "VTHO" : "",
-  );
+  const [coin, setCoin] = useState("");
+  useEffect(() => setCoin(account.energy.selected), [account.energy.selected]);
 
   const mainAccount = account ? getMainAccount(account, parentAccount) : null;
   const AccountBodyHeader = mainAccount
@@ -151,11 +129,8 @@ const AccountPage = ({
   const currency = getAccountCurrency(account);
   const color = getCurrencyColor(currency, bgColor);
 
-  let VTHOaccount;
-  if (account.currency.id == "vechain") VTHOaccount = createVTHOaccount(account);
-
   const setNewCoin = () => {
-    if (coin == "VTHO") {
+    if (coin === "VTHO") {
       account.energy.selected = "VET";
       setCoin("VET");
     } else {
@@ -163,6 +138,12 @@ const AccountPage = ({
       setCoin("VTHO");
     }
   };
+
+  function checkAccount(account: AccountLike): boolean {
+    if (account.type === "Account" && account.currency.id === "vechain" && coin === "VTHO")
+      return true;
+    return false;
+  }
 
   return (
     <Box key={account.id}>
@@ -199,17 +180,28 @@ const AccountPage = ({
       {!isAccountEmpty(account) ? (
         <>
           <Box mb={7}>
-            <BalanceSummary
-              mainAccount={!coin || coin == "VET" ? mainAccount : VTHOaccount}
-              account={!coin || coin == "VET" ? account : VTHOaccount}
-              parentAccount={parentAccount}
-              chartColor={color}
-              countervalueFirst={countervalueFirst}
-              setCountervalueFirst={setCountervalueFirst}
-              isCompoundEnabled={isCompoundEnabled}
-              ctoken={ctoken}
-              setNewCoin={setNewCoin}
-            />
+            {checkAccount(account) ? (
+              <EnergyBalance
+                account={account}
+                chartColor={color}
+                countervalueFirst={countervalueFirst}
+                setCountervalueFirst={setCountervalueFirst}
+                isCompoundEnabled={isCompoundEnabled}
+                setNewCoin={setNewCoin}
+              />
+            ) : (
+              <BalanceSummary
+                mainAccount={mainAccount}
+                account={account}
+                parentAccount={parentAccount}
+                chartColor={color}
+                countervalueFirst={countervalueFirst}
+                setCountervalueFirst={setCountervalueFirst}
+                isCompoundEnabled={isCompoundEnabled}
+                ctoken={ctoken}
+                setNewCoin={setNewCoin}
+              />
+            )}
           </Box>
           {banner.display && <AccountBanner {...banner} />}
           {AccountBodyHeader ? (
@@ -222,12 +214,20 @@ const AccountPage = ({
             <Collections account={account} />
           ) : null}
           {account.type === "Account" ? <TokensList account={account} /> : null}
-          <OperationsList
-            account={!coin || coin == "VET" ? mainAccount : VTHOaccount}
-            parentAccount={parentAccount}
-            title={t("account.lastOperations")}
-            filterOperation={filterOperations}
-          />
+          {checkAccount(account) ? (
+            <EnergyOperations
+              account={mainAccount}
+              title={t("account.lastOperations")}
+              filterOperation={filterOperations}
+            />
+          ) : (
+            <OperationsList
+              account={mainAccount}
+              parentAccount={parentAccount}
+              title={t("account.lastOperations")}
+              filterOperation={filterOperations}
+            />
+          )}
         </>
       ) : (
         <EmptyStateAccount account={account} parentAccount={parentAccount} />

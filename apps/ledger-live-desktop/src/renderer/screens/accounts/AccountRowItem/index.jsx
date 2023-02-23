@@ -30,7 +30,8 @@ import Button from "~/renderer/components/Button";
 
 import perFamilyTokenList from "~/renderer/generated/TokenList";
 
-import { findCryptoCurrencyByTicker } from "@ledgerhq/live-common/currencies/index";
+import { BigNumber } from "bignumber.js";
+import VechainTokenRow from "~/renderer/families/vechain/VechainTokenRow";
 
 const Row: ThemedComponent<{}> = styled(Box)`
   background: ${p => p.theme.colors.palette.background.paper};
@@ -156,7 +157,7 @@ class AccountRowItem extends PureComponent<Props, State> {
 
     this.state = {
       expanded: expandedStates[accountId],
-      coin: account.currency.id == "vechain" ? "VET" : "",
+      coin: account.currency.id === "vechain" ? "VET" : "",
     };
   }
 
@@ -182,18 +183,24 @@ class AccountRowItem extends PureComponent<Props, State> {
   scrollTopFocusRef: * = React.createRef();
 
   onClick = e => {
+    //  condition that checks if the click has been made on the toggler
+    //  the toggler exists only if the account is a vechain one
     if (
       e.nativeEvent.target.id !== "togglercontainer" &&
       e.nativeEvent.target.id !== "togglerbg" &&
       e.nativeEvent.target.id !== "togglertxt"
     ) {
       const { account, parentAccount, onClick } = this.props;
-      if (account.energy) account.energy.selected = this.state.coin;
+      //  updates custom vechain parameter in order to save the selected state inside "accounts" page
+      if (account.type === "Account" && account.energy) {
+        account.energy.selected = this.state.coin;
+      }
       onClick(account, parentAccount);
     } else {
-      if (this.state.coin == "VET") {
+      //  set a state that triggers the page update once we click on the toggler
+      if (this.state.coin === "VET") {
         this.setState({ ...this.state, coin: "VTHO" });
-      } else if (this.state.coin == "VTHO") {
+      } else if (this.state.coin === "VTHO") {
         this.setState({ ...this.state, coin: "VET" });
       }
     }
@@ -204,6 +211,12 @@ class AccountRowItem extends PureComponent<Props, State> {
     const { account } = this.props;
     expandedStates[account.id] = !expandedStates[account.id];
     this.setState({ ...this.state, expanded: expandedStates[account.id] });
+  };
+
+  //  checks that the account is a vechain one
+  checkAccount = (account: AccountLike): boolean => {
+    if (account.type === "Account" && this.state.coin === "VTHO") return true;
+    return false;
   };
 
   render() {
@@ -281,45 +294,24 @@ class AccountRowItem extends PureComponent<Props, State> {
               onClick={this.onClick}
               data-test-id={`account-component-${account.name}`}
             >
-              <Header
-                account={
-                  this.state.coin == "" || this.state.coin == "VET"
-                    ? account
-                    : { ...account, currency: getCryptoCurrencyById("vechainThor") }
-                }
-                name={mainAccount.name}
-              />
-              <Box flex="12%">
-                <div>
-                  <AccountSyncStatusIndicator accountId={mainAccount.id} account={account} />
-                </div>
-              </Box>
-              <Balance
-                unit={
-                  this.state.coin == "" || this.state.coin == "VET"
-                    ? unit
-                    : getCryptoCurrencyById("vechainThor").units[0]
-                }
-                balance={
-                  this.state.coin == "" || this.state.coin == "VET"
-                    ? account.balance
-                    : account.energy.energy
-                }
-                disableRounding={disableRounding}
-              />
-              <Countervalue
-                account={
-                  this.state.coin == "" || this.state.coin == "VET"
-                    ? account
-                    : { ...account, balance: account.energy.energy }
-                }
-                currency={
-                  this.state.coin == "" || this.state.coin == "VET"
-                    ? currency
-                    : getCryptoCurrencyById("vechainThor")
-                }
-                range={range}
-              />
+              {this.checkAccount(account) ? (
+                <VechainTokenRow account={account} range={range} />
+              ) : (
+                <>
+                  <Header account={account} name={mainAccount.name} />
+                  <Box flex="12%">
+                    <div>
+                      <AccountSyncStatusIndicator accountId={mainAccount.id} account={account} />
+                    </div>
+                  </Box>
+                  <Balance
+                    unit={unit}
+                    balance={account.balance}
+                    disableRounding={disableRounding}
+                  />
+                  <Countervalue account={account} currency={currency} range={range} />
+                </>
+              )}
               <Delta account={account} range={range} />
               <Star
                 accountId={account.id}

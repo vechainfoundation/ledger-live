@@ -77,6 +77,7 @@ import { SplitAddress } from "~/renderer/components/OperationsList/AddressCell";
 import CryptoCurrencyIcon from "~/renderer/components/CryptoCurrencyIcon";
 import AmountDetails from "./AmountDetails";
 import NFTOperationDetails from "./NFTOperationDetails";
+import { createVTHOaccount } from "~/renderer/families/vechain/utils/createVTHOaccount";
 
 const mapStateToProps = (state, { operationId, accountId, parentId }) => {
   const marketIndicator = marketIndicatorSelector(state);
@@ -87,37 +88,21 @@ const mapStateToProps = (state, { operationId, accountId, parentId }) => {
   } else {
     account = accountSelector(state, { accountId });
   }
-  let mainCurrency = parentAccount
+  const mainCurrency = parentAccount
     ? parentAccount.currency
     : account && account.type !== "TokenAccount"
-    ? account.currency
+    ? account.currency.id === "vechain" && account.energy && account.energy.selection === "VTHO"
+      ? account.currency
+      : getCryptoCurrencyById("vechainThor")
     : null;
-
-  if (account.currency.id == "vechain") {
-    if (account.energy.selected == "VTHO") {
-      mainCurrency = getCryptoCurrencyById("vechainThor");
-    }
-  }
 
   const confirmationsNb = mainCurrency
     ? confirmationsNbForCurrencySelector(state, { currency: mainCurrency })
     : 0;
 
-  let VTHOaccount = {};
-  VTHOaccount = {
-    ...account,
-    balance: account.energy.energy,
-    currency: getCryptoCurrencyById("vechainThor"),
-    unit: getCryptoCurrencyById("vechainThor").units[0],
-    operations: account.energy.transactions,
-  };
-
   const operation = account
     ? findOperationInAccount(
-        account.currency.id != "vechain" ||
-          (account.currency.id == "vechain" && account.energy.selected == "VET")
-          ? account
-          : VTHOaccount,
+        account.energy && account.energy.selected === "VTHO" ? createVTHOaccount(account) : account,
         operationId,
       )
     : null;
@@ -174,10 +159,9 @@ const OperationD: React$ComponentType<Props> = (props: Props) => {
   const show = useMemo(() => status === "loading", [status]);
 
   const unit =
-    account.currency.id != "vechain" ||
-    (account.currency.id == "vechain" && account.energy.selected == "VET")
-      ? getAccountUnit(account)
-      : getCryptoCurrencyById("vechainThor").units[0];
+    account.type === "Account" && account.energy && account.energy.selected === "VTHO"
+      ? getCryptoCurrencyById("vechainThor").units[0]
+      : getAccountUnit(account);
 
   const amount = getOperationAmountNumber(operation);
   const isNegative = amount.isNegative();

@@ -28,7 +28,8 @@ export const createTransaction = (): Transaction => ({
   mode: "send_vet",
   body: {
     chainTag: TESTNET_CHAIN_TAG,
-    blockRef: "empty",
+    // placeholder, if "empty" returns error on send modal open
+    blockRef: "0x00634a0c856ec1db",
     expiration: 18,
     clauses: [],
     gasPriceCoef: DEFAULT_GAS_COEFFICIENT,
