@@ -86,7 +86,11 @@ const AccountPage = ({
   setCountervalueFirst,
 }: Props) => {
   const [coin, setCoin] = useState("");
-  useEffect(() => setCoin(account.energy.selected), [account.energy.selected]);
+  useEffect(() => {
+    if (account?.energy) {
+      setCoin(account.energy.selected);
+    }
+  }, [account]);
 
   const mainAccount = account ? getMainAccount(account, parentAccount) : null;
   const AccountBodyHeader = mainAccount
