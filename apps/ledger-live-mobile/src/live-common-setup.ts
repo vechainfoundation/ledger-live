@@ -80,6 +80,7 @@ setSupportedCurrencies([
   "songbird",
   "flare",
   "near",
+  "vechain",
 ]);
 
 if (Config.VERBOSE) {
