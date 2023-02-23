@@ -34,7 +34,7 @@ export default class Vet {
       [StatusCodes.OK]
     );
 
-    return response.subarray(0, 4);
+    return response.slice(0, 4);
   }
 
   /**
@@ -74,11 +74,11 @@ export default class Vet {
     const publicKeyLength = response[0];
     const addressLength = response[1 + publicKeyLength];
     const acc: VETLedgerAccount = {
-      publicKey: response.subarray(1, 1 + publicKeyLength).toString("hex"),
+      publicKey: response.slice(1, 1 + publicKeyLength).toString("hex"),
       address:
         "0x" +
         response
-          .subarray(
+          .slice(
             1 + publicKeyLength + 1,
             1 + publicKeyLength + 1 + addressLength
           )
@@ -87,7 +87,7 @@ export default class Vet {
     };
     if (chainCode) {
       acc.chainCode = response
-        .subarray(
+        .slice(
           1 + publicKeyLength + 1 + addressLength,
           1 + publicKeyLength + 1 + addressLength + 32
         )
@@ -125,6 +125,6 @@ export default class Vet {
       throw new Error("invalid signature");
     }
 
-    return lastResponse.subarray(0, 65);
+    return lastResponse.slice(0, 65);
   }
 }
