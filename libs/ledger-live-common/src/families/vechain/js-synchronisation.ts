@@ -9,6 +9,7 @@ import { getAccount, getOperations, getTokenOperations } from "./api";
 import { getTokenById } from "@ledgerhq/cryptoassets/tokens";
 
 const getAccountShape: GetAccountShape = async (info) => {
+  type TokenType = "TokenAccount";
   const { initialAccount, currency, derivationMode } = info;
   let { address } = info;
   address = eip55.encode(address);
@@ -44,8 +45,9 @@ const getAccountShape: GetAccountShape = async (info) => {
 
   // Merge new operations with the previously synced ones
   const newOperations = await getOperations(accountId, address, startAt);
+  const vthoAccountId = accountId + "+" + encodeURIComponent("vechain/vtho");
   const VTHOoperations = await getTokenOperations(
-    accountId,
+    vthoAccountId,
     address,
     "0x0000000000000000000000000000456e65726779",
     1
@@ -61,10 +63,8 @@ const getAccountShape: GetAccountShape = async (info) => {
     operations: operations,
     subAccounts: [
       {
-        type: "TokenAccount" as "TokenAccount",
-        id: initialAccount?.subAccounts
-          ? initialAccount.subAccounts[0]?.id
-          : makeid(10),
+        type: "TokenAccount" as TokenType,
+        id: vthoAccountId,
         parentId: accountId,
         token: getTokenById("vechain/vtho"),
         balance: BigNumber(energy),
