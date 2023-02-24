@@ -26,7 +26,18 @@ const getAccountShape: GetAccountShape = async (info) => {
     derivationMode,
   });
 
-  const subId = "aossdfiofosh";
+  function makeid(length) {
+    let result = "";
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
+    }
+    return result;
+  }
 
   // get the current account balance state depending your api implementation
   const { balance, energy } = await getAccount(address);
@@ -51,7 +62,9 @@ const getAccountShape: GetAccountShape = async (info) => {
     subAccounts: [
       {
         type: "TokenAccount" as "TokenAccount",
-        id: `/vechain/vtho/${subId}`,
+        id: initialAccount?.subAccounts
+          ? initialAccount.subAccounts[0]?.id
+          : makeid(10),
         parentId: accountId,
         token: getTokenById("vechain/vtho"),
         balance: BigNumber(energy),
