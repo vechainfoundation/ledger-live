@@ -3595,6 +3595,11 @@
         "title": "Add Token",
         "disclaimer": "{{tokenName}} is a BEP-20 Token.\nYou can receive tokens directly in a BNB account.",
         "learnMore": "Learn more about BEP-20"
+      },
+      "vip180": {
+        "title": "Add token",
+        "disclaimer": "{{tokenName}} Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer elit tortor, viverra a porttitor vitae",
+        "learnMore": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer elit tortor, viverra a porttitor vitae"
       }
     },
     "showMoreChainType": "More address types",
