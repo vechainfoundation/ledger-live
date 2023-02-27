@@ -107,8 +107,12 @@ export const isAccountEmpty = (a: AccountLike): boolean => {
     );
   }
 
-  const hasSubAccounts =
+  let hasSubAccounts =
     a.type === "Account" && a.subAccounts && a.subAccounts.length;
+  if (a.type == "Account" && a.currency.family == "vechain") {
+    hasSubAccounts =
+      a.subAccounts && a.subAccounts[0].balance.toString() == "0" ? 0 : 1;
+  }
   return a.operationsCount === 0 && a.balance.isZero() && !hasSubAccounts;
 };
 

@@ -15,9 +15,6 @@ import {
 } from "./utils/transaction-utils";
 import { VTHO_ADDRESS } from "./contracts/constants";
 import VIP180 from "./contracts/abis/VIP180";
-
-import { scaleNumberUp } from "./utils/mapping-utils";
-
 /**
  * Create an empty VET or VTHO transaction
  *
@@ -73,7 +70,17 @@ export const createTransaction = (): Transaction => ({
 export const updateTransaction = (
   t: Transaction,
   patch: $Shape<TransactionCommon>
-): Transaction => updateVetTransaction(t, patch);
+): Transaction => {
+  if (t.subAccountId) {
+    const isVechainSub = t.subAccountId.split(":").findIndex((c) => {
+      c == "vechain";
+    });
+    if (isVechainSub == -1) {
+      return updateVthoTransaction(t, patch);
+    }
+  }
+  return updateVetTransaction(t, patch);
+};
 
 /**
  * Apply patch to a VET transaction
@@ -90,30 +97,14 @@ const updateVetTransaction = (
 
   // Get the existing clause or create a blank one
   const updatedClause: ThorTransaction.Clause =
-    t.body.clauses.length > 0
+    t.body.clauses.length > 0 && t.mode === "send_vet"
       ? t.body.clauses[0]
-      : t.mode == "send_vet"
-      ? { to: null, value: 0, data: "0x" }
-      : { to: VTHO_ADDRESS, value: 0, data: "0x" };
+      : { to: null, value: 0, data: "0x" };
 
-  const updatedValues = {
-    to: t.recipient,
-    amount: t.amount.toFixed(),
-  };
-
-  if (t.mode == "send_vtho") {
-    if (patch.amount) updatedValues.amount = patch.amount.toFixed();
-    if (patch.recipient) updatedValues.to = patch.recipient;
-
-    updatedClause.data = VIP180.transfer.encode(
-      updatedValues.to,
-      updatedValues.amount
-    );
-  } else {
-    if (patch.amount)
-      updatedClause.value = `${HEX_PREFIX}${patch.amount.toString(16)}`;
-    if (patch.recipient) updatedClause.to = patch.recipient;
-  }
+  t.mode = "send_vet";
+  if (patch.amount)
+    updatedClause.value = `${HEX_PREFIX}${patch.amount.toString(16)}`;
+  if (patch.recipient) updatedClause.to = patch.recipient;
 
   clauses.push(updatedClause);
 
@@ -129,36 +120,37 @@ const updateVetTransaction = (
  * @param {TransactionCommon} patch
  * @returns patched transaction
  */
-// const updateVthoTransaction = (
-//   t: Transaction,
-//   patch: $Shape<TransactionCommon>
-// ): Transaction => {
-//   const clauses: ThorTransaction.Clause[] = [];
+const updateVthoTransaction = (
+  t: Transaction,
+  patch: $Shape<TransactionCommon>
+): Transaction => {
+  const clauses: ThorTransaction.Clause[] = [];
 
-//   // Get the existing clause or create a blank one
-//   const updatedClause: ThorTransaction.Clause =
-//     t.body.clauses.length > 0
-//       ? t.body.clauses[0]
-//       : { to: VTHO_ADDRESS, value: 0, data: "0x" };
+  // Get the existing clause or create a blank one
+  const updatedClause: ThorTransaction.Clause =
+    t.body.clauses.length > 0 && t.mode === "send_vtho"
+      ? t.body.clauses[0]
+      : { to: VTHO_ADDRESS, value: 0, data: "0x" };
 
-//   const updatedValues = {
-//     to: t.recipient,
-//     amount: t.amount.toFixed(),
-//   };
-//   if (patch.amount) updatedValues.amount = patch.amount.toFixed();
-//   if (patch.recipient) updatedValues.to = patch.recipient;
+  t.mode = "send_vtho";
+  const updatedValues = {
+    to: t.recipient,
+    amount: t.amount.toFixed(),
+  };
+  if (patch.amount) updatedValues.amount = patch.amount.toFixed();
+  if (patch.recipient) updatedValues.to = patch.recipient;
 
-//   updatedClause.data = VIP180.transfer.encode(
-//     updatedValues.to,
-//     updatedValues.amount
-//   );
+  updatedClause.data = VIP180.transfer.encode(
+    updatedValues.to,
+    updatedValues.amount
+  );
 
-//   clauses.push(updatedClause);
+  clauses.push(updatedClause);
 
-//   const updatedBody = { ...t.body, clauses };
+  const updatedBody = { ...t.body, clauses };
 
-//   return { ...t, ...patch, body: updatedBody };
-// };
+  return { ...t, ...patch, body: updatedBody };
+};
 
 /**
  * Prepare transaction before checking status
