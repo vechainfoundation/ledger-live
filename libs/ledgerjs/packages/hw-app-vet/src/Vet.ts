@@ -4,6 +4,18 @@ import { VETLedgerAccount } from "./model";
 import { splitPath, splitRaw } from "./utils";
 import { Buffer } from "buffer";
 
+import { VechainAppPleaseEnableContractDataAndMultiClause } from "./errors";
+
+const remapTransactionRelatedErrors = (e) => {
+  if (e && e.statusCode === 0x6a80) {
+    return new VechainAppPleaseEnableContractDataAndMultiClause(
+      "VechainAppPleaseEnableContractDataAndMultiClause"
+    );
+  }
+
+  return e;
+};
+
 /**
  * VeChain API
  *
@@ -109,14 +121,11 @@ export default class Vet {
     for (let i = 0; i < buffers.length; i++) {
       const data = buffers[i];
       responses.push(
-        await this.transport.send(
-          0xe0,
-          0x04,
-          i === 0 ? 0x00 : 0x80,
-          0x00,
-          data,
-          [StatusCodes.OK]
-        )
+        await this.transport
+          .send(0xe0, 0x04, i === 0 ? 0x00 : 0x80, 0x00, data, [StatusCodes.OK])
+          .catch((e) => {
+            throw remapTransactionRelatedErrors(e);
+          })
       );
     }
 
