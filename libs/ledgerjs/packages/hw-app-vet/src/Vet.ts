@@ -9,7 +9,7 @@ import { VechainAppPleaseEnableContractDataAndMultiClause } from "./errors";
 const remapTransactionRelatedErrors = (e) => {
   if (e && e.statusCode === 0x6a80) {
     return new VechainAppPleaseEnableContractDataAndMultiClause(
-      "VechainAppPleaseEnableContractDataAndMultiClause"
+      "Please enable contract data and multi-clause in Vechain app settings"
     );
   }
 
