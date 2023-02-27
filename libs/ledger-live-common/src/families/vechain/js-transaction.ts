@@ -72,10 +72,10 @@ export const updateTransaction = (
   patch: $Shape<TransactionCommon>
 ): Transaction => {
   if (t.subAccountId) {
-    const isVechainSub = t.subAccountId.split(":").findIndex((c) => {
-      c == "vechain";
-    });
-    if (isVechainSub == -1) {
+    const isVechainSub = t.subAccountId
+      .split(":")
+      .findIndex((c) => c == "vechain");
+    if (isVechainSub !== -1) {
       return updateVthoTransaction(t, patch);
     }
   }
