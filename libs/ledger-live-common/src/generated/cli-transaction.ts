@@ -15,6 +15,7 @@ import solana from "../families/solana/cli-transaction";
 import stellar from "../families/stellar/cli-transaction";
 import tezos from "../families/tezos/cli-transaction";
 import tron from "../families/tron/cli-transaction";
+import vechain from "../families/vechain/cli-transaction";
 
 export default {
   algorand,
@@ -34,4 +35,5 @@ export default {
   stellar,
   tezos,
   tron,
+  vechain,
 };
