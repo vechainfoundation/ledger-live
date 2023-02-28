@@ -3598,8 +3598,8 @@
       },
       "vip180": {
         "title": "Add token",
-        "disclaimer": "{{tokenName}} Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer elit tortor, viverra a porttitor vitae",
-        "learnMore": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer elit tortor, viverra a porttitor vitae"
+        "disclaimer": "{{tokenName}} is a VIP180 Token.\nYou can receive tokens directly in a VET account.",
+        "learnMore": "Learn more about VIP180"
       }
     },
     "showMoreChainType": "More address types",
