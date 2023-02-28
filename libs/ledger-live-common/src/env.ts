@@ -193,7 +193,7 @@ const envDefinitions = {
     desc: "mirror node API for Hedera",
   },
   API_VECHAIN_THOREST: {
-    def: "https://vethor-node-test.vechaindev.com",
+    def: "https://testnet.node.dev-vechain.org",
     parser: stringParser,
     desc: "Thorest API for VeChain",
   },
