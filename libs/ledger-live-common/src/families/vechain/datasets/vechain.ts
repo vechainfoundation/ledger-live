@@ -2,7 +2,7 @@ import { AccountRaw } from "@ledgerhq/types-live";
 export const vechain1: AccountRaw = {
   id: "js:2:vechain:0x32476193d4a32488322ffBb9835a7cF2c7e2202C:vechain",
   seedIdentifier: "0x32476193d4a32488322ffBb9835a7cF2c7e2202C",
-  name: "Ethereum legacy xpub6Bem...JyAdpYZy",
+  name: "Vechain legacy xpub6Bem...JyAdpYZy",
   derivationMode: "",
   index: 0,
   freshAddress: "0x32476193d4a32488322ffBb9835a7cF2c7e2202C",
@@ -10,7 +10,7 @@ export const vechain1: AccountRaw = {
   freshAddresses: [],
   pendingOperations: [],
   operations: [],
-  currencyId: "ethereum",
+  currencyId: "vechain",
   unitMagnitude: 18,
   balance: "",
   blockHeight: 0,
