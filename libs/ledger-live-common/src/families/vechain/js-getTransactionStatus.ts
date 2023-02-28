@@ -37,11 +37,19 @@ const getTransactionStatus = async (
 
   if (!amount.gt(0)) {
     errors.amount = new AmountRequired();
-  } else if (
-    // TODO: Add fees check
-    tokenAccount ? t.amount.gt(tokenAccount.balance) : t.amount.gt(a.balance)
-  ) {
-    errors.amount = new NotEnoughBalance();
+  } else {
+    if (tokenAccount) {
+      // vtho
+      if (t.amount.plus(estimatedFees).gt(tokenAccount.balance)) {
+        errors.amount = new NotEnoughBalance();
+      }
+    } else {
+      // TODO: add fees implementation
+      // vet
+      if (t.amount.gt(a.balance)) {
+        errors.amount = new NotEnoughBalance();
+      }
+    }
   }
 
   return Promise.resolve({
