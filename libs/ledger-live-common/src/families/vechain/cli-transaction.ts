@@ -18,7 +18,7 @@ function inferTransactions(
   }>,
   opts: Record<string, any>
 ): Transaction[] {
-  return flatMap(transactions, ({ transaction, account, mainAccount }) => {
+  return flatMap(transactions, ({ transaction, account }) => {
     let subAccountId =
       account.type == "Account" && account.subAccounts
         ? account.subAccounts[0].id
