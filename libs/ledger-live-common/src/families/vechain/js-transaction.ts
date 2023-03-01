@@ -15,6 +15,7 @@ import {
 } from "./utils/transaction-utils";
 import { VTHO_ADDRESS } from "./contracts/constants";
 import VIP180 from "./contracts/abis/VIP180";
+import { calculateTransactionInfo } from "./utils/calculateTransactionInfo";
 /**
  * Create an empty VET or VTHO transaction
  *
@@ -36,6 +37,7 @@ export const createTransaction = (): Transaction => ({
   },
   amount: BigNumber(0),
   recipient: "",
+  useAllAmount: false,
 });
 
 /**
@@ -159,14 +161,16 @@ const updateVthoTransaction = (
  * @param {Transaction} t
  */
 export const prepareTransaction = async (
-  a: Account,
-  t: Transaction
+  account: Account,
+  transaction: Transaction
 ): Promise<Transaction> => {
   const blockRef = await getBlockRef();
 
-  const gas = await estimateGas(t);
+  const gas = await estimateGas(transaction);
 
-  const body = { ...t.body, gas, blockRef };
+  const body = { ...transaction.body, gas, blockRef };
 
-  return { ...t, body };
+  const { amount } = await calculateTransactionInfo(account, transaction);
+
+  return { ...transaction, body, amount };
 };

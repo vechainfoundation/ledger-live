@@ -1,4 +1,3 @@
-import { BigNumber } from "bignumber.js";
 import {
   AmountRequired,
   FeeNotLoaded,
@@ -9,36 +8,40 @@ import {
 } from "@ledgerhq/errors";
 import type { TransactionStatus } from "./types";
 import type { Transaction } from "./types";
-import { calculateFee } from "./utils/transaction-utils";
 import { Account } from "@ledgerhq/types-live";
 import { isValidVechainAddress } from "./utils/isValidAddress";
+import { calculateTransactionInfo } from "./utils/calculateTransactionInfo";
 
-// TODO: Implement this properly
+// NOTE: seems like the spendableBalance is not updated correctly:
+// use balance.minus(estimatedFees) instead
 const getTransactionStatus = async (
-  a: Account,
-  t: Transaction
+  account: Account,
+  transaction: Transaction
 ): Promise<TransactionStatus> => {
-  const { amount } = t;
+  const { freshAddress, currency, subAccounts } = account;
+  const { body, recipient } = transaction;
   const errors: Record<string, Error> = {};
   const warnings: Record<string, Error> = {};
+  const {
+    amount,
+    isTokenAccount,
+    estimatedFees,
+    totalSpent,
+    spendableBalance,
+  } = await calculateTransactionInfo(account, transaction);
 
   // TODO: Implement this properly
-  if (!t.body || !t.body.gas) {
+  if (!body || !body.gas) {
     errors["body"] = new FeeNotLoaded();
   }
 
-  const estimatedFees = await calculateFee(
-    BigNumber(t.body.gas),
-    t.body.gasPriceCoef
-  );
-
-  if (!t.recipient) {
+  if (!recipient) {
     errors.recipient = new RecipientRequired();
-  } else if (a.freshAddress === t.recipient) {
+  } else if (freshAddress === recipient) {
     warnings.recipient = new InvalidAddressBecauseDestinationIsAlsoSource();
-  } else if (!isValidVechainAddress(t.recipient)) {
+  } else if (!isValidVechainAddress(recipient)) {
     errors.recipient = new InvalidAddress("", {
-      currencyName: a.currency.name,
+      currencyName: currency.name,
     });
   }
   // TODO: add a validation function
@@ -46,24 +49,12 @@ const getTransactionStatus = async (
   if (!amount.gt(0)) {
     errors.amount = new AmountRequired();
   } else {
-    const tokenAccount =
-      t.subAccountId && a.subAccounts
-        ? a.subAccounts.find((a) => {
-            return a.id === t.subAccountId;
-          })
-        : undefined;
-
-    if (tokenAccount) {
-      // vtho
-      if (t.amount.plus(estimatedFees).gt(tokenAccount.balance)) {
-        errors.amount = new NotEnoughBalance();
-      }
-    } else {
+    if (amount.gt(spendableBalance)) {
+      errors.amount = new NotEnoughBalance();
+    }
+    if (!isTokenAccount) {
       // vet
-      if (t.amount.gt(a.balance)) {
-        errors.amount = new NotEnoughBalance();
-      }
-      const vthoBalance = a.subAccounts?.[0].balance;
+      const vthoBalance = subAccounts?.[0].balance;
       if (estimatedFees.gt(vthoBalance || 0)) {
         errors.amount = new NotEnoughBalance();
       }
@@ -74,8 +65,8 @@ const getTransactionStatus = async (
     errors,
     warnings,
     estimatedFees,
-    amount: t.amount,
-    totalSpent: t.amount,
+    amount,
+    totalSpent,
   });
 };
 
