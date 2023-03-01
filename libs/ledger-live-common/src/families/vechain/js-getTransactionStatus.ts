@@ -35,15 +35,15 @@ const getTransactionStatus = async (
     errors["body"] = new FeeNotLoaded();
   }
 
-  if (!recipient) {
-    errors.recipient = new RecipientRequired();
-  } else if (freshAddress === recipient) {
-    warnings.recipient = new InvalidAddressBecauseDestinationIsAlsoSource();
-  } else if (!isValidVechainAddress(recipient)) {
-    errors.recipient = new InvalidAddress("", {
-      currencyName: currency.name,
-    });
-  }
+  // if (!recipient) {
+  //   errors.recipient = new RecipientRequired();
+  // } else if (freshAddress === recipient) {
+  //   warnings.recipient = new InvalidAddressBecauseDestinationIsAlsoSource();
+  // } else if (!isValidVechainAddress(recipient)) {
+  //   errors.recipient = new InvalidAddress("", {
+  //     currencyName: currency.name,
+  //   });
+  // }
   // TODO: add a validation function
 
   if (!amount.gt(0)) {

@@ -12,7 +12,7 @@ import {
 } from "../contracts/constants";
 import { Query } from "../api/types";
 import { query } from "../api/sdk";
-import addressUtils from "./address-utils";
+import { isValid } from "./address-utils";
 import { Transaction } from "../types";
 
 const BASE_URL = getEnv("API_VECHAIN_THOREST");
@@ -60,7 +60,7 @@ export const estimateGas = async (t: Transaction): Promise<number> => {
       t.mode === "send_vtho" ? VTHO_ADDRESS : c.to || ZERO_ADDRESS;
 
     queryData.push({
-      to: addressUtils.isValid(recipient) ? recipient : ZERO_ADDRESS,
+      to: isValid(recipient) ? recipient : ZERO_ADDRESS,
       data: `${HEX_PREFIX}${tx.encode().toString("hex")}`,
     });
   });
@@ -82,7 +82,7 @@ const getBaseGasPrice = async (): Promise<string> => {
   const response = await query([queryData]);
 
   // Expect 1 value
-  if (response.length != 1)
+  if (response && response.length != 1)
     throw Error("Unexpected response received for query");
 
   return response[0].data;

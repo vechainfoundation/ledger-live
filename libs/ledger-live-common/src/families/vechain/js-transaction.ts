@@ -16,6 +16,7 @@ import {
 import { VTHO_ADDRESS } from "./contracts/constants";
 import VIP180 from "./contracts/abis/VIP180";
 import { calculateTransactionInfo } from "./utils/calculateTransactionInfo";
+import { isValid } from "./utils/address-utils";
 /**
  * Create an empty VET or VTHO transaction
  *
@@ -41,28 +42,6 @@ export const createTransaction = (): Transaction => ({
 });
 
 /**
- * Create an empty VTHO transaction
- *
- * @returns {Transaction}
- */
-// const createVthoTransaction = (): Transaction => ({
-//   family: "vechain",
-//   mode: "send_vtho",
-//   body: {
-//     chainTag: TESTNET_CHAIN_TAG,
-//     blockRef: "empty",
-//     expiration: 18,
-//     clauses: [],
-//     gasPriceCoef: DEFAULT_GAS_COEFFICIENT,
-//     gas: "0",
-//     dependsOn: null,
-//     nonce: generateNonce(),
-//   },
-//   amount: BigNumber(0),
-//   recipient: "",
-// });
-
-/**
  * Apply patch to a transaction
  *
  * @param {Transaction} t
@@ -73,85 +52,7 @@ export const updateTransaction = (
   t: Transaction,
   patch: $Shape<TransactionCommon>
 ): Transaction => {
-  if (t.subAccountId) {
-    const isVechainSub = t.subAccountId
-      .split(":")
-      .findIndex((c) => c == "vechain");
-    if (isVechainSub !== -1) {
-      return updateVthoTransaction(t, patch);
-    }
-  }
-  return updateVetTransaction(t, patch);
-};
-
-/**
- * Apply patch to a VET transaction
- *
- * @param {Transaction} t
- * @param {TransactionCommon} patch
- * @returns patched transaction
- */
-const updateVetTransaction = (
-  t: Transaction,
-  patch: $Shape<TransactionCommon>
-): Transaction => {
-  const clauses: ThorTransaction.Clause[] = [];
-
-  // Get the existing clause or create a blank one
-  const updatedClause: ThorTransaction.Clause =
-    t.body.clauses.length > 0 && t.mode === "send_vet"
-      ? t.body.clauses[0]
-      : { to: null, value: 0, data: "0x" };
-
-  t.mode = "send_vet";
-  if (patch.amount)
-    updatedClause.value = `${HEX_PREFIX}${patch.amount.toString(16)}`;
-  if (patch.recipient) updatedClause.to = patch.recipient;
-
-  clauses.push(updatedClause);
-
-  const updatedBody = { ...t.body, clauses };
-
-  return { ...t, ...patch, body: updatedBody };
-};
-
-/**
- * Apply patch to a VTHO transaction
- *
- * @param {Transaction} t
- * @param {TransactionCommon} patch
- * @returns patched transaction
- */
-const updateVthoTransaction = (
-  t: Transaction,
-  patch: $Shape<TransactionCommon>
-): Transaction => {
-  const clauses: ThorTransaction.Clause[] = [];
-
-  // Get the existing clause or create a blank one
-  const updatedClause: ThorTransaction.Clause =
-    t.body.clauses.length > 0 && t.mode === "send_vtho"
-      ? t.body.clauses[0]
-      : { to: VTHO_ADDRESS, value: 0, data: "0x" };
-
-  t.mode = "send_vtho";
-  const updatedValues = {
-    to: t.recipient,
-    amount: t.amount.toFixed(),
-  };
-  if (patch.amount) updatedValues.amount = patch.amount.toFixed();
-  if (patch.recipient) updatedValues.to = patch.recipient;
-
-  updatedClause.data = VIP180.transfer.encode(
-    updatedValues.to,
-    updatedValues.amount
-  );
-
-  clauses.push(updatedClause);
-
-  const updatedBody = { ...t.body, clauses };
-
-  return { ...t, ...patch, body: updatedBody };
+  return { ...t, ...patch };
 };
 
 /**
@@ -164,13 +65,75 @@ export const prepareTransaction = async (
   account: Account,
   transaction: Transaction
 ): Promise<Transaction> => {
+  const { amount, isTokenAccount } = await calculateTransactionInfo(
+    account,
+    transaction
+  );
+
   const blockRef = await getBlockRef();
 
   const gas = await estimateGas(transaction);
 
-  const body = { ...transaction.body, gas, blockRef };
-
-  const { amount } = await calculateTransactionInfo(account, transaction);
+  let clauses;
+  if (transaction.recipient && isValid(transaction.recipient)) {
+    if (isTokenAccount) {
+      clauses = await calculateClausesVtho(transaction, amount);
+    } else {
+      clauses = await calculateClausesVet(transaction, amount);
+    }
+  }
+  const body = { ...transaction.body, gas, blockRef, clauses };
 
   return { ...transaction, body, amount };
+};
+
+const calculateClausesVtho = async (
+  transaction: Transaction,
+  amount: BigNumber
+): Promise<ThorTransaction.Clause[]> => {
+  const clauses: ThorTransaction.Clause[] = [];
+
+  // Get the existing clause or create a blank one
+  const updatedClause: ThorTransaction.Clause = {
+    to: VTHO_ADDRESS,
+    value: 0,
+    data: "0x",
+  };
+
+  transaction.mode = "send_vtho";
+  const updatedValues = {
+    to: transaction.recipient,
+    amount: amount.toFixed(),
+  };
+
+  updatedClause.data = VIP180.transfer.encode(
+    updatedValues.to,
+    updatedValues.amount
+  );
+
+  clauses.push(updatedClause);
+  return clauses;
+};
+
+const calculateClausesVet = async (
+  transaction: Transaction,
+  amount: BigNumber
+): Promise<ThorTransaction.Clause[]> => {
+  const clauses: ThorTransaction.Clause[] = [];
+
+  // Get the existing clause or create a blank one
+  const updatedClause: ThorTransaction.Clause = {
+    to: null,
+    value: 0,
+    data: "0x",
+  };
+
+  transaction.mode = "send_vet";
+
+  updatedClause.value = `${HEX_PREFIX}${amount.toString(16)}`;
+  updatedClause.to = transaction.recipient;
+
+  clauses.push(updatedClause);
+
+  return clauses;
 };
