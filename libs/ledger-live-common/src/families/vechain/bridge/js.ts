@@ -2,7 +2,11 @@ import type { Transaction } from "../types";
 import { makeAccountBridgeReceive } from "../../../bridge/jsHelpers";
 
 import { sync, scanAccounts } from "../js-synchronisation";
-import { Account, AccountBridge, CurrencyBridge } from "@ledgerhq/types-live";
+import {
+  AccountBridge,
+  AccountLike,
+  CurrencyBridge,
+} from "@ledgerhq/types-live";
 import {
   createTransaction,
   updateTransaction,
@@ -12,6 +16,7 @@ import getTransactionStatus from "../js-getTransactionStatus";
 import signOperation from "../js-signOperation";
 import broadcast from "../js-broadcast";
 import BigNumber from "bignumber.js";
+import { calculateFee } from "../utils/transaction-utils";
 
 const receive: AccountBridge<Transaction>["receive"] =
   makeAccountBridgeReceive();
@@ -24,11 +29,23 @@ const currencyBridge: CurrencyBridge = {
   hydrate: (): void => {},
 };
 
-// TODO: Handle VTHO
 const estimateMaxSpendable = async (inputs: {
-  account: Account;
+  account: AccountLike;
+  transaction: Transaction;
 }): Promise<BigNumber> => {
-  return inputs.account.balance;
+  const { account, transaction } = inputs;
+
+  if (account.type === "Account") {
+    return account.balance;
+  }
+
+  const estimatedFees = await calculateFee(
+    BigNumber(transaction.body.gas),
+    transaction.body.gasPriceCoef
+  );
+  return Promise.resolve(
+    BigNumber.max(0, account.balance.minus(estimatedFees))
+  );
 };
 
 const accountBridge: AccountBridge<Transaction> = {

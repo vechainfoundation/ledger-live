@@ -43,16 +43,16 @@ const getTransactionStatus = async (
   }
   // TODO: add a validation function
 
-  const tokenAccount =
-    t.subAccountId && a.subAccounts
-      ? a.subAccounts.find((a) => {
-          return a.id === t.subAccountId;
-        })
-      : undefined;
-
   if (!amount.gt(0)) {
     errors.amount = new AmountRequired();
   } else {
+    const tokenAccount =
+      t.subAccountId && a.subAccounts
+        ? a.subAccounts.find((a) => {
+            return a.id === t.subAccountId;
+          })
+        : undefined;
+
     if (tokenAccount) {
       // vtho
       if (t.amount.plus(estimatedFees).gt(tokenAccount.balance)) {
@@ -73,10 +73,9 @@ const getTransactionStatus = async (
   return Promise.resolve({
     errors,
     warnings,
-    estimatedFees:
-      Object.keys(errors).length != 0 ? new BigNumber(0) : estimatedFees,
-    amount: Object.keys(errors).length != 0 ? new BigNumber(0) : t.amount,
-    totalSpent: Object.keys(errors).length != 0 ? new BigNumber(0) : t.amount,
+    estimatedFees,
+    amount: t.amount,
+    totalSpent: t.amount,
   });
 };
 
