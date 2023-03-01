@@ -74,7 +74,7 @@ export const prepareTransaction = async (
 
   const gas = await estimateGas(transaction);
 
-  let clauses;
+  let clauses: Array<ThorTransaction.Clause> = [];
   if (transaction.recipient && isValid(transaction.recipient)) {
     if (isTokenAccount) {
       clauses = await calculateClausesVtho(transaction, amount);

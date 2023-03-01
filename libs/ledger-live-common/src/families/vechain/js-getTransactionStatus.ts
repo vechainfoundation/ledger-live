@@ -9,8 +9,8 @@ import {
 import type { TransactionStatus } from "./types";
 import type { Transaction } from "./types";
 import { Account } from "@ledgerhq/types-live";
-import { isValidVechainAddress } from "./utils/isValidAddress";
 import { calculateTransactionInfo } from "./utils/calculateTransactionInfo";
+import { isValid } from "./utils/address-utils";
 
 // NOTE: seems like the spendableBalance is not updated correctly:
 // use balance.minus(estimatedFees) instead
@@ -35,15 +35,15 @@ const getTransactionStatus = async (
     errors["body"] = new FeeNotLoaded();
   }
 
-  // if (!recipient) {
-  //   errors.recipient = new RecipientRequired();
-  // } else if (freshAddress === recipient) {
-  //   warnings.recipient = new InvalidAddressBecauseDestinationIsAlsoSource();
-  // } else if (!isValidVechainAddress(recipient)) {
-  //   errors.recipient = new InvalidAddress("", {
-  //     currencyName: currency.name,
-  //   });
-  // }
+  if (!recipient) {
+    errors.recipient = new RecipientRequired();
+  } else if (freshAddress === recipient) {
+    warnings.recipient = new InvalidAddressBecauseDestinationIsAlsoSource();
+  } else if (!isValid(recipient)) {
+    errors.recipient = new InvalidAddress("", {
+      currencyName: currency.name,
+    });
+  }
   // TODO: add a validation function
 
   if (!amount.gt(0)) {
