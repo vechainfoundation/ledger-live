@@ -2,12 +2,16 @@ import { BigNumber } from "bignumber.js";
 import {
   AmountRequired,
   FeeNotLoaded,
+  InvalidAddress,
+  InvalidAddressBecauseDestinationIsAlsoSource,
   NotEnoughBalance,
+  RecipientRequired,
 } from "@ledgerhq/errors";
 import type { TransactionStatus } from "./types";
 import type { Transaction } from "./types";
 import { calculateFee } from "./utils/transaction-utils";
 import { Account } from "@ledgerhq/types-live";
+import { isValidVechainAddress } from "./utils/isValidAddress";
 
 // TODO: Implement this properly
 const getTransactionStatus = async (
@@ -28,6 +32,17 @@ const getTransactionStatus = async (
     t.body.gasPriceCoef
   );
 
+  if (!t.recipient) {
+    errors.recipient = new RecipientRequired();
+  } else if (a.freshAddress === t.recipient) {
+    warnings.recipient = new InvalidAddressBecauseDestinationIsAlsoSource();
+  } else if (!isValidVechainAddress(t.recipient)) {
+    errors.recipient = new InvalidAddress("", {
+      currencyName: a.currency.name,
+    });
+  }
+  // TODO: add a validation function
+
   const tokenAccount =
     t.subAccountId && a.subAccounts
       ? a.subAccounts.find((a) => {
@@ -44,9 +59,12 @@ const getTransactionStatus = async (
         errors.amount = new NotEnoughBalance();
       }
     } else {
-      // TODO: add fees implementation
       // vet
       if (t.amount.gt(a.balance)) {
+        errors.amount = new NotEnoughBalance();
+      }
+      const vthoBalance = a.subAccounts?.[0].balance;
+      if (estimatedFees.gt(vthoBalance || 0)) {
         errors.amount = new NotEnoughBalance();
       }
     }
@@ -55,9 +73,10 @@ const getTransactionStatus = async (
   return Promise.resolve({
     errors,
     warnings,
-    estimatedFees,
-    amount: t.amount,
-    totalSpent: t.amount,
+    estimatedFees:
+      Object.keys(errors).length != 0 ? new BigNumber(0) : estimatedFees,
+    amount: Object.keys(errors).length != 0 ? new BigNumber(0) : t.amount,
+    totalSpent: Object.keys(errors).length != 0 ? new BigNumber(0) : t.amount,
   });
 };
 
