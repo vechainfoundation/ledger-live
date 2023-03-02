@@ -16,6 +16,7 @@ import solana from "../families/solana/specs";
 import stellar from "../families/stellar/specs";
 import tezos from "../families/tezos/specs";
 import tron from "../families/tron/specs";
+import vechain from "../families/vechain/specs";
 
 export default {
   algorand,
@@ -36,4 +37,5 @@ export default {
   stellar,
   tezos,
   tron,
+  vechain,
 };
