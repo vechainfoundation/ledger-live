@@ -44,7 +44,6 @@ const getTransactionStatus = async (
       currencyName: currency.name,
     });
   }
-  // TODO: add a validation function
 
   if (!amount.gt(0)) {
     errors.amount = new AmountRequired();
