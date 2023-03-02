@@ -11,6 +11,7 @@ import type { Transaction } from "./types";
 import { Account } from "@ledgerhq/types-live";
 import { calculateTransactionInfo } from "./utils/calculateTransactionInfo";
 import { isValid } from "./utils/address-utils";
+import BigNumber from "bignumber.js";
 
 // NOTE: seems like the spendableBalance is not updated correctly:
 // use balance.minus(estimatedFees) instead
@@ -63,9 +64,9 @@ const getTransactionStatus = async (
   return Promise.resolve({
     errors,
     warnings,
-    estimatedFees,
-    amount,
-    totalSpent,
+    estimatedFees: Object.keys(errors).length ? BigNumber(0) : estimatedFees,
+    amount: Object.keys(errors).length ? new BigNumber(0) : amount,
+    totalSpent: Object.keys(errors).length ? new BigNumber(0) : totalSpent,
   });
 };
 
