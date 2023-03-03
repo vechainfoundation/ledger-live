@@ -68,11 +68,6 @@ export const isAccountEmpty = (a: AccountLike): boolean => {
       tronAcc.tronResources && tronAcc.tronResources.bandwidth.freeLimit.eq(0)
     );
   }
-  if (a.type == "Account" && a.currency.family == "vechain") {
-    const checkSubAccounts =
-      a.subAccounts && a.subAccounts[0].balance.toString() == "0" ? 0 : 1;
-    return a.operationsCount === 0 && a.balance.isZero() && !checkSubAccounts;
-  }
   return commonIsAccountEmpty(a);
 };
 
