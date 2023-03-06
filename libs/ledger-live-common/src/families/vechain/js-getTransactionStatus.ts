@@ -64,8 +64,10 @@ const getTransactionStatus = async (
   return Promise.resolve({
     errors,
     warnings,
-    estimatedFees: Object.keys(errors).length ? BigNumber(0) : estimatedFees,
-    amount: Object.keys(errors).length ? new BigNumber(0) : amount,
+    estimatedFees: Object.keys(errors).length
+      ? new BigNumber(0)
+      : estimatedFees,
+    amount: amount,
     totalSpent: Object.keys(errors).length ? new BigNumber(0) : totalSpent,
   });
 };

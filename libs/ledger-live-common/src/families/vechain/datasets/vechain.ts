@@ -19,8 +19,8 @@ export const vechain1: AccountRaw = {
   currencyId: "vechain",
   unitMagnitude: 18,
   lastSyncDate: "2023-02-28T09:07:53.785Z",
-  balance: "10000000000000",
-  spendableBalance: "10000000000000",
+  balance: "10000000000000000000",
+  spendableBalance: "10000000000000000000",
   balanceHistoryCache: {
     HOUR: { balances: [], latestDate: 1677574800000 },
     DAY: { balances: [], latestDate: 1677538800000 },
@@ -35,7 +35,7 @@ export const vechain1: AccountRaw = {
       starred: false,
       tokenId: "vechain/vtho",
       balance: "10000000000000000000",
-      spendableBalance: "10000000000000000000",
+      spendableBalance: "9000000000000000000",
       balanceHistoryCache: {
         HOUR: { latestDate: null, balances: [] },
         DAY: { latestDate: null, balances: [] },

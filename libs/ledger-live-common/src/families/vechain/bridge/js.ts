@@ -38,14 +38,17 @@ const estimateMaxSpendable = async (inputs: {
   if (account.type === "Account") {
     return account.balance;
   }
-
-  const estimatedFees = await calculateFee(
-    BigNumber(transaction.body.gas),
-    transaction.body.gasPriceCoef
-  );
-  return Promise.resolve(
-    BigNumber.max(0, account.balance.minus(estimatedFees))
-  );
+  if (transaction) {
+    const estimatedFees = await calculateFee(
+      BigNumber(transaction.body.gas),
+      transaction.body.gasPriceCoef
+    );
+    return Promise.resolve(
+      BigNumber.max(0, account.balance.minus(estimatedFees))
+    );
+  } else {
+    return account.balance;
+  }
 };
 
 const accountBridge: AccountBridge<Transaction> = {
