@@ -41,10 +41,18 @@ const getAccountShape: GetAccountShape = async (info) => {
   );
   const operations = mergeOps(oldOperations, newOperations);
 
+  let min_date = -1;
+  if (operations.length != 0) {
+    const operationsDates = operations.map((c) => c.date.getTime());
+    operationsDates.concat(VTHOoperations.map((c) => c.date.getTime()));
+    min_date = Math.min(...operationsDates);
+  }
+
   const shape = {
     ...info,
     id: accountId,
     balance: BigNumber(balance),
+    creationDate: min_date != -1 ? new Date(min_date) : new Date(),
     spendableBalance: BigNumber(balance),
     operationsCount: operations.length,
     operations: operations,
@@ -56,10 +64,7 @@ const getAccountShape: GetAccountShape = async (info) => {
         token: getTokenById("vechain/vtho"),
         balance: BigNumber(energy),
         spendableBalance: BigNumber(energy),
-        creationDate:
-          (initialAccount?.subAccounts &&
-            initialAccount.subAccounts[0]?.creationDate) ||
-          new Date(),
+        creationDate: min_date != -1 ? new Date(min_date) : new Date(),
         operationsCount: VTHOoperations.length,
         operations: VTHOoperations,
         pendingOperations:

@@ -26,8 +26,8 @@ const dataset: DatasetTest<Transaction> = {
   currencies: {
     vechain: {
       FIXME_ignoreAccountFields: [
-        "balance", // Rewards are included, same as above
-        "spendableBalance", // Same since the rewards are included here too
+        "balance",
+        "spendableBalance",
         "estimateMaxSpendable",
         "creationDate",
         "blockRef",
