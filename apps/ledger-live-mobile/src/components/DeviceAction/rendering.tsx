@@ -58,7 +58,7 @@ import Circle from "../Circle";
 import { MANAGER_TABS } from "../../const/manager";
 import { providerIcons } from "../../icons/swap/index";
 import ExternalLink from "../ExternalLink";
-import { track } from "../../analytics";
+import { TrackScreen, track } from "../../analytics";
 import CurrencyUnitValue from "../CurrencyUnitValue";
 import TermsFooter, { TermsProviders } from "../TermsFooter";
 import CurrencyIcon from "../CurrencyIcon";
@@ -71,9 +71,8 @@ import {
   FramedImageWithLottieWithContext,
 } from "../CustomImage/FramedImageWithLottie";
 import ModalLock from "../ModalLock";
-
-const confirmLockscreen = require("../animations/stax/customimage/confirmLockscreen.json"); // eslint-disable-line @typescript-eslint/no-var-requires, import/no-unresolved
-const allowConnection = require("../animations/stax/customimage/allowConnection.json"); // eslint-disable-line @typescript-eslint/no-var-requires, import/no-unresolved
+import confirmLockscreen from "../../animations/stax/customimage/confirmLockscreen.json";
+import allowConnection from "../../animations/stax/customimage/allowConnection.json";
 
 const Wrapper = styled(Flex).attrs({
   flex: 1,
@@ -451,6 +450,7 @@ export function renderAllowLanguageInstallation({
 
   return (
     <Wrapper>
+      <TrackScreen category="Allow language installation on Stax" />
       <Text variant="h4" textAlign="center">
         {t("deviceLocalization.allowLanguageInstallation", { deviceName })}
       </Text>

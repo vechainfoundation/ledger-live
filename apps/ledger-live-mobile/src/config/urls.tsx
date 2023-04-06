@@ -143,10 +143,6 @@ export const urls = {
     developerPage:
       "https://developers.ledger.com?utm_source=ledger_live_mobile&utm_medium=self_referral&utm_content=catalog",
   },
-  compound:
-    "https://support.ledger.com/hc/en-us/articles/4404389208721-Lend-crypto-assets-with-Ledger-Live?docs=true&utm_source=ledger_live_mobile&utm_medium=self_referral&utm_content=compound",
-  compoundTnC:
-    "https://shop.ledger.com/pages/ledger-live-terms-of-use?utm_source=ledger_live_mobile&utm_medium=self_referral&utm_content=compoundTnC",
   approvedOperation:
     "https://support.ledger.com/hc/en-us/articles/360020849134-Track-your-transaction?docs=true&utm_source=ledger_live_mobile&utm_medium=self_referral&utm_content=compoundTX",
   recoveryPhraseInfo:
@@ -212,8 +208,10 @@ export const urls = {
     howToSecure: "https://www.ledger.com/academy/how-to-secure-your-nfts",
   },
   lnxFirmwareUpdate:
-    "https://support.ledger.com/hc/en-us/articles/360013349800-Update-Ledger-Nano-X-firmware?docs=true",
+    "https://support.ledger.com/hc/en-us/articles/9305992683165?docs=true",
   recoverSources: {
     myLedger: "ledgerlive://myledger",
   },
+  domainService:
+    "https://support.ledger.com/hc/articles/9710787581469?docs=true",
 };
