@@ -11,6 +11,10 @@ import { useCurrencyPortfolio } from "~/renderer/actions/portfolio";
 import AssetBalanceSummaryHeader from "./AssetBalanceSummaryHeader";
 import { discreetModeSelector } from "~/renderer/reducers/settings";
 import FormattedDate from "~/renderer/components/FormattedDate";
+
+import NoGraphWarning from "~/renderer/families/vechain/NoGraphWarning.tsx";
+import PlaceholderChart from "~/renderer/components/PlaceholderChart";
+
 type Props = {
   counterValue: Currency;
   chartColor: string;
@@ -27,6 +31,7 @@ export default function BalanceSummary({
   chartColor,
   currency,
 }: Props) {
+  const portfolio = usePortfolio();
   const { history, countervalueAvailable, countervalueChange, cryptoChange } = useCurrencyPortfolio(
     {
       currency,
@@ -88,25 +93,37 @@ export default function BalanceSummary({
       </Box>
 
       <Box px={5} ff="Inter" fontSize={4} color="palette.text.shade80" pt={6}>
-        <Chart
-          magnitude={chartMagnitude}
-          color={chartColor}
-          // TODO make date non optional
-          data={history}
-          height={200}
-          tickXScale={range}
-          valueKey={displayCountervalue ? "countervalue" : "value"}
-          mapValue={displayCountervalue ? mapValueCounterValue : mapValueCryptoValue}
-          renderTickY={
-            discreetMode
-              ? () => ""
-              : displayCountervalue
-              ? renderTickYCounterValue
-              : renderTickYCryptoValue
-          }
-          isInteractive
-          renderTooltip={renderTooltip}
-        />
+        {currency.type === "TokenCurrency" && currency.id === "vechain/vtho" ? (
+          <>
+            <NoGraphWarning />
+            <PlaceholderChart
+              magnitude={counterValue.units[0].magnitude}
+              chartId="prova"
+              data={portfolio.balanceHistory}
+              tickXScale={range}
+            />
+          </>
+        ) : (
+          <Chart
+            magnitude={chartMagnitude}
+            color={chartColor}
+            // TODO make date non optional
+            data={history}
+            height={200}
+            tickXScale={range}
+            valueKey={displayCountervalue ? "countervalue" : "value"}
+            mapValue={displayCountervalue ? mapValueCounterValue : mapValueCryptoValue}
+            renderTickY={
+              discreetMode
+                ? () => ""
+                : displayCountervalue
+                ? renderTickYCounterValue
+                : renderTickYCryptoValue
+            }
+            isInteractive
+            renderTooltip={renderTooltip}
+          />
+        )}
       </Box>
     </Card>
   );
