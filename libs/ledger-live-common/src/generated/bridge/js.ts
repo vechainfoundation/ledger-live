@@ -16,11 +16,11 @@ import solana from "../../families/solana/bridge/js";
 import stellar from "../../families/stellar/bridge/js";
 import tezos from "../../families/tezos/bridge/js";
 import tron from "../../families/tron/bridge/js";
+import vechain from "../../families/vechain/bridge/js";
 import { makeLRUCache } from "../../cache";
 import network from "../../network";
 import { withDevice } from "../../hw/deviceAccess";
 import { createBridges as polkadotCreateBridges } from "@ledgerhq/coin-polkadot/bridge/js";
-import vechain from "../../families/vechain/bridge/js";
 
 export default {
   algorand,
@@ -41,6 +41,6 @@ export default {
   stellar,
   tezos,
   tron,
-  polkadot: polkadotCreateBridges(withDevice, network, makeLRUCache),
   vechain,
+  polkadot: polkadotCreateBridges(withDevice, network, makeLRUCache),
 };
