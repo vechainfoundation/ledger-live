@@ -2235,6 +2235,7 @@ importers:
       '@ledgerhq/hw-transport-mocker': workspace:^
       '@ledgerhq/logs': workspace:^
       thor-devkit: ^2.0.6
+      typescript: ^4
     dependencies:
       '@ledgerhq/cryptoassets': link:../cryptoassets
       '@ledgerhq/errors': link:../errors
@@ -2242,6 +2243,8 @@ importers:
       '@ledgerhq/hw-transport-mocker': link:../hw-transport-mocker
       '@ledgerhq/logs': link:../logs
       thor-devkit: 2.0.7
+    devDependencies:
+      typescript: 4.9.5
 
   libs/ledgerjs/packages/hw-app-xrp:
     specifiers:
