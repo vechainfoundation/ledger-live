@@ -8,27 +8,22 @@ import { useTheme } from "styled-components/native";
 import { useNavigation } from "@react-navigation/native";
 import { useFilteredServiceStatus } from "@ledgerhq/live-common/notifications/ServiceStatusProvider/index";
 
-import { useDispatch } from "react-redux";
 import NotificationCenter from "../../screens/NotificationCenter/Notifications";
 import { NavigatorName, ScreenName } from "../../const";
 import type { NotificationCenterNavigatorParamList } from "./types/NotificationCenterNavigator";
 import { getStackNavigatorConfig } from "../../navigation/navigatorConfig";
 import { track } from "../../analytics";
-import { setStatusCenter } from "../../actions/settings";
 import FullNodeWarning from "../../icons/FullNodeWarning";
+import StatusCenter from "../../screens/NotificationCenter/Status";
 
 const Stack = createStackNavigator<NotificationCenterNavigatorParamList>();
 
 export default function NotificationCenterNavigator() {
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const dispatch = useDispatch();
   const { colors, space } = useTheme();
 
-  const stackNavConfig = useMemo(
-    () => getStackNavigatorConfig(colors),
-    [colors],
-  );
+  const stackNavConfig = useMemo(() => getStackNavigatorConfig(colors), [colors]);
   const { incidents } = useFilteredServiceStatus();
 
   const goToNotificationsSettings = useCallback(() => {
@@ -41,13 +36,15 @@ export default function NotificationCenterNavigator() {
     });
   }, [navigation]);
 
-  const openStatusCenter = useCallback(() => {
+  const goToStatusCenter = useCallback(() => {
     track("button_clicked", {
       button: "Notification Center Status",
+      screen: ScreenName.NotificationCenterStatus,
     });
-    dispatch(setStatusCenter(true));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    navigation.navigate(NavigatorName.NotificationCenter, {
+      screen: ScreenName.NotificationCenterStatus,
+    });
+  }, [navigation]);
 
   return (
     <Stack.Navigator screenOptions={stackNavConfig}>
@@ -59,10 +56,7 @@ export default function NotificationCenterNavigator() {
           headerRight: () => (
             <Flex flexDirection="row">
               {incidents.length > 0 && (
-                <TouchableOpacity
-                  style={{ marginRight: space[6] }}
-                  onPress={openStatusCenter}
-                >
+                <TouchableOpacity style={{ marginRight: space[6] }} onPress={goToStatusCenter}>
                   <FullNodeWarning
                     size={24}
                     color={colors.neutral.c100}
@@ -79,6 +73,14 @@ export default function NotificationCenterNavigator() {
               </TouchableOpacity>
             </Flex>
           ),
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenName.NotificationCenterStatus}
+        component={StatusCenter}
+        options={{
+          title: t("notificationCenter.status.header"),
         }}
       />
     </Stack.Navigator>

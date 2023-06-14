@@ -1,11 +1,5 @@
 import { BigNumber } from "bignumber.js";
-import { isEqual } from "lodash";
-import type {
-  TronAccount,
-  TronAccountRaw,
-  TronResources,
-  TronResourcesRaw,
-} from "./types";
+import type { TronAccount, TronAccountRaw, TronResources, TronResourcesRaw } from "./types";
 import { Account, AccountRaw } from "@ledgerhq/types-live";
 
 export const toTronResourcesRaw = ({
@@ -28,12 +22,7 @@ export const toTronResourcesRaw = ({
 
   for (const k in cacheTx) {
     const { fee, blockNumber, withdraw_amount, unfreeze_amount } = cacheTx[k];
-    cacheTransactionInfoById[k] = [
-      fee,
-      blockNumber,
-      withdraw_amount,
-      unfreeze_amount,
-    ];
+    cacheTransactionInfoById[k] = [fee, blockNumber, withdraw_amount, unfreeze_amount];
   }
 
   return {
@@ -100,8 +89,7 @@ export const fromTronResourcesRaw = ({
 
   if (cacheTransactionInfoByIdRaw) {
     for (const k in cacheTransactionInfoByIdRaw) {
-      const [fee, blockNumber, withdraw_amount, unfreeze_amount] =
-        cacheTransactionInfoByIdRaw[k];
+      const [fee, blockNumber, withdraw_amount, unfreeze_amount] = cacheTransactionInfoByIdRaw[k];
       cacheTransactionInfoById[k] = {
         fee,
         blockNumber,
@@ -159,39 +147,12 @@ export const fromTronResourcesRaw = ({
 export function assignToAccountRaw(account: Account, accountRaw: AccountRaw) {
   const tronAccount = account as TronAccount;
   if (tronAccount.tronResources) {
-    (accountRaw as TronAccountRaw).tronResources = toTronResourcesRaw(
-      tronAccount.tronResources
-    );
+    (accountRaw as TronAccountRaw).tronResources = toTronResourcesRaw(tronAccount.tronResources);
   }
 }
 
 export function assignFromAccountRaw(accountRaw: AccountRaw, account: Account) {
   const tronResourcesRaw = (accountRaw as TronAccountRaw).tronResources;
   if (tronResourcesRaw)
-    (account as TronAccount).tronResources =
-      fromTronResourcesRaw(tronResourcesRaw);
-}
-
-export function applyReconciliation(
-  account: Account,
-  updatedRaw: AccountRaw,
-  next: Account
-): boolean {
-  let changed = false;
-  const tronAcc = account as TronAccount;
-  const tronUpdatedRaw = updatedRaw as TronAccountRaw;
-  if (
-    tronUpdatedRaw.tronResources &&
-    (!tronAcc.tronResources ||
-      !isEqual(
-        toTronResourcesRaw(tronAcc.tronResources),
-        tronUpdatedRaw.tronResources
-      ))
-  ) {
-    (next as TronAccount).tronResources = fromTronResourcesRaw(
-      tronUpdatedRaw.tronResources
-    );
-    changed = true;
-  }
-  return changed;
+    (account as TronAccount).tronResources = fromTronResourcesRaw(tronResourcesRaw);
 }

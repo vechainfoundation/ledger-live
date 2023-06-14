@@ -17,8 +17,7 @@ type Props = {
 // This item will also come from the pr from alexandre.
 const Item = ({ device, onPress }: Props) => {
   const { wired, available } = device;
-  const [isRemoveDeviceMenuOpen, setIsRemoveDeviceMenuOpen] =
-    useState<boolean>(false);
+  const [isRemoveDeviceMenuOpen, setIsRemoveDeviceMenuOpen] = useState<boolean>(false);
 
   const wording = wired ? "usb" : available ? "available" : "unavailable";
   const color = wording === "unavailable" ? "neutral.c60" : "primary.c80";
@@ -33,7 +32,7 @@ const Item = ({ device, onPress }: Props) => {
       case DeviceModelId.nanoSP:
         return <Icons.NanoSFoldedMedium size={24} />;
       case DeviceModelId.stax:
-        return <Icons.StaxRegular size={24} />;
+        return <Icons.StaxMedium size={24} />;
       case DeviceModelId.nanoX:
       default:
         return <Icons.NanoXFoldedMedium size={24} />;

@@ -1,5 +1,5 @@
 import { Page, Locator } from "@playwright/test";
-import { waitFor } from "tests/utils/waitFor";
+import { waitFor } from "../utils/waitFor";
 
 export class DiscoverPage {
   readonly page: Page;
@@ -21,9 +21,11 @@ export class DiscoverPage {
   readonly signNetworkWarning: Locator;
   readonly signContinueButton: Locator;
   readonly confirmText: Locator;
+  readonly webview: Locator;
 
   constructor(page: Page) {
     this.page = page;
+    this.webview = page.locator("webview");
     this.discoverMenuButton = page.locator("data-test-id=drawer-catalog-button");
     this.discoverTitle = page.locator("data-test-id=discover-title");
     this.testAppCatalogItem = page.locator("#platform-catalog-app-dummy-live-app");
@@ -55,8 +57,17 @@ export class DiscoverPage {
     return await this.liveAppTitle.textContent();
   }
 
-  async waitForLiveAppToLoad() {
-    await this.liveAppLoadingSpinner.waitFor({ state: "detached" });
+  async getLiveAppDappURL() {
+    try {
+      const src = await this.webview.getAttribute("src");
+      const url = new URL(src ?? "");
+      const { dappUrl }: { dappUrl: string | null } = JSON.parse(
+        url.searchParams.get("params") ?? "",
+      );
+      return dappUrl;
+    } catch (e) {
+      return null;
+    }
   }
 
   async getAccountsList() {

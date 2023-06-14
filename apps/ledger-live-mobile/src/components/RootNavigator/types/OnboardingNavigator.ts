@@ -43,7 +43,7 @@ export type OnboardingNavigatorParamList = {
   };
   [ScreenName.OnboardingPairNew]: {
     deviceModelId: DeviceModelId;
-    next?: string;
+    next?: ScreenName.OnboardingProtectFlow;
     showSeedWarning?: boolean;
     isProtectFlow?: boolean;
   };
@@ -55,7 +55,6 @@ export type OnboardingNavigatorParamList = {
         deviceModelId?: DeviceModelId;
       }
     | undefined;
-  [ScreenName.OnboardingFinish]: undefined;
   [NavigatorName.PasswordAddFlow]: undefined;
   [ScreenName.OnboardingQuiz]: {
     deviceModelId: DeviceModelId;

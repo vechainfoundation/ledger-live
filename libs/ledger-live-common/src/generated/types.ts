@@ -1,7 +1,7 @@
-import { Transaction as algorandTransaction } from "../families/algorand/types";
-import { TransactionRaw as algorandTransactionRaw } from "../families/algorand/types";
-import { TransactionStatus as algorandTransactionStatus } from "../families/algorand/types";
-import { TransactionStatusRaw as algorandTransactionStatusRaw } from "../families/algorand/types";
+import { Transaction as algorandTransaction } from "@ledgerhq/coin-algorand/types";
+import { TransactionRaw as algorandTransactionRaw } from "@ledgerhq/coin-algorand/types";
+import { TransactionStatus as algorandTransactionStatus } from "@ledgerhq/coin-algorand/types";
+import { TransactionStatusRaw as algorandTransactionStatusRaw } from "@ledgerhq/coin-algorand/types";
 import { Transaction as bitcoinTransaction } from "../families/bitcoin/types";
 import { TransactionRaw as bitcoinTransactionRaw } from "../families/bitcoin/types";
 import { TransactionStatus as bitcoinTransactionStatus } from "../families/bitcoin/types";
@@ -30,10 +30,10 @@ import { Transaction as ethereumTransaction } from "../families/ethereum/types";
 import { TransactionRaw as ethereumTransactionRaw } from "../families/ethereum/types";
 import { TransactionStatus as ethereumTransactionStatus } from "../families/ethereum/types";
 import { TransactionStatusRaw as ethereumTransactionStatusRaw } from "../families/ethereum/types";
-import { Transaction as evmTransaction } from "../families/evm/types";
-import { TransactionRaw as evmTransactionRaw } from "../families/evm/types";
-import { TransactionStatus as evmTransactionStatus } from "../families/evm/types";
-import { TransactionStatusRaw as evmTransactionStatusRaw } from "../families/evm/types";
+import { Transaction as evmTransaction } from "@ledgerhq/coin-evm/types";
+import { TransactionRaw as evmTransactionRaw } from "@ledgerhq/coin-evm/types";
+import { TransactionStatus as evmTransactionStatus } from "@ledgerhq/coin-evm/types";
+import { TransactionStatusRaw as evmTransactionStatusRaw } from "@ledgerhq/coin-evm/types";
 import { Transaction as filecoinTransaction } from "../families/filecoin/types";
 import { TransactionRaw as filecoinTransactionRaw } from "../families/filecoin/types";
 import { TransactionStatus as filecoinTransactionStatus } from "../families/filecoin/types";
@@ -46,10 +46,6 @@ import { Transaction as nearTransaction } from "../families/near/types";
 import { TransactionRaw as nearTransactionRaw } from "../families/near/types";
 import { TransactionStatus as nearTransactionStatus } from "../families/near/types";
 import { TransactionStatusRaw as nearTransactionStatusRaw } from "../families/near/types";
-import { Transaction as neoTransaction } from "../families/neo/types";
-import { TransactionRaw as neoTransactionRaw } from "../families/neo/types";
-import { TransactionStatus as neoTransactionStatus } from "../families/neo/types";
-import { TransactionStatusRaw as neoTransactionStatusRaw } from "../families/neo/types";
 import { Transaction as polkadotTransaction } from "@ledgerhq/coin-polkadot/types";
 import { TransactionRaw as polkadotTransactionRaw } from "@ledgerhq/coin-polkadot/types";
 import { TransactionStatus as polkadotTransactionStatus } from "@ledgerhq/coin-polkadot/types";
@@ -88,7 +84,6 @@ export type Transaction =
   | filecoinTransaction
   | hederaTransaction
   | nearTransaction
-  | neoTransaction
   | polkadotTransaction
   | rippleTransaction
   | solanaTransaction
@@ -109,7 +104,6 @@ export type TransactionRaw =
   | filecoinTransactionRaw
   | hederaTransactionRaw
   | nearTransactionRaw
-  | neoTransactionRaw
   | polkadotTransactionRaw
   | rippleTransactionRaw
   | solanaTransactionRaw
@@ -130,7 +124,6 @@ export type TransactionStatus =
   | filecoinTransactionStatus
   | hederaTransactionStatus
   | nearTransactionStatus
-  | neoTransactionStatus
   | polkadotTransactionStatus
   | rippleTransactionStatus
   | solanaTransactionStatus
@@ -151,7 +144,6 @@ export type TransactionStatusRaw =
   | filecoinTransactionStatusRaw
   | hederaTransactionStatusRaw
   | nearTransactionStatusRaw
-  | neoTransactionStatusRaw
   | polkadotTransactionStatusRaw
   | rippleTransactionStatusRaw
   | solanaTransactionStatusRaw

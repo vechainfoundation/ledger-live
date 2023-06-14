@@ -16,6 +16,7 @@ import { DeviceCommunication } from "@ledgerhq/coin-framework/bridge/jsHelpers";
 import { encodeOperationId } from "@ledgerhq/coin-framework/operation";
 import { buildTransaction } from "./js-buildTransaction";
 import { calculateAmount, getNonce, isFirstBond } from "./logic";
+import { PolkadotAPI } from "./api";
 const MODE_TO_TYPE = {
   send: "OUT",
   bond: "BOND",
@@ -42,11 +43,7 @@ const MODE_TO_PALLET_METHOD = {
   claimReward: "staking.payoutStakers",
 };
 
-const getExtra = (
-  type: string,
-  account: PolkadotAccount,
-  transaction: Transaction
-) => {
+const getExtra = (type: string, account: PolkadotAccount, transaction: Transaction) => {
   const extra = {
     palletMethod: MODE_TO_PALLET_METHOD[transaction.mode],
   };
@@ -70,9 +67,7 @@ const getExtra = (
     case "WITHDRAW_UNBONDED":
       return {
         ...extra,
-        withdrawUnbondedAmount: new BigNumber(
-          account.polkadotResources?.unlockedBalance || 0
-        ),
+        withdrawUnbondedAmount: new BigNumber(account.polkadotResources?.unlockedBalance || 0),
       };
 
     case "NOMINATE":
@@ -85,14 +80,10 @@ const getExtra = (
 const buildOptimisticOperation = (
   account: PolkadotAccount,
   transaction: Transaction,
-  fee: BigNumber
+  fee: BigNumber,
 ): Operation => {
-  const type = (MODE_TO_TYPE[transaction.mode] ??
-    MODE_TO_TYPE.default) as OperationType;
-  const value =
-    type === "OUT"
-      ? new BigNumber(transaction.amount).plus(fee)
-      : new BigNumber(fee);
+  const type = (MODE_TO_TYPE[transaction.mode] ?? MODE_TO_TYPE.default) as OperationType;
+  const value = type === "OUT" ? new BigNumber(transaction.amount).plus(fee) : new BigNumber(fee);
   const extra = getExtra(type, account, transaction);
   const operation: Operation = {
     id: encodeOperationId(account.id, "", type),
@@ -124,7 +115,7 @@ const buildOptimisticOperation = (
 export const signExtrinsic = async (
   unsigned: Record<string, any>,
   signature: any,
-  registry: TypeRegistry
+  registry: TypeRegistry,
 ): Promise<string> => {
   const extrinsic = registry.createType("Extrinsic", unsigned, {
     version: unsigned.version,
@@ -141,12 +132,9 @@ export const signExtrinsic = async (
  */
 export const fakeSignExtrinsic = async (
   unsigned: Record<string, any>,
-  registry: TypeRegistry
+  registry: TypeRegistry,
 ): Promise<string> => {
-  const fakeSignature = u8aConcat(
-    new Uint8Array([1]),
-    new Uint8Array(64).fill(0x42)
-  );
+  const fakeSignature = u8aConcat(new Uint8Array([1]), new Uint8Array(64).fill(0x42));
   return signExtrinsic(unsigned, fakeSignature, registry);
 };
 
@@ -154,7 +142,10 @@ export const fakeSignExtrinsic = async (
  * Sign Transaction with Ledger hardware
  */
 const buildSignOperation =
-  (withDevice: DeviceCommunication): SignOperationFnSignature<Transaction> =>
+  (
+    withDevice: DeviceCommunication,
+    polkadotAPI: PolkadotAPI,
+  ): SignOperationFnSignature<Transaction> =>
   ({
     account,
     deviceId,
@@ -165,8 +156,8 @@ const buildSignOperation =
     transaction: Transaction;
   }): Observable<SignOperationEvent> =>
     withDevice(deviceId)(
-      (transport) =>
-        new Observable((o) => {
+      transport =>
+        new Observable(o => {
           async function main() {
             o.next({
               type: "device-signature-requested",
@@ -184,10 +175,10 @@ const buildSignOperation =
                 t: transaction,
               }),
             };
-            const { unsigned, registry } = await buildTransaction(
+            const { unsigned, registry } = await buildTransaction(polkadotAPI)(
               account as PolkadotAccount,
               transactionToSign,
-              true
+              true,
             );
             const payload = registry
               .createType("ExtrinsicPayload", unsigned, {
@@ -199,10 +190,7 @@ const buildSignOperation =
             // Sign by device
             const polkadot = new Polkadot(transport);
             // FIXME: the type of payload Uint8Array is not compatible with the signature of sign which accept a string
-            const r = await polkadot.sign(
-              account.freshAddressPath,
-              payload as any
-            );
+            const r = await polkadot.sign(account.freshAddressPath, payload as any);
             const signed = await signExtrinsic(unsigned, r.signature, registry);
             o.next({
               type: "device-signature-granted",
@@ -210,7 +198,7 @@ const buildSignOperation =
             const operation = buildOptimisticOperation(
               account as PolkadotAccount,
               transactionToSign,
-              transactionToSign.fees ?? new BigNumber(0)
+              transactionToSign.fees ?? new BigNumber(0),
             );
             o.next({
               type: "signed",
@@ -224,9 +212,9 @@ const buildSignOperation =
 
           main().then(
             () => o.complete(),
-            (e) => o.error(e)
+            e => o.error(e),
           );
-        })
+        }),
     );
 
 export default buildSignOperation;

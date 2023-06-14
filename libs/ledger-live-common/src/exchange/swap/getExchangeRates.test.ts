@@ -98,6 +98,7 @@ describe("swap/getExchangeRates", () => {
         rate: "14",
         tradeMethod,
         status: "success",
+        payoutNetworkFees: "0.0030432000000000000000",
       },
     ];
     const resp = {
@@ -116,7 +117,7 @@ describe("swap/getExchangeRates", () => {
       undefined,
       undefined,
       providers,
-      true
+      true,
     );
 
     const expectedExchangeRate: ExchangeRate = {
@@ -125,8 +126,9 @@ describe("swap/getExchangeRates", () => {
       providerType: data[0].providerType as ExchangeRate["providerType"],
       rate: new BigNumber(data[0].rate),
       rateId: data[0].rateId,
-      toAmount: new BigNumber("70000000000000000"),
+      toAmount: new BigNumber("66956800000000000"),
       tradeMethod: data[0].tradeMethod,
+      payoutNetworkFees: new BigNumber("3043200000000000"),
     };
 
     expect(res).toEqual([expectedExchangeRate]);
@@ -166,7 +168,7 @@ describe("swap/getExchangeRates", () => {
       undefined,
       undefined,
       providers,
-      true
+      true,
     );
 
     const expectedExchangeRate: ExchangeRate = {
@@ -194,14 +196,7 @@ describe("swap/getExchangeRates", () => {
     mockedAxios.mockResolvedValue(Promise.resolve(resp));
     mockedProviders.mockResolvedValue(Promise.resolve([]));
     const includeDEX = false;
-    await getExchangeRates(
-      exchange,
-      transaction,
-      undefined,
-      undefined,
-      providers,
-      includeDEX
-    );
+    await getExchangeRates(exchange, transaction, undefined, undefined, providers, includeDEX);
     expect(mockedAxios).toHaveBeenCalledWith({
       method: "POST",
       url: "https://swap.ledger.com/v4/rate",
@@ -227,14 +222,7 @@ describe("swap/getExchangeRates", () => {
     mockedAxios.mockResolvedValue(Promise.resolve(resp));
     mockedProviders.mockResolvedValue(Promise.resolve([]));
     const includeDEX = true;
-    await getExchangeRates(
-      exchange,
-      transaction,
-      undefined,
-      undefined,
-      providers,
-      includeDEX
-    );
+    await getExchangeRates(exchange, transaction, undefined, undefined, providers, includeDEX);
     expect(mockedAxios).toHaveBeenCalledWith({
       method: "POST",
       url: "https://swap.ledger.com/v4/rate",
@@ -270,14 +258,7 @@ describe("swap/getExchangeRates", () => {
     mockedAxios.mockResolvedValue(Promise.resolve(resp));
     mockedProviders.mockResolvedValue(Promise.resolve([]));
     const includeDEX = true;
-    await getExchangeRates(
-      exchange,
-      transaction,
-      undefined,
-      undefined,
-      providers,
-      includeDEX
-    );
+    await getExchangeRates(exchange, transaction, undefined, undefined, providers, includeDEX);
     expect(mockedAxios).toHaveBeenCalledWith({
       method: "POST",
       url: "https://swap.ledger.com/v4/rate",
@@ -314,13 +295,7 @@ describe("swap/getExchangeRates", () => {
 
     mockedAxios.mockResolvedValue(Promise.resolve(resp));
     mockedProviders.mockResolvedValue(Promise.resolve([]));
-    const res = await getExchangeRates(
-      exchange,
-      transaction,
-      undefined,
-      undefined,
-      providers
-    );
+    const res = await getExchangeRates(exchange, transaction, undefined, undefined, providers);
     expect(res[0]?.error?.name).toEqual("SwapExchangeRateAmountTooHigh");
   });
 
@@ -348,16 +323,10 @@ describe("swap/getExchangeRates", () => {
 
     mockedAxios.mockResolvedValue(Promise.resolve(resp));
     mockedProviders.mockResolvedValue(Promise.resolve([]));
-    const res = await getExchangeRates(
-      exchange,
-      transaction,
-      undefined,
-      undefined,
-      providers
-    );
+    const res = await getExchangeRates(exchange, transaction, undefined, undefined, providers);
     expect(res[0]?.error?.name).toEqual("SwapExchangeRateAmountTooLow");
   });
-  test("should return correct error SwapExchangeRateAmountTooLowOrTooHigh", async () => {
+  test("should return correct error SwapExchangeRateAmountTooLowOrTooHigh for DEX", async () => {
     const data = [
       {
         provider: "paraswap",
@@ -380,15 +349,34 @@ describe("swap/getExchangeRates", () => {
 
     mockedAxios.mockResolvedValue(Promise.resolve(resp));
     mockedProviders.mockResolvedValue(Promise.resolve([]));
-    const res = await getExchangeRates(
-      exchange,
-      transaction,
-      undefined,
-      undefined,
-      providers
-    );
-    expect(res[0]?.error?.name).toEqual(
-      "SwapExchangeRateAmountTooLowOrTooHigh"
-    );
+    const res = await getExchangeRates(exchange, transaction, undefined, undefined, providers);
+    expect(res[0]?.error?.name).toEqual("SwapExchangeRateAmountTooLowOrTooHigh");
+  });
+
+  test("should return correct error CurrencyNotSupportedError for CEX", async () => {
+    const data = [
+      {
+        provider: "changelly",
+        providerType: "CEX",
+        from: "ethereum",
+        to: "ethereum/erc20/usd_tether__erc20_",
+        tradeMethod: "float",
+        errorCode: 300,
+        errorMessage: "Failed to get rate for paraswap.",
+        status: "error",
+      },
+    ];
+    const resp = {
+      data,
+      status: 200,
+      statusText: "",
+      headers: {},
+      config: {},
+    };
+
+    mockedAxios.mockResolvedValue(Promise.resolve(resp));
+    mockedProviders.mockResolvedValue(Promise.resolve([]));
+    const res = await getExchangeRates(exchange, transaction, undefined, undefined, providers);
+    expect(res[0]?.error?.name).toEqual("CurrencyNotSupportedError");
   });
 });

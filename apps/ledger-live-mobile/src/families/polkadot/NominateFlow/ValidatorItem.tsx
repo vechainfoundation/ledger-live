@@ -18,14 +18,7 @@ type Props = {
 
 function Item({ item, selected, disabled, onSelect, onClick }: Props) {
   const { colors } = useTheme();
-  const {
-    identity,
-    address,
-    commission,
-    nominatorsCount,
-    isOversubscribed,
-    isElected,
-  } = item;
+  const { identity, address, commission, nominatorsCount, isOversubscribed, isElected } = item;
   const onPress = useCallback(() => {
     onSelect(item, selected);
   }, [onSelect, item, selected]);
@@ -73,7 +66,7 @@ function Item({ item, selected, disabled, onSelect, onClick }: Props) {
         {isElected ? (
           <LText
             style={[styles.valueLabel]}
-            color={isOversubscribed ? colors.warning.c100 : colors.neutral.c70}
+            color={isOversubscribed ? colors.warning.c50 : colors.neutral.c70}
           >
             {isOversubscribed ? (
               <Trans

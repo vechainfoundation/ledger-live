@@ -8,10 +8,7 @@ import {
   PolkadotValidator,
 } from "@ledgerhq/live-common/families/polkadot/types";
 import { Account } from "@ledgerhq/types-live";
-import {
-  getAccountCurrency,
-  getAccountUnit,
-} from "@ledgerhq/live-common/account/index";
+import { getAccountCurrency, getAccountUnit } from "@ledgerhq/live-common/account/index";
 
 import { useTheme } from "styled-components/native";
 import { Flex, Text } from "@ledgerhq/native-ui";
@@ -28,12 +25,7 @@ type Props = {
   isLast?: boolean;
 };
 
-export default function NominationRow({
-  nomination,
-  validator,
-  account,
-  onPress,
-}: Props) {
+export default function NominationRow({ nomination, validator, account, onPress }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation();
 
@@ -55,18 +47,13 @@ export default function NominationRow({
         </View>
 
         <View style={styles.nameWrapper}>
-          <Text
-            variant={"body"}
-            fontWeight={"semiBold"}
-            numberOfLines={1}
-            pb={2}
-          >
+          <Text variant={"body"} fontWeight={"semiBold"} numberOfLines={1} pb={2}>
             {name}
           </Text>
 
           <View style={styles.statusWrapper}>
             {status === "active" && (
-              <LText color={colors.success.c100} numberOfLines={1}>
+              <LText color={colors.success.c50} numberOfLines={1}>
                 {t("polkadot.nomination.active")}
               </LText>
             )}
@@ -81,13 +68,11 @@ export default function NominationRow({
               </LText>
             )}
             {!status && (
-              <LText color={colors.warning.c100} numberOfLines={1}>
+              <LText color={colors.warning.c50} numberOfLines={1}>
                 {t("polkadot.nomination.notValidator")}
               </LText>
             )}
-            <View
-              style={[styles.seeMore, { borderLeftColor: colors.neutral.c70 }]}
-            >
+            <View style={[styles.seeMore, { borderLeftColor: colors.neutral.c70 }]}>
               <LText style={styles.seeMoreText} color={colors.primary.c80}>
                 {t("common.seeMore")}
               </LText>
@@ -98,19 +83,11 @@ export default function NominationRow({
 
         {status === "active" || status === "inactive" ? (
           <View style={styles.rightWrapper}>
-            <Text
-              variant={"large"}
-              fontWeight={"semiBold"}
-              color={"neutral.c100"}
-            >
+            <Text variant={"large"} fontWeight={"semiBold"} color={"neutral.c100"}>
               <CurrencyUnitValue value={value} unit={unit} />
             </Text>
 
-            <Text
-              variant={"paragraph"}
-              fontWeight={"medium"}
-              color={"neutral.c80"}
-            >
+            <Text variant={"paragraph"} fontWeight={"medium"} color={"neutral.c80"}>
               <CounterValue
                 currency={currency}
                 showCode

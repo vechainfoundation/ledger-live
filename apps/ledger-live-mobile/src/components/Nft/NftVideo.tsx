@@ -13,6 +13,7 @@ type Props = {
   srcFallback: string;
   resizeMode?: VideoProperties["resizeMode"] & ResizeMode;
   colors: Theme["colors"];
+  children?: React.ReactNode | null;
 };
 
 class NftVideo extends React.PureComponent<Props> {
@@ -42,13 +43,7 @@ class NftVideo extends React.PureComponent<Props> {
   };
 
   render() {
-    const {
-      style,
-      src,
-      colors,
-      resizeMode = "cover",
-      srcFallback,
-    } = this.props;
+    const { style, src, colors, resizeMode = "cover", srcFallback, children } = this.props;
     const { isPosterMode } = this.state;
 
     return (
@@ -85,6 +80,7 @@ class NftVideo extends React.PureComponent<Props> {
             />
           )}
         </Animated.View>
+        {children}
       </View>
     );
   }

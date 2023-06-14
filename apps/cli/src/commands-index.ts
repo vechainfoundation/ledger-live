@@ -15,7 +15,9 @@ import derivation from "./commands/derivation";
 import devDeviceAppsScenario from "./commands/devDeviceAppsScenario";
 import deviceAppVersion from "./commands/deviceAppVersion";
 import deviceInfo from "./commands/deviceInfo";
+import deviceSDKFirmwareUpdate from "./commands/deviceSDKFirmwareUpdate";
 import deviceSDKGetDeviceInfo from "./commands/deviceSDKGetDeviceInfo";
+import deviceSDKToggleOnboardingEarlyCheck from "./commands/deviceSDKToggleOnboardingEarlyCheck";
 import deviceVersion from "./commands/deviceVersion";
 import discoverDevices from "./commands/discoverDevices";
 import envs from "./commands/envs";
@@ -32,7 +34,6 @@ import getDeviceRunningMode from "./commands/getDeviceRunningMode";
 import getTransactionStatus from "./commands/getTransactionStatus";
 import i18n from "./commands/i18n";
 import liveData from "./commands/liveData";
-import makeCompoundSummary from "./commands/makeCompoundSummary";
 import managerListApps from "./commands/managerListApps";
 import portfolio from "./commands/portfolio";
 import proxy from "./commands/proxy";
@@ -48,6 +49,7 @@ import staxFetchAndRestoreDemo from "./commands/staxFetchAndRestoreDemo";
 import staxFetchImage from "./commands/staxFetchImage";
 import staxFetchImageHash from "./commands/staxFetchImageHash";
 import staxLoadImage from "./commands/staxLoadImage";
+import staxRemoveImage from "./commands/staxRemoveImage";
 import swap from "./commands/swap";
 import sync from "./commands/sync";
 import synchronousOnboarding from "./commands/synchronousOnboarding";
@@ -75,7 +77,9 @@ export default {
   devDeviceAppsScenario,
   deviceAppVersion,
   deviceInfo,
+  deviceSDKFirmwareUpdate,
   deviceSDKGetDeviceInfo,
+  deviceSDKToggleOnboardingEarlyCheck,
   deviceVersion,
   discoverDevices,
   envs,
@@ -92,7 +96,6 @@ export default {
   getTransactionStatus,
   i18n,
   liveData,
-  makeCompoundSummary,
   managerListApps,
   portfolio,
   proxy,
@@ -108,6 +111,7 @@ export default {
   staxFetchImage,
   staxFetchImageHash,
   staxLoadImage,
+  staxRemoveImage,
   swap,
   sync,
   synchronousOnboarding,
@@ -115,5 +119,5 @@ export default {
   testGetTrustedInputFromTxHash,
   user,
   version,
-  walletconnect
+  walletconnect,
 };

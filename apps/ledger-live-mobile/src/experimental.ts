@@ -30,7 +30,13 @@ export type FeatureInteger = {
   maxValue?: number;
 };
 
-export type Feature = FeatureCommon & (FeatureToggle | FeatureInteger);
+export type FeatureFloat = {
+  type: "float";
+  minValue?: number;
+  maxValue?: number;
+};
+
+export type Feature = FeatureCommon & (FeatureToggle | FeatureInteger | FeatureFloat);
 
 // comma-separated list of currencies that we want to enable as experimental, e.g:
 // const experimentalCurrencies = "solana,cardano";
@@ -49,9 +55,7 @@ export const experimentalFeatures: Feature[] = [
           type: "toggle",
           name: "EXPERIMENTAL_CURRENCIES",
           title: i18n.t(i18nKey("experimentalIntegrations", "title")),
-          description: i18n.t(
-            i18nKey("experimentalIntegrations", "description"),
-          ),
+          description: i18n.t(i18nKey("experimentalIntegrations", "description")),
           valueOn: experimentalCurrencies,
           valueOff: "",
         },
@@ -62,6 +66,12 @@ export const experimentalFeatures: Feature[] = [
     name: "MANAGER_DEV_MODE",
     title: i18n.t(i18nKey("developerMode", "title")),
     description: i18n.t(i18nKey("developerMode", "description")),
+  },
+  {
+    type: "toggle",
+    name: "LIST_APPS_V2",
+    title: i18n.t(i18nKey("experimentalListAppsV2", "title")),
+    description: i18n.t(i18nKey("experimentalListAppsV2", "description")),
   },
   {
     type: "integer",
@@ -75,14 +85,6 @@ export const experimentalFeatures: Feature[] = [
     name: "EXPERIMENTAL_EXPLORERS",
     title: i18n.t(i18nKey("experimentalExplorers", "title")),
     description: i18n.t(i18nKey("experimentalExplorers", "description")),
-  },
-  {
-    type: "toggle",
-    name: "LEDGER_COUNTERVALUES_API",
-    title: i18n.t(i18nKey("experimentalCountervalues", "title")),
-    description: i18n.t(i18nKey("experimentalCountervalues", "description")),
-    valueOn: "https://countervalues-experimental.live.ledger.com",
-    valueOff: "https://countervalues.live.ledger.com",
   },
   {
     type: "toggle",
@@ -102,6 +104,20 @@ export const experimentalFeatures: Feature[] = [
     minValue: 0,
     maxValue: 1,
   },
+  {
+    type: "float",
+    name: "EIP1559_BASE_FEE_MULTIPLIER",
+    title: "Custom multiplier for the base fee",
+    description: "Customize the multiplier used for the base fee composing the maxFeePerGas",
+    minValue: 0,
+    maxValue: 10,
+  },
+  {
+    type: "toggle",
+    name: "ENABLE_NETWORK_LOGS",
+    title: i18n.t(i18nKey("experimentalEnableNetworkLogs", "title")),
+    description: i18n.t(i18nKey("experimentalEnableNetworkLogs", "description")),
+  },
   ...(__DEV__
     ? [
         {
@@ -115,6 +131,12 @@ export const experimentalFeatures: Feature[] = [
 ] as Feature[];
 
 export const developerFeatures: Feature[] = [
+  {
+    type: "toggle",
+    name: "PLATFORM_DEBUG",
+    title: i18n.t(i18nKeyDeveloper("debugApps", "title")),
+    description: i18n.t(i18nKeyDeveloper("debugApps", "description")),
+  },
   {
     type: "toggle",
     name: "PLATFORM_EXPERIMENTAL_APPS",
@@ -154,9 +176,7 @@ export const setStorageEnvs = async (key: EnvName, val: string) => {
 export const isReadOnly = (key: EnvName) => key in Config;
 
 export const enabledExperimentalFeatures = (): string[] =>
-  [...experimentalFeatures, ...developerFeatures]
-    .map(e => e.name)
-    .filter(k => !isEnvDefault(k));
+  [...experimentalFeatures, ...developerFeatures].map(e => e.name).filter(k => !isEnvDefault(k));
 
 (async () => {
   const envs = await getStorageEnv();
@@ -173,24 +193,18 @@ export const enabledExperimentalFeatures = (): string[] =>
 
   const saveEnvs = async (name: EnvName, value: string) => {
     if (
-      [...experimentalFeatures, ...developerFeatures].find(
-        f => f.name === name,
-      ) &&
+      [...experimentalFeatures, ...developerFeatures].find(f => f.name === name) &&
       !isReadOnly(name)
     ) {
       await setStorageEnvs(name, value);
     }
   };
 
-  changes
-    .pipe(concatMap(({ name, value }) => saveEnvs(name, value)))
-    .subscribe();
+  changes.pipe(concatMap(({ name, value }) => saveEnvs(name, value))).subscribe();
 })();
 
 export function useExperimental(): boolean {
-  const [state, setState] = useState(
-    () => enabledExperimentalFeatures().length > 0,
-  );
+  const [state, setState] = useState(() => enabledExperimentalFeatures().length > 0);
 
   useEffect(() => {
     const sub = changes.subscribe(() => {

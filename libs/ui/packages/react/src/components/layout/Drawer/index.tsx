@@ -4,7 +4,7 @@ import styled from "styled-components";
 import FlexBox, { FlexBoxProps } from "../Flex";
 import Divider, { Props as DividerProps } from "../../asorted/Divider";
 import Close from "@ledgerhq/icons-ui/react/CloseMedium";
-import ArrowLeft from "@ledgerhq/icons-ui/react/ArrowLeftRegular";
+import ArrowLeft from "@ledgerhq/icons-ui/react/ArrowLeftMedium";
 
 import TransitionSlide from "../../transitions/TransitionSlide";
 import TransitionInOut from "../../transitions/TransitionInOut";
@@ -26,24 +26,24 @@ const Wrapper = styled(FlexBox)<{
   big?: boolean;
 }>`
   height: 100%;
-  width: ${(p) =>
+  width: ${p =>
     p.big ? p.theme.sizes.drawer.side.big.width : p.theme.sizes.drawer.side.small.width}px;
   flex-direction: column;
   align-items: stretch;
   justify-content: space-between;
-  z-index: ${(p) => p.theme.zIndexes[8]};
+  z-index: ${p => p.theme.zIndexes[8]};
 `;
 
 const Overlay = styled.div<{ direction: Direction }>`
   display: flex;
   position: fixed;
-  justify-content: ${(p) => (p.direction === Direction.Left ? "flex-end" : "flex-start")};
+  justify-content: ${p => (p.direction === Direction.Left ? "flex-end" : "flex-start")};
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 999;
-  background-color: ${(p) => p.theme.colors.constant.overlay};
+  background-color: ${p => p.theme.colors.constant.overlay};
 `;
 
 const ScrollWrapper = styled(FlexBox)`
@@ -53,7 +53,7 @@ const ScrollWrapper = styled(FlexBox)`
 `;
 
 const ButtonPlaceholder = styled.div`
-  min-width: ${(p) => p.theme.space[12]}px;
+  min-width: ${p => p.theme.space[12]}px;
 `;
 
 export interface DrawerProps {
@@ -182,7 +182,7 @@ const DrawerContent = React.forwardRef(
                 </ScrollWrapper>
                 {footer && (
                   <>
-                    <Divider variant="light" {...extraFooterDividerProps} />
+                    <Divider {...extraFooterDividerProps} />
                     <FlexBox alignItems="center" py={8} px={12} {...extraFooterProps}>
                       {footer}
                     </FlexBox>

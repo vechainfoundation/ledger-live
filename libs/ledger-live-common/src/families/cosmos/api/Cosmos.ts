@@ -1,9 +1,16 @@
-import BigNumber from "bignumber.js";
-import network from "../../../network";
-import { patchOperationWithHash } from "../../../operation";
+import network from "@ledgerhq/live-network/network";
 import { CryptoCurrency } from "@ledgerhq/types-cryptoassets";
 import { Operation } from "@ledgerhq/types-live";
+import BigNumber from "bignumber.js";
+import { patchOperationWithHash } from "../../../operation";
 import cryptoFactory from "../chain/chain";
+import {
+  CosmosDelegation,
+  CosmosDelegationStatus,
+  CosmosRedelegation,
+  CosmosTx,
+  CosmosUnbonding,
+} from "../types";
 
 export class CosmosAPI {
   protected defaultEndpoint: string;
@@ -17,26 +24,27 @@ export class CosmosAPI {
 
   getAccountInfo = async (
     address: string,
-    currency: CryptoCurrency
-  ): Promise<any> => {
+    currency: CryptoCurrency,
+  ): Promise<{
+    balances: BigNumber;
+    blockHeight: number;
+    txs: CosmosTx[];
+    delegations: CosmosDelegation[];
+    redelegations: CosmosRedelegation[];
+    unbondings: CosmosUnbonding[];
+    withdrawAddress: string;
+  }> => {
     try {
-      const [
-        balances,
-        blockHeight,
-        txs,
-        delegations,
-        redelegations,
-        unbondings,
-        withdrawAddress,
-      ] = await Promise.all([
-        this.getAllBalances(address, currency),
-        this.getHeight(),
-        this.getTransactions(address),
-        this.getDelegations(address, currency),
-        this.getRedelegations(address),
-        this.getUnbondings(address),
-        this.getWithdrawAddress(address),
-      ]);
+      const [balances, blockHeight, txs, delegations, redelegations, unbondings, withdrawAddress] =
+        await Promise.all([
+          this.getAllBalances(address, currency),
+          this.getHeight(),
+          this.getTransactions(address),
+          this.getDelegations(address, currency),
+          this.getRedelegations(address),
+          this.getUnbondings(address),
+          this.getWithdrawAddress(address),
+        ]);
 
       return {
         balances,
@@ -47,14 +55,12 @@ export class CosmosAPI {
         unbondings,
         withdrawAddress,
       };
-    } catch (e: any) {
-      throw new Error(`"Error during cosmos synchronization: "${e.message}`);
+    } catch (e) {
+      throw new Error(`"Error during cosmos synchronization: "${(e as Error).message}`);
     }
   };
 
-  getAccount = async (
-    address: string
-  ): Promise<{ accountNumber: number; sequence: number }> => {
+  getAccount = async (address: string): Promise<{ accountNumber: number; sequence: number }> => {
     const response = {
       accountNumber: 0,
       sequence: 0,
@@ -81,10 +87,10 @@ export class CosmosAPI {
   getChainId = async (): Promise<string> => {
     const { data } = await network({
       method: "GET",
-      url: `${this.defaultEndpoint}/node_info`,
+      url: `${this.defaultEndpoint}/cosmos/base/tendermint/${this.version}/node_info`,
     });
 
-    return data.node_info.network;
+    return data.default_node_info.network;
   };
 
   getHeight = async (): Promise<number> => {
@@ -93,13 +99,10 @@ export class CosmosAPI {
       url: `${this.defaultEndpoint}/cosmos/base/tendermint/${this.version}/blocks/latest`,
     });
 
-    return data.block.header.height;
+    return parseInt(data.block.header.height);
   };
 
-  getAllBalances = async (
-    address: string,
-    currency: CryptoCurrency
-  ): Promise<BigNumber> => {
+  getAllBalances = async (address: string, currency: CryptoCurrency): Promise<BigNumber> => {
     const { data } = await network({
       method: "GET",
       url: `${this.defaultEndpoint}/cosmos/bank/${this.version}/balances/${address}`,
@@ -108,8 +111,7 @@ export class CosmosAPI {
     let amount = new BigNumber(0);
 
     for (const elem of data.balances) {
-      if (elem.denom === currency.units[1].code)
-        amount = amount.plus(elem.amount);
+      if (elem.denom === currency.units[1].code) amount = amount.plus(elem.amount);
     }
 
     return amount;
@@ -117,18 +119,16 @@ export class CosmosAPI {
 
   getDelegations = async (
     address: string,
-    currency: CryptoCurrency
-  ): Promise<any> => {
-    const delegations: Array<any> = [];
+    currency: CryptoCurrency,
+  ): Promise<CosmosDelegation[]> => {
+    const delegations: Array<CosmosDelegation> = [];
 
     const { data: data1 } = await network({
       method: "GET",
       url: `${this.defaultEndpoint}/cosmos/staking/${this.version}/delegations/${address}`,
     });
 
-    data1.delegation_responses = data1.delegation_responses.filter(
-      (d) => d.balance.amount !== "0"
-    );
+    data1.delegation_responses = data1.delegation_responses.filter(d => d.balance.amount !== "0");
 
     let status = "unbonded";
     const statusMap = {
@@ -152,7 +152,7 @@ export class CosmosAPI {
             ? new BigNumber(d.balance.amount)
             : new BigNumber(0),
         pendingRewards: new BigNumber(0),
-        status,
+        status: status as CosmosDelegationStatus,
       });
     }
 
@@ -165,9 +165,10 @@ export class CosmosAPI {
       for (const d of delegations) {
         if (r.validator_address === d.validatorAddress) {
           for (const reward of r.reward) {
-            d.pendingRewards = d.pendingRewards.plus(
-              new BigNumber(reward.amount).integerValue()
-            );
+            if (reward.denom === currency.units[1].code)
+              d.pendingRewards = d.pendingRewards.plus(
+                new BigNumber(reward.amount).integerValue(BigNumber.ROUND_CEIL),
+              );
           }
         }
       }
@@ -176,8 +177,8 @@ export class CosmosAPI {
     return delegations;
   };
 
-  getRedelegations = async (address: string): Promise<any> => {
-    const redelegations: Array<any> = [];
+  getRedelegations = async (address: string): Promise<CosmosRedelegation[]> => {
+    const redelegations: Array<CosmosRedelegation> = [];
 
     const { data } = await network({
       method: "GET",
@@ -198,8 +199,8 @@ export class CosmosAPI {
     return redelegations;
   };
 
-  getUnbondings = async (address: string): Promise<any> => {
-    const unbondings: Array<any> = [];
+  getUnbondings = async (address: string): Promise<CosmosUnbonding[]> => {
+    const unbondings: Array<CosmosUnbonding> = [];
 
     const { data } = await network({
       method: "GET",
@@ -228,26 +229,52 @@ export class CosmosAPI {
     return data.withdraw_address;
   };
 
-  getTransactions = async (address: string): Promise<any> => {
-    const receive = await network({
-      method: "GET",
-      url:
-        `${this.defaultEndpoint}/cosmos/tx/${this.version}/txs?events=` +
-        encodeURI(`transfer.recipient='${address}'`),
-    });
+  getTransactions = async (address: string): Promise<CosmosTx[]> => {
+    let receive;
+    let send;
 
-    const send = await network({
-      method: "GET",
-      url:
-        `${this.defaultEndpoint}/cosmos/tx/${this.version}/txs?events=` +
-        encodeURI(`message.sender='${address}'`),
-    });
+    try {
+      send = await this.getSendingTransactions(address, "ORDER_BY_DESC");
+      receive = await this.getReceivingTransactions(address, "ORDER_BY_DESC");
+    } catch (e) {
+      // FIXME: remove and always orderBy once pagination is implemented or every nodes are upgraded to 0.47
+      // See https://github.com/cosmos/cosmos-sdk/issues/15437
+      if ((e as Error).message.includes("ORDER_BY_DESC")) {
+        send = await this.getSendingTransactions(address);
+        receive = await this.getReceivingTransactions(address);
+      }
+    }
+
     return [...receive.data.tx_responses, ...send.data.tx_responses];
   };
 
-  broadcast = async ({
-    signedOperation: { operation, signature },
-  }): Promise<Operation> => {
+  private async getReceivingTransactions(
+    address: string,
+    orderBy?: "ORDER_BY_DESC" | "ORDER_BY_ASC",
+  ) {
+    return await network({
+      method: "GET",
+      url:
+        `${this.defaultEndpoint}/cosmos/tx/${this.version}/txs?events=` +
+        encodeURI(`transfer.recipient='${address}'`) +
+        (orderBy ? `&order_by=${orderBy}` : ""),
+    });
+  }
+
+  private async getSendingTransactions(
+    address: string,
+    orderBy?: "ORDER_BY_DESC" | "ORDER_BY_ASC",
+  ) {
+    return await network({
+      method: "GET",
+      url:
+        `${this.defaultEndpoint}/cosmos/tx/${this.version}/txs?events=` +
+        encodeURI(`message.sender='${address}'`) +
+        (orderBy ? `&order_by=${orderBy}` : ""),
+    });
+  }
+
+  broadcast = async ({ signedOperation: { operation, signature } }): Promise<Operation> => {
     const { data } = await network({
       method: "POST",
       url: `${this.defaultEndpoint}/cosmos/tx/${this.version}/txs`,
@@ -264,10 +291,31 @@ export class CosmosAPI {
           (data.tx_response.code || "?") +
           ", message: '" +
           (data.tx_response.raw_log || "") +
-          "')"
+          "')",
       );
     }
 
     return patchOperationWithHash(operation, data.tx_response.txhash);
+  };
+
+  /** Simulate a transaction on the node to get a precise estimation of gas used */
+  simulate = async (tx_bytes: number[]): Promise<BigNumber> => {
+    try {
+      const { data } = await network({
+        method: "POST",
+        url: `${this.defaultEndpoint}/cosmos/tx/${this.version}/simulate`,
+        data: {
+          tx_bytes,
+        },
+      });
+
+      if (data && data.gas_info && data.gas_info.gas_used) {
+        return new BigNumber(data.gas_info.gas_used);
+      } else {
+        throw new Error("No gas used returned from lcd");
+      }
+    } catch (e) {
+      throw new Error("Tx simulation failed");
+    }
   };
 }

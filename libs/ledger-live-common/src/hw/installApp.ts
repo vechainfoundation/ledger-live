@@ -3,12 +3,12 @@ import { throttleTime, filter, map, catchError } from "rxjs/operators";
 import { ManagerAppDepInstallRequired } from "@ledgerhq/errors";
 import Transport from "@ledgerhq/hw-transport";
 import type { ApplicationVersion, App } from "@ledgerhq/types-live";
-import ManagerAPI from "../api/Manager";
+import ManagerAPI from "../manager/api";
 import { getDependencies } from "../apps/polyfill";
 export default function installApp(
   transport: Transport,
   targetId: string | number,
-  app: ApplicationVersion | App
+  app: ApplicationVersion | App,
 ): Observable<{
   progress: number;
 }> {
@@ -34,11 +34,11 @@ export default function installApp(
           new ManagerAppDepInstallRequired("", {
             appName: app.name,
             dependency: dependencies.join(", "),
-          })
+          }),
         );
       }
 
       return throwError(e);
-    })
+    }),
   );
 }

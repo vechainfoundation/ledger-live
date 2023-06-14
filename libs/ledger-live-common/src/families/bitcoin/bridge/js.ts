@@ -10,9 +10,10 @@ import { calculateFees } from "./../cache";
 import { perCoinLogic } from "../logic";
 import { makeAccountBridgeReceive } from "../../../bridge/jsHelpers";
 import { AccountBridge, CurrencyBridge } from "@ledgerhq/types-live";
+import { assignFromAccountRaw, assignToAccountRaw } from "../serialization";
 
 const receive = makeAccountBridgeReceive({
-  injectGetAddressParams: (account) => {
+  injectGetAddressParams: account => {
     const perCoin = perCoinLogic[account.currency.id];
 
     if (perCoin && perCoin.injectGetAddressParams) {
@@ -55,6 +56,8 @@ const accountBridge: AccountBridge<Transaction> = {
       signedOperation,
     });
   },
+  assignFromAccountRaw,
+  assignToAccountRaw,
 };
 
 export default {

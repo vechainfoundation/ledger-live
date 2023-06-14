@@ -3,21 +3,13 @@ import type { Transaction } from "../types";
 import { makeAccountBridgeReceive } from "../../../bridge/jsHelpers";
 
 import { sync, scanAccounts } from "../js-synchronisation";
-import {
-  createTransaction,
-  updateTransaction,
-  prepareTransaction,
-} from "../js-transaction";
+import { createTransaction, updateTransaction, prepareTransaction } from "../js-transaction";
 import getTransactionStatus from "../js-getTransactionStatus";
 import signOperation from "../js-signOperation";
 import broadcast from "../js-broadcast";
 import estimateMaxSpendable from "../js-estimateMaxSpendable";
 import { preload, hydrate, getPreloadStrategy } from "../preload";
-import {
-  assignToAccountRaw,
-  assignFromAccountRaw,
-  applyReconciliation,
-} from "../serialization";
+import { assignToAccountRaw, assignFromAccountRaw } from "../serialization";
 
 const receive = makeAccountBridgeReceive();
 
@@ -40,7 +32,6 @@ const accountBridge: AccountBridge<Transaction> = {
   broadcast,
   assignToAccountRaw,
   assignFromAccountRaw,
-  applyReconciliation,
 };
 
 export default { currencyBridge, accountBridge };

@@ -18,6 +18,11 @@ on:
         required: true
       base_ref:
         description: The base branch to merge the head into when checking out the code
+        required: false
+      draft:
+        description: true if the PR is in draft
+        required: false
+        default: "false"
 
 concurrency:
   # See: https://github.com/orgs/community/discussions/35341
@@ -44,6 +49,26 @@ jobs:
       - name: Run code checkers
         run: pnpm desktop test:codecheck
 
+  deadcodecheck:
+    name: "Desktop deadcode check"
+    env:
+      NODE_OPTIONS: "--max-old-space-size=7168"
+      FORCE_COLOR: 3
+      CI_OS: ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: LedgerHQ/ledger-live/tools/actions/composites/checkout-merge@develop
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.ref_name || github.sha }}
+          base: ${{ inputs.base_ref }}
+      - uses: ./tools/actions/composites/setup-test-desktop
+        id: setup-test-desktop
+        with:
+          skip_builds: true
+      - name: check for dead code
+        run: cd apps/ledger-live-desktop && npx unimported
+        shell: bash
+
   unit-tests:
     name: "Ledger Live Desktop Unit Tests"
     env:
@@ -62,39 +87,6 @@ jobs:
           skip_builds: true
       - name: Run unit tests
         run: pnpm desktop test:jest
-
-  start-runner:
-    name: Start self-hosted EC2 runner
-    runs-on: [ledger-live, linux]
-    outputs:
-      label: ${{ steps.start-ec2-linux-runner.outputs.label }}
-      ec2-instance-id: ${{ steps.start-ec2-linux-runner.outputs.ec2-instance-id }}
-    steps:
-      - name: Start EC2 Linux Runner
-        id: start-ec2-linux-runner
-        uses: LedgerHQ/actions/ec2-linux-runner@main
-        with:
-          mode: start
-          github-token: ${{ secrets.CI_BOT_TOKEN }}
-          project: 2049
-          aws-nfs-logging: true
-          ami-name-filter: ledger-live-runner
-          instance-volume-size: 30
-          instance-type: c5.4xlarge
-
-  stop-runner:
-    name: Stop self-hosted EC2 runner
-    if: ${{ always() && needs.start-runner.result == 'success' }}
-    needs: [start-runner, e2e-tests-linux]
-    runs-on: [ledger-live, linux]
-    steps:
-      - name: Stop EC2 Linux Runner
-        uses: LedgerHQ/actions/ec2-linux-runner@main
-        with:
-          mode: stop
-          github-token: ${{ secrets.CI_BOT_TOKEN }}
-          label: ${{ needs.start-runner.outputs.label }}
-          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
 
   # REWORK WINDOWS FOR OWN RUNNERS ? WAITING FOR KUBERNETES SOLUTION FROM INFRA ?
   e2e-tests-windows:
@@ -119,9 +111,16 @@ jobs:
         with:
           install_node_gyp: true
           install_playwright: true
+          upgrade_npm: true
       - name: Run playwright tests
         id: tests
-        run: pnpm desktop test:playwright
+        run: |
+          if [[ "${{ inputs.draft }}" == true ]]; then
+            pnpm desktop test:playwright
+          else
+            pnpm desktop test:playwright
+          fi
+        shell: bash
       - name: upload diffs to imgur
         if: always() && !cancelled()
         uses: ./tools/actions/upload-images
@@ -136,6 +135,12 @@ jobs:
         with:
           name: images
           path: images-windows.json
+      - name: upload network responses
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-network-responses
+          path: apps/ledger-live-desktop/tests/artifacts/networkResponses.log
       - name: Upload playwright test results [On Failure]
         uses: actions/upload-artifact@v3
         if: failure() && !cancelled()
@@ -166,8 +171,7 @@ jobs:
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
       # DEBUG: "pw:browser*"
       # DEBUG_LOGS: 1
-    needs: [start-runner]
-    runs-on: ${{ needs.start-runner.outputs.label }}
+    runs-on: [ledger-live-4xlarge-linux]
     steps:
       - uses: LedgerHQ/ledger-live/tools/actions/composites/checkout-merge@develop
         with:
@@ -181,7 +185,12 @@ jobs:
           install_playwright: true
       - name: Run playwright tests [Linux => xvfb-run]
         id: tests
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- pnpm desktop test:playwright
+        run: |
+          if [[ "${{ inputs.draft }}" == true ]]; then
+            xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- pnpm desktop test:playwright
+          else
+            xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- pnpm desktop test:playwright
+          fi
       - name: upload diffs to imgur
         if: always() && !cancelled()
         uses: ./tools/actions/upload-images
@@ -196,6 +205,12 @@ jobs:
         with:
           name: images
           path: images-linux.json
+      - name: upload network responses
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-network-responses
+          path: apps/ledger-live-desktop/tests/artifacts/networkResponses.log
       - name: Upload playwright test results [On Failure]
         uses: actions/upload-artifact@v3
         if: failure() && !cancelled()
@@ -237,9 +252,15 @@ jobs:
           skip_python: true
           skip_ruby: true
           install_playwright: true
+          pnpm_dest: ${{ runner.temp }}/setup-pnpm
       - name: Run playwright tests
         id: tests
-        run: pnpm desktop test:playwright
+        run: |
+          if [[ "${{ inputs.draft }}" == true ]]; then
+            pnpm desktop test:playwright
+          else
+            pnpm desktop test:playwright
+          fi
       - name: upload diffs to imgur
         if: always() && !cancelled()
         uses: ./tools/actions/upload-images
@@ -254,6 +275,12 @@ jobs:
         with:
           name: images
           path: images-macos.json
+      - name: upload network responses
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-network-responses
+          path: apps/ledger-live-desktop/tests/artifacts/networkResponses.log
       - name: Upload playwright test results [On Failure]
         uses: actions/upload-artifact@v3
         if: failure() && !cancelled()
@@ -274,7 +301,14 @@ jobs:
 
   report:
     needs:
-      [typecheck, unit-tests, e2e-tests-linux, e2e-tests-windows, e2e-tests-mac]
+      [
+        typecheck,
+        deadcodecheck,
+        unit-tests,
+        e2e-tests-linux,
+        e2e-tests-windows,
+        e2e-tests-mac,
+      ]
     runs-on: ubuntu-latest
     if: always() && !cancelled() && github.event_name == 'workflow_dispatch'
     steps:
@@ -356,6 +390,10 @@ jobs:
               status: "${{ needs.unit-tests.result }}",
             };
 
+            const deadcodecheck = {
+              pass: ${{ needs.deadcodecheck.result == 'success' }},
+            };
+
             const report = {
               mac: {
                 pass: ${{ needs.e2e-tests-mac.outputs.status == 'success' }},
@@ -372,8 +410,13 @@ jobs:
             };
 
             let summary = `### TypeCheck
+
             ${typecheck.pass ? "Typechecks are fine" : "Unfortunately typechecks did not pass"}
               - ${typecheck.pass ? "✅" : "❌"} **Type checks** ended with status \`${typecheck.status}\`
+
+            ### Dead Code Check
+            ${deadcodecheck.pass ? "Dead code checks are fine" : "Unfortunately, dead code checks did not pass. Try \`npx unimported\` in apps/ledger-live-desktop"}
+              - ${deadcodecheck.pass ? "✅" : "❌"}
 
             ### Unit Tests (Jest)
             ${unitTests.pass ? "Unit tests are fine" : "Unit tests did not pass"}
@@ -432,7 +475,7 @@ jobs:
   allure-report:
     name: "Allure Reports Export on Server"
     needs: [e2e-tests-windows, e2e-tests-linux, e2e-tests-mac]
-    runs-on: [ledger-live, linux]
+    runs-on: [ledger-live-medium-linux]
     if: ${{ always() && !cancelled() && github.ref_name == 'develop' }}
     steps:
       - name: checkout

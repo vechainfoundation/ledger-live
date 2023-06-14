@@ -18,11 +18,12 @@ import { snakeCase } from "lodash";
 import { useCallback } from "react";
 import { idsToLanguage } from "@ledgerhq/types-live";
 import {
-  getAndroidArchitecture,
-  getAndroidVersionCode,
-} from "../logic/cleanBuildVersion";
+  hasNftInAccounts,
+  GENESIS_PASS_COLLECTION_CONTRACT,
+  INFINITY_PASS_COLLECTION_CONTRACT,
+} from "@ledgerhq/live-common/nft/helpers";
+import { getAndroidArchitecture, getAndroidVersionCode } from "../logic/cleanBuildVersion";
 import getOrCreateUser from "../user";
-// eslint-disable-next-line import/no-cycle
 import {
   analyticsEnabledSelector,
   languageSelector,
@@ -34,6 +35,8 @@ import {
   readOnlyModeEnabledSelector,
   hasOrderedNanoSelector,
   notificationsSelector,
+  knownDeviceModelIdsSelector,
+  customImageTypeSelector,
 } from "../reducers/settings";
 import { knownDevicesSelector } from "../reducers/ble";
 import { DeviceLike, State } from "../reducers/types";
@@ -45,17 +48,10 @@ import { previousRouteNameRef, currentRouteNameRef } from "./screenRefs";
 import { AnonymousIpPlugin } from "./AnonymousIpPlugin";
 import { UserIdPlugin } from "./UserIdPlugin";
 import { Maybe } from "../types/helpers";
-import {
-  GENESIS_PASS_COLLECTION_CONTRACT,
-  INFINITY_PASS_COLLECTION_CONTRACT,
-  hasNftInAccounts,
-} from "../helpers/nfts";
 import { appStartupTime } from "../StartupTimeMarker";
 
 let sessionId = uuid();
-const appVersion = `${VersionNumber.appVersion || ""} (${
-  VersionNumber.buildVersion || ""
-})`;
+const appVersion = `${VersionNumber.appVersion || ""} (${VersionNumber.buildVersion || ""})`;
 const { ANALYTICS_LOGS, ANALYTICS_TOKEN } = Config;
 
 export const updateSessionId = () => (sessionId = uuid());
@@ -63,16 +59,15 @@ export const updateSessionId = () => (sessionId = uuid());
 const extraProperties = async (store: AppStore) => {
   const state: State = store.getState();
   const sensitiveAnalytics = sensitiveAnalyticsSelector(state);
-  const systemLanguage = sensitiveAnalytics
-    ? null
-    : RNLocalize.getLocales()[0]?.languageTag;
+  const systemLanguage = sensitiveAnalytics ? null : RNLocalize.getLocales()[0]?.languageTag;
+  const knownDeviceModelIds = knownDeviceModelIdsSelector(state);
+  const customImageType = customImageTypeSelector(state);
   const language = sensitiveAnalytics ? null : languageSelector(state);
   const region = sensitiveAnalytics ? null : localeSelector(state);
   const devices = knownDevicesSelector(state);
   const satisfaction = satisfactionSelector(state);
   const accounts = accountsSelector(state);
-  const lastDevice =
-    lastSeenDeviceSelector(state) || devices[devices.length - 1];
+  const lastDevice = lastSeenDeviceSelector(state) || devices[devices.length - 1];
   const deviceInfo = lastDevice
     ? {
         deviceVersion: lastDevice.deviceInfo?.version,
@@ -88,12 +83,9 @@ const extraProperties = async (store: AppStore) => {
   const notifications = notificationsSelector(state);
   const notificationsAllowed = notifications.areNotificationsAllowed;
   const notificationsBlacklisted = Object.entries(notifications)
-    .filter(
-      ([key, value]) => key !== "areNotificationsAllowed" && value === false,
-    )
+    .filter(([key, value]) => key !== "areNotificationsAllowed" && value === false)
     .map(([key]) => key);
-  const firstConnectHasDeviceUpdated =
-    firstConnectHasDeviceUpdatedSelector(state);
+  const firstConnectHasDeviceUpdated = firstConnectHasDeviceUpdatedSelector(state);
   const { user } = await getOrCreateUser();
   const accountsWithFunds = accounts
     ? [
@@ -107,20 +99,12 @@ const extraProperties = async (store: AppStore) => {
   const blockchainsWithNftsOwned = accounts
     ? [
         ...new Set(
-          accounts
-            .filter(account => account.nfts?.length)
-            .map(account => account.currency.ticker),
+          accounts.filter(account => account.nfts?.length).map(account => account.currency.ticker),
         ),
       ]
     : [];
-  const hasGenesisPass = hasNftInAccounts(
-    GENESIS_PASS_COLLECTION_CONTRACT,
-    accounts,
-  );
-  const hasInfinityPass = hasNftInAccounts(
-    INFINITY_PASS_COLLECTION_CONTRACT,
-    accounts,
-  );
+  const hasGenesisPass = hasNftInAccounts(GENESIS_PASS_COLLECTION_CONTRACT, accounts);
+  const hasInfinityPass = hasNftInAccounts(INFINITY_PASS_COLLECTION_CONTRACT, accounts);
 
   return {
     appVersion,
@@ -146,11 +130,14 @@ const extraProperties = async (store: AppStore) => {
     notificationsAllowed,
     notificationsBlacklisted,
     userId: user?.id,
+    braze_external_id: user?.id, // Needed for braze with this exact name
     accountsWithFunds,
     blockchainsWithNftsOwned,
     hasGenesisPass,
     hasInfinityPass,
     appTimeToInteractiveMilliseconds: appStartupTime,
+    staxDeviceUser: knownDeviceModelIds.stax,
+    staxLockscreen: customImageType || "none",
   };
 };
 
@@ -160,9 +147,7 @@ let storeInstance: MaybeAppStore; // is the redux store. it's also used as a fla
 let segmentClient: SegmentClient | undefined;
 
 const token = ANALYTICS_TOKEN;
-export const start = async (
-  store: AppStore,
-): Promise<SegmentClient | undefined> => {
+export const start = async (store: AppStore): Promise<SegmentClient | undefined> => {
   const { user, created } = await getOrCreateUser();
   storeInstance = store;
 
@@ -204,10 +189,7 @@ export const updateIdentify = async () => {
   const userExtraProperties = await extraProperties(storeInstance);
   if (ANALYTICS_LOGS) console.log("analytics:identify", userExtraProperties);
   if (!token) return;
-  await segmentClient?.identify(
-    userExtraProperties.userId,
-    userExtraProperties,
-  );
+  await segmentClient?.identify(userExtraProperties.userId, userExtraProperties);
 };
 export const stop = () => {
   if (ANALYTICS_LOGS) console.log("analytics:stop");
@@ -236,8 +218,7 @@ export function getIsTracking(
   if (readOnlyMode && hasOrderedNano)
     return {
       enabled: false,
-      reason:
-        "not tracking anything in the reborn state post purchase pre device setup",
+      reason: "not tracking anything in the reborn state post purchase pre device setup",
     };
   if (!mandatory && !analyticsEnabled) {
     return {
@@ -264,8 +245,7 @@ export const track = async (
 
   const isTracking = getIsTracking(state, mandatory);
   if (!isTracking.enabled) {
-    if (ANALYTICS_LOGS)
-      console.log("analytics:track: not tracking because: ", isTracking.reason);
+    if (ANALYTICS_LOGS) console.log("analytics:track: not tracking because: ", isTracking.reason);
     return;
   }
 
@@ -291,8 +271,7 @@ export const track = async (
   segmentClient?.track(event, allProperties);
 };
 export const getPageNameFromRoute = (route: RouteProp<ParamListBase>) => {
-  const routeName =
-    getFocusedRouteNameFromRoute(route) || NavigatorName.Portfolio;
+  const routeName = getFocusedRouteNameFromRoute(route) || NavigatorName.Portfolio;
   return snakeCase(routeName);
 };
 export const trackWithRoute = (
@@ -311,11 +290,8 @@ export const trackWithRoute = (
 export const useTrack = () => {
   const route = useRoute();
   const track = useCallback(
-    (
-      event: EventType,
-      properties?: Record<string, unknown> | null,
-      mandatory?: boolean | null,
-    ) => trackWithRoute(event, route, properties, mandatory),
+    (event: EventType, properties?: Record<string, unknown> | null, mandatory?: boolean | null) =>
+      trackWithRoute(event, route, properties, mandatory),
     [route],
   );
   return track;
@@ -332,14 +308,53 @@ export const useAnalytics = () => {
     page,
   };
 };
+
+/**
+ * Track an event which will have the name `Page ${category}${name ? " " + name : ""}`.
+ * Extra logic to update the route names used in "screen" and "source"
+ * properties of further events can be optionally enabled with the parameters
+ * `updateRoutes` and `refreshSource`.
+ */
 export const screen = async (
+  /**
+   * First part of the event name string
+   */
   category?: string,
+  /**
+   * Second part of the event name string, will be concatenated to `category`
+   * after a whitespace if defined.
+   */
   name?: string | null,
+  /**
+   * Event properties
+   */
   properties?: Record<string, unknown> | null | undefined,
+  /**
+   * Should this function call update the previous & current route names.
+   * Previous and current route names are used to track:
+   * - the `screen` property in non-screen events (for instance `button_clicked` events)
+   * - the `source` property in further screen events
+   */
+  updateRoutes?: boolean,
+  /**
+   * Should this function call update the current route name.
+   * If true, it means that the full screen name (`category` + " " + `name`) will
+   * be used as a "source" property for further screen events.
+   * NB: the previous parameter `updateRoutes` must be true for this to have
+   * any effect.
+   */
+  refreshSource?: boolean,
 ) => {
-  const title = `Page ${category + (name ? ` ${name}` : "")}`;
+  const fullScreenName = category + (name ? ` ${name}` : "");
+  if (updateRoutes) {
+    previousRouteNameRef.current = currentRouteNameRef.current;
+    if (refreshSource) {
+      currentRouteNameRef.current = fullScreenName;
+    }
+  }
+  const eventName = `Page ${fullScreenName}`;
   Sentry.addBreadcrumb({
-    message: title,
+    message: eventName,
     category: "screen",
     data: properties || {},
     level: "info",
@@ -349,11 +364,7 @@ export const screen = async (
 
   const isTracking = getIsTracking(state);
   if (!isTracking.enabled) {
-    if (ANALYTICS_LOGS)
-      console.log(
-        "analytics:screen: not tracking because: ",
-        isTracking.reason,
-      );
+    if (ANALYTICS_LOGS) console.log("analytics:screen: not tracking because: ", isTracking.reason);
     return;
   }
 
@@ -368,14 +379,13 @@ export const screen = async (
     ...eventPropertiesWithoutExtra,
     ...userExtraProperties,
   };
-  if (ANALYTICS_LOGS)
-    console.log("analytics:screen", category, name, allProperties);
+  if (ANALYTICS_LOGS) console.log("analytics:screen", category, name, allProperties);
   trackSubject.next({
-    eventName: title,
+    eventName,
     eventProperties: allProperties,
     eventPropertiesWithoutExtra,
     date: new Date(),
   });
   if (!token) return;
-  segmentClient?.track(title, allProperties);
+  segmentClient?.track(eventName, allProperties);
 };

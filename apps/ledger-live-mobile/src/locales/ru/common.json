@@ -12,6 +12,7 @@
     "gotit" : "Понятно",
     "continue" : "Продолжить",
     "retry" : "Повторить",
+    "backTo" : "Назад к {{to}}",
     "done" : "Готово",
     "sortBy" : "Сортировка",
     "signOut" : "Выйти",
@@ -51,7 +52,7 @@
     "token_plural" : "Токены",
     "subaccount" : "Субсчёт",
     "subaccount_plural" : "Субсчета",
-    "forgetDevice" : "Удаление устройства",
+    "forgetDevice" : "Удалить устройство",
     "help" : "Помощь",
     "saveLogs" : "Сохранить логи",
     "sync" : {
@@ -88,7 +89,11 @@
     "getSupport" : "Поддержка",
     "comingSoon" : "Скоро",
     "restart" : "Перезагрузка",
-    "loadMore" : "Показать больше"
+    "loadMore" : "Показать больше",
+    "patterns" : {
+      "id" : "ID {{ value }}",
+      "times" : "x{{ value }}"
+    }
   },
   "errors" : {
     "countervaluesUnavailable" : {
@@ -113,19 +118,9 @@
       "title" : "Кажется, Bluetooth отключён",
       "description" : "Пожалуйста, включите Bluetooth в настройках телефона. (статус {{state}})"
     },
-    "FwUpdateBluetoothNotSupported" : {
-      "title" : "Обновление прошивки поддерживается только для проводных соединений"
-    },
-    "BtcUnmatchedApp" : {
-      "title" : "Это не то приложение",
-      "description" : "Пожалуйста, откройте приложение {{managerAppName}} на устройстве."
-    },
     "CantOpenDevice" : {
       "title" : "Сбой подключения",
       "description" : "Устройство Ledger должно быть разблокировано, и находиться в радиусе действия Bluetooth."
-    },
-    "CantScanQRCode" : {
-      "title" : "Не удалось отсканировать QR-код: адрес не поддерживает автоматическую проверку."
     },
     "ConnectAppTimeout" : {
       "title" : "К сожалению, устройство не найдено",
@@ -141,7 +136,7 @@
       }
     },
     "ConnectManagerTimeout" : {
-      "title" : "Извините, не удалось подключиться к Диспетчеру",
+      "title" : "Извините, не удалось подключиться к «Мой Ledger»",
       "description" : {
         "ios" : {
           "nanoX" : "Убедитесь, что {{productName}} разблокирован и Bluetooth включён."
@@ -162,9 +157,6 @@
     "ClaimRewardsFeesWarning" : {
       "title" : "Размер комиссии превышает вознаграждение.",
       "description" : ""
-    },
-    "CompoundLowerAllowanceOfActiveAccountError" : {
-      "title" : "Вы не можете уменьшить подтверждённую сумму, пока у вас имеется активная транзакция пополнения."
     },
     "CosmosBroadcastCodeInternal" : {
       "title" : "Что-то пошло не так (ошибка №1)",
@@ -325,11 +317,13 @@
     },
     "ImageCommitRefusedOnDevice" : {
       "title" : "Экран блокировки отключён на Ledger Stax",
-      "description" : "Если это изображение не подошло, вы можете попробовать другое."
+      "description" : "Если это изображение не подошло, вы можете попробовать другое.",
+      "primaryCTA" : "Загрузить другое изображение"
     },
     "ImageLoadRefusedOnDevice" : {
       "title" : "Экран блокировки отключён на Ledger Stax",
-      "description" : "Если это изображение не подошло, вы можете попробовать другое."
+      "description" : "Если это изображение не подошло, вы можете попробовать другое.",
+      "primaryCTA" : "Загрузить другое изображение"
     },
     "InvalidAddress" : {
       "title" : "Некорректный адрес {{currencyName}}"
@@ -478,6 +472,10 @@
       "title" : "Пароли не совпадают",
       "description" : "Пожалуйста, попробуйте ещё раз."
     },
+    "PeerRemovedPairing" : {
+      "title" : "Необходимо повторное сопряжение {{ productName }}",
+      "description" : "Перейдите в настройки Bluetooth на смартфоне и сбросьте сопряжение {{ productName }}. Затем вернитесь в Ledger Live и попробуйте снова."
+    },
     "SelectExchangesLoadError" : {
       "title" : "Ошибка при загрузке",
       "description" : "Ошибка при загрузке обменных курсов."
@@ -554,7 +552,8 @@
     },
     "UpdateYourApp" : {
       "title" : "Необходимо обновить приложения",
-      "description" : "Удалите и повторно установите приложение {{managerAppName}} через Диспетчер."
+      "description" : "Удалите и повторно установите приложение {{managerAppName}} через Диспетчер.",
+      "primaryCTA" : "Открыть «Мой Ledger»"
     },
     "UserRefusedAllowManager" : {
       "title" : "Диспетчер был отклонён на устройстве",
@@ -587,6 +586,12 @@
     "WrongDeviceForAccount" : {
       "title" : "Что-то пошло не так",
       "description" : "Пожалуйста, убедитесь, что ваш аппаратный кошелёк настроен с помощью фразы восстановления, связанной с выбранным счётом."
+    },
+    "WebPTXPlayerNetworkFail" : {
+      "title" : "Ошибка сети",
+      "description" : "Проверьте интернет-соединение и повторите попытку. Обратитесь в Поддержку Ledger, если проблема не исчезает.",
+      "contactSupport" : "Связаться с Поддержкой",
+      "primaryCTA" : "Попробовать ещё раз"
     },
     "UnexpectedBootloader" : {
       "title" : "Устройство не должно быть в режиме Bootloader",
@@ -673,7 +678,8 @@
     },
     "generic" : {
       "title" : "{{message}}",
-      "description" : "Что-то пошло не так. Пожалуйста, попробуйте ещё раз. Если проблема не уходит, сохраните логи и отправьте их в Поддержку Ledger."
+      "description" : "Что-то пошло не так. Пожалуйста, попробуйте ещё раз. Если проблема не уходит, сохраните логи и отправьте их в Поддержку Ledger.",
+      "primaryCTA" : "Повторить"
     },
     "SolanaAccountNotFunded" : {
       "title" : "Счёт не пополнен"
@@ -828,7 +834,9 @@
     "required" : "Похоже, Bluetooth отключён",
     "locationRequiredTitle" : "Для Bluetooth LE необходимо включить функцию геолокации",
     "locationRequiredMessage" : "Для вывода списка устройств Bluetooth LE на Android-устройствах потребуется разрешить функцию геолокации.",
-    "checkEnabled" : "Пожалуйста, включите Bluetooth в настройках телефона."
+    "checkEnabled" : "Пожалуйста, включите Bluetooth в настройках телефона.",
+    "tryEnablingAgain" : "Попробуйте снова включить Bluetooth",
+    "openSettings" : "Открыть настройки Bluetooth"
   },
   "webview" : {
     "noConnectionError" : {
@@ -838,12 +846,10 @@
   },
   "location" : {
     "titleServiceRequired" : "Требуется функция геолокации",
-    "titlePermissionRequired" : "Требуется использование геолокации",
-    "titlePermissionRequiredPrecise" : "Требуется использование точной геолокации",
     "descriptionServiceRequired" : "Для подключения устройства через Bluetooth Ledger Live требуется функция геолокации.",
-    "descriptionPermissionRequired" : "Для подключения устройства через Bluetooth Ledger Live требуется разрешение на использование геолокации.",
-    "descriptionPermissionRequiredPrecise" : "Для подключения устройства через Bluetooth Ledger Live требуется разрешение на использование точной геолокации.",
     "open" : "Открыть настройки геолокации",
+    "openSettings" : "Открыть настройки геолокации",
+    "tryEnablingAgain" : "Попробуйте снова включить геолокацию",
     "noInfos" : "Ledger не имеет доступа к информации о вашем местоположении."
   },
   "permissions" : {
@@ -856,6 +862,12 @@
       "modalButtonLabelBase" : "Разрешить",
       "modalButtonLabelSettingsVariant" : "Перейти в Настройки",
       "dontPair" : "Не подключать"
+    },
+    "location" : {
+      "titlePermissionRequired" : "Требуется использование геолокации",
+      "titlePermissionRequiredPrecise" : "Требуется использование точной геолокации",
+      "descriptionPermissionRequired" : "Для подключения устройства через Bluetooth Ledger Live требуется разрешение на использование геолокации.",
+      "descriptionPermissionRequiredPrecise" : "Для подключения устройства через Bluetooth Ledger Live требуется разрешение на использование точной геолокации."
     },
     "camera" : {
       "title" : "Разрешите доступ к камере",
@@ -1124,15 +1136,19 @@
     "sections" : {
       "learn" : {
         "title" : "Учитесь",
-        "desc" : "Узнайте о криптовалюте, Web3, цифровой безопасности и многом другом"
+        "desc" : "Узнайте о криптовалюте, Web3, цифровой безопасности и многом другом..."
       },
       "news" : {
         "title" : "Новости",
-        "desc" : "Узнайте больше о криптовалютах, безопасности, Web3, а также получайте актуальные новости"
+        "desc" : "Узнайте больше о криптовалютах, безопасности, Web3, а также получайте актуальные новости."
       },
       "ledgerApps" : {
         "title" : "Приложения",
-        "desc" : "Познакомьтесь с интегрированными приложениями прямо внутри Ledger"
+        "desc" : "Познакомьтесь с приложениями, интегрированными прямо в Ledger Live."
+      },
+      "browseWeb3" : {
+        "title" : "Исследуйте мир Web3",
+        "desc" : "Познакомьтесь с миром Web3, интегрированным в Ledger"
       },
       "earn" : {
         "title" : "Растите",
@@ -1154,7 +1170,7 @@
     "restore" : {
       "title" : "Установить те же приложения, что и на устройстве {{deviceName}}?",
       "titleNoDeviceName" : "Установить те же приложения, что и на предыдущем устройстве Ledger?",
-      "installCTA" : "Установить",
+      "installCTA" : "Восстановить",
       "skipCTA" : "Отложить"
     },
     "landing" : {
@@ -1165,10 +1181,10 @@
       "skipCTA" : "Отложить"
     },
     "ongoing" : {
-      "loading" : "Загружаем...",
       "resolving" : "Устраняем зависимости приложения...",
-      "progress" : "Установка приложений: {{progress}}%",
-      "disclaimer" : "Добавляйте или удаляйте приложения в любое время с помощью Ledger Live."
+      "progress" : "Не выходите из Ledger Live во время установки.",
+      "skippedInfo" : "Некоторые приложения сейчас недоступны. Пока нет версии для {{ productName }}.",
+      "skipped" : "Пока недоступно для {{ productName }}"
     }
   },
   "onboarding" : {
@@ -1181,7 +1197,8 @@
       "terms" : "Нажимая «Приступить», вы соглашаетесь с нашими",
       "termsLink" : "Условиями использования",
       "privacyLink" : "Политика конфиденциальности",
-      "and" : "и"
+      "and" : "и",
+      "recoverLogIn" : "Войти в Ledger Recover"
     },
     "stepDoYouHaveALedgerDevice" : {
       "title" : "У вас есть Ledger?",
@@ -1279,8 +1296,13 @@
       },
       "recovery" : "Есть фраза восстановления?",
       "protect" : {
-        "label" : "~60 мин.",
-        "subTitle" : "Восстановить с помощью Protect"
+        "subTitle" : "Восстановить с Ledger Recover",
+        "drawer" : {
+          "title" : "Использовать Ledger Nano X",
+          "desc" : "Мягкий запуск Ledger Recover доступен только для Ledger Nano X",
+          "buyNanoX" : "Приобретите Ledger Nano X",
+          "discoverBenefits" : "Изучите преимущества"
+        }
       }
     },
     "stepNewDevice" : {
@@ -1507,25 +1529,20 @@
     "stepProtect" : {
       "bullets" : {
         "0" : {
-          "title" : "Посмотреть ",
-          "label" : "Узнайте, как взаимодействовать с устройством, по инструкциям на экране."
+          "title" : "Выберите «Restore» (Восстановить)",
+          "label" : "Для подтверждения нажмите обе кнопки одновременно."
         },
         "1" : {
-          "title" : "Выберите «Restore» (Восстановить)",
-          "label" : "Для подтверждения выбора нажмите обе кнопки одновременно."
-        },
-        "2" : {
-          "title" : "Выберите «Restore with Protect» (Восстановить с помощью Protect)",
-          "label" : "Для подтверждения выбора нажмите обе кнопки одновременно."
+          "title" : "Выберите «Restore using Ledger Recover» (Восстановить с Ledger Recover)",
+          "label" : "Для подтверждения нажмите обе кнопки одновременно."
         }
       },
       "nextStep" : "Продолжить",
       "extraInfo" : {
-        "tooltip" : "Не отображается в Ledger",
-        "title" : "Почему в Ledger не отображается опция восстановления с помощью Protect?",
-        "desc1" : "Скорее всего, ваше устройство не совместимо с Protect. Но не стоит волноваться: мы расскажем, как всё исправить.",
-        "desc2" : "Свяжитесь с нами через # и выберите «Мой Ledger не показывает опцию восстановления с помощью Protect». Вам обязательно помогут.",
-        "cta" : "Выполните действия вручную",
+        "tooltip" : "Если нет «Restore using Ledger Recover»",
+        "title" : "ОС вашего Ledger Nano X необходимо обновить",
+        "desc" : "Попробуйте обновить ОС самостоятельно или обратитесь за помощью в Поддержку Ledger.",
+        "cta" : "Как обновить устройство",
         "supportLink" : "Связаться с Поддержкой Ledger"
       }
     },
@@ -1667,8 +1684,9 @@
         }
       },
       "protectConnectionInformationModal" : {
-        "title" : "Почему не подключается устройство Ledger?",
-        "description" : "После активации Bluetooth на устройстве Ledger иногда могут возникать проблемы подключения к мобильному приложению Ledger Live. Чтобы исправить это, воспользуйтесь кнопкой «Как это исправить?»."
+        "title" : "Подключение Ledger Nano X",
+        "description" : "Не забудьте поднести смартфон поближе к устройству Ledger и повторите попытку. <LinkBluethooth>Проблемы подключения по Bluetooth®.</LinkBluethooth>\n\nЕсли Bluetooth® не работает, проблема может быть в ОС на устройстве Ledger. Попробуйте обновить ОС самостоятельно или обратитесь в Поддержку Ledger. ",
+        "learnHowToUpdate" : "Как обновить устройство"
       }
     },
     "stepImportAccounts" : {
@@ -1827,7 +1845,8 @@
           "title" : "Устройство заблокировано",
           "subtitle" : "Разблокируйте {{ productName }} и повторите попытку."
         },
-        "retryCta" : "Попробуйте ещё раз"
+        "retryCta" : "Повторить",
+        "openSettingsCta" : "Открыть настройки Bluetooth"
       }
     }
   },
@@ -1882,20 +1901,36 @@
     },
     "pairingStep" : {
       "title" : "{{productName}} сопряжено",
-      "description" : "Продолжайте настройку на {{productName}}. Заглядывайте сюда, если понадобится помощь."
+      "description" : "Продолжайте настройку на {{productName}}.\nЗаглядывайте сюда, если понадобится помощь.",
+      "continueOnDevice" : "Нажмите в любом месте для продолжения на {{productName}}"
     },
     "pinStep" : {
       "title" : "ПИН-код",
       "doneTitle" : "ПИН-код установлен",
-      "description" : "ПИН-код защищает ваш {{productName}} от посторонних."
+      "description" : "ПИН-код защищает ваш {{productName}} от посторонних.",
+      "continueOnDevice" : "Установите ПИН-код на {{productName}}"
     },
     "seedStep" : {
       "title" : "Секретная фраза восстановления",
       "doneTitle" : "Фраза восстановления подтверждена",
-      "description" : "Фраза восстановления — это секретный набор из 24 слов для восстановления ваших приватных ключей. {{productName}} самостоятельно генерирует уникальную фразу восстановления, причём у Ledger нет её копии"
+      "description" : "Фраза восстановления — это секретный набор из 24 слов для восстановления ваших приватных ключей. {{productName}} самостоятельно генерирует уникальную фразу восстановления, причём у Ledger нет её копии",
+      "choiceRestoreDirectOrRecover" : "Заглушка — выберите прямое восстановление или воспользуйтесь Ledger Recover",
+      "recoverSeed" : "Заглушка: Ledger Recover",
+      "restoreSeed" : "Для безопасности криптоактивов при восстановлении используйте секретную мнемоническую фразу, которая была создана устройством Ledger.\n\nНет фразы восстановления? Воспользуйтесь {{productName}} для создания новой фразы.",
+      "selection" : "Выберите подходящий вариант настройки на {{productName}}.",
+      "selectionContinueOnDevice" : "Выберите опцию на {{productName}}",
+      "newSeedDescription" : "Просмотрите видео ниже и узнайте больше о вашей секретной фразе.",
+      "newSeedContinueOnDevice" : "Сделать это можно на {{productName}}",
+      "recovery" : "Для безопасности криптоактивов при восстановлении используйте секретную мнемоническую фразу, которая была создана устройством Ledger.\n\nНет фразы восстановления? Воспользуйтесь {{productName}} для создания новой фразы.",
+      "restoreChoiceContinueOnDevice" : "Выберите опцию на вашем {{productName}}",
+      "restoreChoiceSRPTitle" : "Восстановление с помощью секретной фразы",
+      "restoreChoiceSRPDescription" : "Для безопасности криптоактивов используйте секретную фразу, сгенерированную устройством Ledger.",
+      "restoreChoiceRecoverTitle" : "Восстановить с Ledger Recover",
+      "restoreChoiceRecoverDescription" : "Восстановите резервную копию вашей секретной фразы, войдя в учётную запись Ledger и подтвердив личность."
     },
     "softwareChecksSteps" : {
       "title" : "Проверка устройства и ПО",
+      "description" : "Убедитесь, что устройство готово к использованию и поддерживает новейшие функции безопасности.",
       "doneTitle" : "У вас подлинный и актуальный {{productName}}",
       "genuineCheckRequestDrawer" : {
         "iconText" : "Проверка подлинности",
@@ -2030,7 +2065,7 @@
   },
   "addAccountsModal" : {
     "title" : "Добавить счёт",
-    "ctaAdd" : "Добавление счёта",
+    "ctaAdd" : "Добавить счёт",
     "ctaImport" : "Импорт из настольного приложения",
     "description" : "Вы можете добавить криптовалюту с помощью устройства, либо импортировать её из Ledger Live для ПК.",
     "add" : {
@@ -2096,8 +2131,6 @@
       "OPT_IN" : "Вход",
       "OPT_OUT" : "Выход",
       "CLOSE_ACCOUNT" : "Закрытие счета",
-      "SUPPLY" : "Депонирование",
-      "REDEEM" : "Вывод",
       "APPROVE" : "Подтверждение",
       "BOND" : "Блокировка",
       "UNBOND" : "Разблокировка",
@@ -2357,12 +2390,13 @@
     "modals" : {
       "zeroBalanceDisabledAction" : {
         "title" : "У вас пока нет {{currencyTicker}}",
-        "start" : "Купите или переведите {{currencyTicker}}, чтобы начать.",
+        "start" : "Для начала купите или переведите {{currencyTicker}} на этот счёт.",
         "description" : "Вам нужно немного {{currencyTicker}}, чтобы {{actionName}} с помощью этого счёта."
       }
     },
     "earn" : "Приумножение",
     "quickActions" : "Быстрые действия",
+    "referralProgram" : "Пригласите друга и получите 10$ в BTC",
     "banner" : {
       "redelegation" : {
         "description" : "Если вы не знали, комиссия за стейкинг у валидатора Ledger ниже, чем у используемого вами валидатора.",
@@ -2465,6 +2499,8 @@
       "carouselDesc" : "Карточки с персональными рекомендациями и свежими предложениями, которые могут вам подойти.",
       "language" : "Язык",
       "languageDesc" : "Выберите язык интерфейса Ledger Live.",
+      "dateFormat" : "Формат даты",
+      "dateFormatDesc" : "Выберите формат даты для Ledger Live",
       "region" : "Регион",
       "regionDesc" : "Выберите регион, чтобы обновить форматы дат, времени и валют.",
       "password" : "Блокировка паролем",
@@ -2512,8 +2548,14 @@
       },
       "hideEmptyTokenAccounts" : "Скрывать пустые счета",
       "hideEmptyTokenAccountsDesc" : "Спрячьте все пустые счета на странице Счета.",
-      "filterTokenOperationsZeroAmount" : "Скрывать транзакции по пустым счетам",
-      "filterTokenOperationsZeroAmountDesc" : "Вы можете скрыть транзакции по пустым счетам и избежать потенциальной атаки отравления адреса в сетях Eth, Polygon, BSC, Tron..."
+      "filterTokenOperationsZeroAmount" : "Скрывать нулевые транзакции",
+      "filterTokenOperationsZeroAmountDesc" : "Вы можете скрыть транзакции с нулевой суммой и избежать потенциальной атаки отравления адреса в сетях Eth, Polygon, BSC, Tron...",
+      "DateFormatModal" : {
+        "title" : "Формат даты",
+        "default" : "По умолчанию",
+        "dayFirst" : "ДД/ММ/ГГГГ",
+        "monthFirst" : "ММ/ДД/ГГГГ"
+      }
     },
     "currencies" : {
       "header" : "Валюты",
@@ -2568,7 +2610,7 @@
     },
     "notifications" : {
       "title" : "Уведомления",
-      "desc" : "Управляйте уведомлениями",
+      "desc" : "Настройки уведомлений в приложении.",
       "disabledNotifications" : {
         "title" : "Уведомления отключены",
         "desc" : "{{platform}} блокирует уведомления от Ledger Live. Для активации уведомлений перейдите в настройки смартфона и включите уведомления непосредственно для Ledger Live.",
@@ -2577,7 +2619,7 @@
       },
       "allowed" : {
         "title" : "Уведомления",
-        "desc" : "Получайте уведомления о криптоактивах, ситуации на рынке и не только"
+        "desc" : "Получайте уведомления о криптовалютах, ситуации на рынке и не только."
       },
       "transactions" : {
         "title" : "Транзакции",
@@ -2589,15 +2631,15 @@
       },
       "announcements" : {
         "title" : "Новости",
-        "desc" : "Не пропускайте важные обновления Ledger Live"
+        "desc" : "Не пропускайте важные новости о приложении Ledger Live."
       },
       "recommendations" : {
         "title" : "Рекомендации",
-        "desc" : "Оцените рекомендации и специальные предложения именно для вас. Они сделают криптопутешествие ещё ярче"
+        "desc" : "Получайте рекомендации и специальные предложения именно для вас. Они сделают криптопутешествие ещё ярче."
       },
       "largeMover" : {
         "title" : "Значительное изменение цены",
-        "desc" : "Вы получите уведомление о значительных флуктуациях курса BTC и ETH"
+        "desc" : "Регулярные уведомления о значительных перепадах котировок BTC и ETH."
       },
       "price" : {
         "title" : "Уведомления о курсах",
@@ -2630,9 +2672,13 @@
       "repairDeviceDesc" : "Если при обновлении устройства возникла проблема и вы не можете продолжить обновление, воспользуйтесь этой функцией для устранения неполадок."
     },
     "experimental" : {
-      "title" : "Экспериментальные функции",
+      "title" : "Экспериментальный режим",
       "desc" : "Попробуйте экспериментальные функции и скажите нам, что вы думаете.",
       "disclaimer" : "Это Экспериментальные функции, предоставляемые на условиях «как есть» для нашего сообщества технических энтузиастов. Эти функции могут быть изменены, заблокированы или удалены в любое время. Активируя их, вы принимаете на себя все риски от использования.",
+      "provider" : "Экспериментальная настройка «Мой поставщик Ledger ({{forcedProvider}})» может отображать невыпущенные версии ОС и приложений, что приводит к неполадкам совместимости. Отключить её можно в Настройках.",
+      "providerDevMode" : "Экспериментальные настройки «Оператор в Мой Ledger ({{forcedProvider}})» и «Режим разработчика» могут отображать невыпущенные версии ОС и приложений, что приводит к неполадкам совместимости. Отключить их можно в Настройках.",
+      "devMode" : "Экспериментальная настройка «Режим разработчика» может отображать невыпущенные версии ОС и приложений, что приводит к неполадкам совместимости. Отключить её можно в Настройках.",
+      "providerCTA" : "Перейти в Настройки",
       "experimentalFeatures" : {
         "experimentalIntegrations" : {
           "title" : "Экспериментальная интеграция",
@@ -2650,6 +2696,10 @@
           "title" : "API экспериментальных обозревателей",
           "description" : "Попробуйте предстоящую версию обозревателей блокчейна Ledger. Изменение этой настройки может повлиять на баланс и синхронизацию счета, а также на функцию отправки."
         },
+        "experimentalListAppsV2" : {
+          "title" : "Экспериментальный список приложений для вкладки «Мой Ledger»",
+          "description" : "Оптимизация встроенных потоков и доступа к вкладке «Мой Ledger»."
+        },
         "experimentalCountervalues" : {
           "title" : "Экспериментальный API эквивалентов",
           "description" : "Данная функция может привести к ошибке отображения эквивалентов для ваших счетов."
@@ -2657,12 +2707,20 @@
         "experimentalSwap" : {
           "title" : "Новый интерфейс обмена",
           "description" : "Использовать обновлённый интерфейс при обмене криптовалют и токенов"
+        },
+        "experimentalEnableNetworkLogs" : {
+          "title" : "Активация логов сети",
+          "description" : "Включить сетевые логи в консоли. Логи ошибок активированы всегда"
         }
       },
       "developerFeatures" : {
         "experimentalApps" : {
           "title" : "Разрешить экспериментальные приложения",
           "description" : "Показывать и открывать экспериментальные приложения на платформе."
+        },
+        "debugApps" : {
+          "title" : "Разрешить отладку",
+          "description" : "Показывать и открывать отладочные приложения на платформе."
         },
         "staggingUrl" : {
           "title" : "Промежуточный URL страницы",
@@ -2690,7 +2748,12 @@
       "featureFlagsTabGroups" : "Группы",
       "firebaseProject" : "Проект Firebase является целевым для этой сборки:",
       "showBannerDesc" : "Показывать баннер при переопределении флагов",
-      "bannerTitle" : "Локально переопределённые флаги"
+      "bannerTitle" : "Локально переопределённые флаги",
+      "features" : {
+        "firmwareUpdate" : {
+          "headerTitle" : "Отладка обновления прошивки"
+        }
+      }
     }
   },
   "notifications" : {
@@ -2701,49 +2764,10 @@
       "later" : "Не сейчас"
     }
   },
-  "migrateAccounts" : {
-    "banner" : "Доступно обновление счетов в Ledger Live",
-    "overview" : {
-      "headerTitle" : "Обновление счета",
-      "title" : "Доступно обновление счетов в Ledger Live",
-      "subtitle" : "Из-за регулярного внедрения новых функций счета в Ledger Live необходимо регулярно обновлять.",
-      "notice" : "Невозможно обновить счёт {{accountCount}}. Подключите устройство, связанное с этим счётом.",
-      "notice_plural" : "Невозможно обновить счета {{accountCount}}. Подключите устройство, связанное с этими счетами.",
-      "currency" : "Необходимо обновить 1 счёт {{currency}}",
-      "currency_plural" : "Счетов {{currency}}, которые требуют обновления: {{count}}",
-      "start" : "Начать обновление",
-      "continue" : "Продолжить обновление"
-    },
-    "progress" : {
-      "headerTitle" : "Обновление счетов",
-      "pending" : {
-        "title" : "Идёт обновление {{currency}}",
-        "subtitle" : "Счёт обновляется. Пожалуйста, подождите."
-      },
-      "notice" : {
-        "title" : "Обновление {{currency}} не завершено",
-        "subtitle" : "Не удалось обновить счета {{currency}} на этом устройстве.",
-        "cta" : "Продолжить",
-        "ctaNextCurrency" : "Перейти к {{currency}}"
-      },
-      "done" : {
-        "title" : "Обновление {{currency}} завершено",
-        "subtitle" : "Ура, счета {{currency}} обновлены.",
-        "cta" : "Продолжить",
-        "ctaNextCurrency" : "Перейти к {{currency}}",
-        "ctaDone" : "Готово"
-      },
-      "error" : {
-        "cta" : "Повторить"
-      }
-    },
-    "connectDevice" : {
-      "headerTitle" : "Добавление устройства"
-    }
-  },
   "transfer" : {
     "recipient" : {
-      "input" : "Введите адрес"
+      "input" : "Введите адрес",
+      "inputEns" : "Введите адрес или ENS"
     },
     "send" : {
       "title" : "Отправить",
@@ -2799,7 +2823,8 @@
         "addressVerified" : "Адрес подтверждён",
         "verifyAddress" : "Нажмите сюда для подтверждения адреса",
         "adviceVerify" : "Мы рекомендуем подтверждать адрес на устройстве Ledger",
-        "sendWarning" : "Отправляйте на этот адрес исключительно {{currencyName}} ({{currencyTicker}}). Любые другие криптоактивы могут быть потеряны навсегда."
+        "sendWarning" : "Отправляйте на этот адрес исключительно {{currencyName}} ({{currencyTicker}}). Любые другие криптоактивы могут быть потеряны навсегда.",
+        "dashStakingWarning" : "Не используйте этот адрес для получения вознаграждений за стейкинг"
       },
       "securityVerify" : {
         "title" : "Для безопасности мы рекомендуем подтвердить этот адрес на устройстве Ledger.",
@@ -2848,6 +2873,10 @@
     },
     "exchange" : {
       "title" : "Покупка/Продажа"
+    },
+    "stake" : {
+      "title" : "Стейкинг",
+      "description" : "Приумножайте свои криптоактивы."
     },
     "swap" : {
       "title" : "Обмен",
@@ -3319,7 +3348,7 @@
     },
     "walletConnect" : {
       "title" : "WalletConnect",
-      "description" : "Подключить кошелёк к децентрализованным приложениям"
+      "description" : "Подключить кошелёк к децентрализованным приложениям."
     }
   },
   "signMessage" : {
@@ -3358,7 +3387,7 @@
       "selectAmount" : "Сумма",
       "summary" : "Сводка",
       "selectDevice" : "Выбор устройства",
-      "connectDevice" : "Добавление устройства",
+      "connectDevice" : "Подключение устройства",
       "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}",
       "quantity" : "Количество",
       "selectCollection" : "Коллекция",
@@ -3368,7 +3397,19 @@
       "scan" : "Сканировать QR-код",
       "enterAddress" : "Ввести адрес",
       "input" : "Ввести адрес",
-      "verifyAddress" : "Убедитесь, что адрес совпадает с адресом, предоставленным получателем."
+      "verifyAddress" : "Убедитесь, что адрес совпадает с адресом, предоставленным получателем.",
+      "domainService" : {
+        "reverse" : "Этот адрес привязан к {{domain}}",
+        "forward" : "Это актуальный ENS-адрес",
+        "supportLink" : "Что такое Ethereum Name Service?",
+        "invalidDomain" : {
+          "title" : "Домен не поддерживается",
+          "description" : "Сейчас поддерживаются исключительно ENS-домены длиной меньше 30 символов."
+        },
+        "noResolution" : {
+          "title" : "Адрес для домена не найден"
+        }
+      }
     },
     "amount" : {
       "available" : "Доступно",
@@ -3458,7 +3499,7 @@
       "selectAmount" : "Заморозить",
       "summary" : "Сводка",
       "selectDevice" : "Выбор устройства",
-      "connectDevice" : "Добавление устройства",
+      "connectDevice" : "Подключение устройства",
       "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
     },
     "info" : {
@@ -3496,7 +3537,7 @@
       "selectAmount" : "Разморозить",
       "summary" : "Сводка",
       "selectDevice" : "Выбор устройства",
-      "connectDevice" : "Добавление устройства",
+      "connectDevice" : "Подключение устройства",
       "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
     },
     "amount" : {
@@ -3516,7 +3557,7 @@
   "claimReward" : {
     "stepperHeader" : {
       "selectDevice" : "Выбор устройства",
-      "connectDevice" : "Добавление устройства",
+      "connectDevice" : "Подключение устройства",
       "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
     },
     "validation" : {
@@ -3532,7 +3573,7 @@
       "selectValidator" : "Передать голоса",
       "castVote" : "Мои голоса",
       "selectDevice" : "Выбор устройства",
-      "connectDevice" : "Добавление устройства",
+      "connectDevice" : "Подключение устройства",
       "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
     },
     "selectValidator" : {
@@ -3648,6 +3689,8 @@
     "allowAppPermission" : "Откройте приложение {{wording}} на устройстве",
     "allowAppPermissionSubtitleToken" : "для управления {{token}}",
     "allowManagerPermission" : "Одобрите {{wording}} на {{productName}}",
+    "allowRemoveCustomLockscreen" : "Подтвердите удаление изображения на Ledger Stax",
+    "allowSecureConnection" : "Разрешите безопасное подключение на устройстве",
     "loading" : "Загружаем...",
     "turnOnAndUnlockDevice" : "Включите и разблокируйте устройство",
     "connectAndUnlockDevice" : "Подключите и разблокируйте устройство",
@@ -3868,7 +3911,7 @@
       "uninstallAll" : "Удалить все"
     },
     "remove" : {
-      "title" : "Удаление устройства",
+      "title" : "Удалить устройство",
       "description" : "Вы уверены? {{productName}} можно будет вновь добавить в любой момент.",
       "button" : "Удалить"
     },
@@ -3986,7 +4029,7 @@
     "subtitle" : "Подлинное"
   },
   "RemoveRow" : {
-    "title" : "Удаление устройства"
+    "title" : "Удалить устройство"
   },
   "FirmwareVersionRow" : {
     "title" : "Версия прошивки",
@@ -3999,16 +4042,34 @@
   },
   "FirmwareUpdate" : {
     "title" : "Обновление прошивки",
+    "updateDevice" : "Обновите {{deviceName}}",
+    "updateDone" : "На этом всё! Ваш {{deviceName}} актуальный",
+    "updateDoneDescription" : "Новая версия ОС: {{firmwareVersion}}",
     "preparing" : "Идёт подготовка к обновлению прошивки. Пожалуйста, не отключайте устройство. Мы покажем прогресс установки",
     "confirmIdentifierText" : "Убедитесь, что идентификатор на устройстве совпадает с идентификатором ниже. При необходимости подтвердите и введите PIN-код.",
     "pleaseReinstallApps" : "Пожалуйста, переустановите приложения на устройстве.",
     "pleaseConfirmUpdate" : "Подтвердите обновление на устройстве",
+    "pleaseConfirmUpdateOnYourDevice" : "Подтвердите установку на {{deviceName}}",
+    "finishUpdateCTA" : "Завершить",
     "finishUpdate" : "Завершите обновление на {{deviceName}}",
     "identifierTitle" : "Идентификатор:",
     "pleaseWaitDownload" : "Подождите, пока загрузится программа установки",
+    "doNotLeaveLedgerLive" : "Не выходите из приложения Ledger Live до завершения обновления.",
     "preparingDevice" : "Идёт подготовка устройства",
     "pleaseWaitUpdate" : "Дождитесь завершения обновления",
+    "viewUpdateChangelog" : "Открыть список изменений обновления",
     "waitForFirmwareUpdate" : "Подождите, пока закончится обновление прошивки на устройстве",
+    "waitForInstallationToFinish" : "Дождитесь завершения установки на {{deviceName}}",
+    "staxBatteryLow" : "Слишком низкий заряд батареи Ledger Stax",
+    "staxBatteryLowDescription" : "Для обновления ОС устройство Ledger должно иметь не менее 20% заряда или быть подключенным к питанию.",
+    "updateCancelled" : "Обновление отменено на {{deviceName}}",
+    "updateCancelledDescription" : "Обновление ОС {{newFirmwareVersion}} было прервано на {{deviceName}}. Если это произошло по ошибке, перезапустите обновление",
+    "updateNotYetComplete" : "Обновление ещё не завершено",
+    "updateNotYetCompleteDescription" : "Если вы прервёте обновление, это может привести к некорректному восстановлению ваших приложений, языка и картинки экрана блокировки.",
+    "restartUpdate" : "Перезапустить обновление ОС",
+    "quitUpdate" : "Выйти из обновления",
+    "continueUpdate" : "Продолжить обновление",
+    "unlockDeviceToComplete" : "Разблокируйте {{deviceName}} для завершения установки",
     "unlockDeviceWithPin" : "Разблокируйте устройство при помощи ПИН-кода",
     "reinstallApps" : "Переустановите приложения.",
     "currentVersionNumber" : "Текущая версия",
@@ -4030,7 +4091,23 @@
       "flash-bootloader" : "Обновление Bootloader",
       "flash" : "Перепрошивка устройства",
       "preparing" : "Подготовка обновления",
-      "firmware" : "Загружаем обновление"
+      "firmware" : "Загружаем обновление",
+      "prepareUpdate" : {
+        "titleActive" : "Подготовка обновления к установке",
+        "description" : "Создаём резервную копию ваших настроек и отправляем обновление на {{deviceName}}."
+      },
+      "installUpdate" : {
+        "titleInactive" : "Установить обновление",
+        "titleActive" : "Установка обновления",
+        "description" : "{{deviceName}} перезагрузится несколько раз.\n\nПосле окончания установки на {{deviceName}} разблокируйте устройство для завершения операции"
+      },
+      "restoreSettings" : {
+        "titleInactive" : "Восстановление приложений и настроек",
+        "description" : "Ваши настройки и приложения будут восстановлены.",
+        "restoreLockScreenPicture" : "Восстановление изображения экрана блокировки",
+        "restoreLanguage" : "Восстановление языка",
+        "installingApps" : "Установка приложений"
+      }
     },
     "newVersion" : "Обновление версии {{version}} доступно для {{deviceName}}",
     "drawerUpdate" : {
@@ -4038,6 +4115,12 @@
       "description" : "Обновите прошивку Nano, подключив кошелёк к настольному приложению Ledger Live",
       "pleaseConnectUsbTitle" : "Необходим USB-кабель",
       "pleaseConnectUsbDescription" : "Чтобы начать обновление прошивки, подключите {{deviceName}} к мобильному телефону с помощью USB-кабеля."
+    },
+    "errors" : {
+      "TimeoutError" : {
+        "title" : "Срок ожидания обновления истёк",
+        "description" : "Не удалось обновить из-за потери подключения к {{deviceName}}"
+      }
     }
   },
   "firmwareUpdateRequired" : {
@@ -4127,7 +4210,7 @@
       "stepperHeader" : {
         "info" : "Получение вознаграждений",
         "starter" : "Вознаграждения",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "verification" : "Проверка",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
@@ -4166,7 +4249,7 @@
     "optIn" : {
       "stepperHeader" : {
         "selectToken" : "Добавление активов ASA",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "verification" : "Проверка",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
@@ -4264,7 +4347,7 @@
         "title" : "Разблокировать активы",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства"
+        "connectDevice" : "Подключение устройства"
       },
       "flow" : {
         "steps" : {
@@ -4288,7 +4371,7 @@
         "title" : "Голосовать",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства"
+        "connectDevice" : "Подключение устройства"
       },
       "flow" : {
         "steps" : {
@@ -4323,7 +4406,7 @@
         "title" : "Активировать голоса",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства"
+        "connectDevice" : "Подключение устройства"
       },
       "title" : "Активировать голоса",
       "flow" : {
@@ -4343,7 +4426,7 @@
         "title" : "Голосовать",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства"
+        "connectDevice" : "Подключение устройства"
       },
       "flow" : {
         "steps" : {
@@ -4377,7 +4460,7 @@
         "continue" : "Продолжить",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства"
+        "connectDevice" : "Подключение устройства"
       },
       "flow" : {
         "steps" : {
@@ -4398,7 +4481,7 @@
         "title" : "Заблокировать активы",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства"
+        "connectDevice" : "Подключение устройства"
       },
       "flow" : {
         "steps" : {
@@ -4440,7 +4523,7 @@
         "title" : "Голосовать",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства"
+        "connectDevice" : "Подключение устройства"
       },
       "flow" : {
         "steps" : {
@@ -4519,7 +4602,7 @@
         "summary" : "Сводка",
         "verification" : "Проверка",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "flow" : {
@@ -4583,7 +4666,7 @@
         "amountTitle" : "{{from}} → {{to}}",
         "summary" : "Сводка",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "flow" : {
@@ -4598,7 +4681,8 @@
             "noResultsFound" : "Валидатор по запросу «<0>{{search}}</0>» не найден"
           },
           "amount" : {
-            "newRedelegatedBalance" : "Обновлённая сумма <0>{{name}}</0> после операции: <0>{{amount}}</0>"
+            "newRedelegatedBalance" : "Обновлённая сумма <0>{{name}}</0> после операции: <0>{{amount}}</0>",
+            "allAssetsUsed" : "Использованы все активы"
           },
           "verification" : {
             "success" : {
@@ -4619,7 +4703,7 @@
         "amountSubTitle" : "Сумма отзыва делегирования",
         "summary" : "Сводка",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "flow" : {
@@ -4647,7 +4731,7 @@
         "method" : "Получение вознаграждения",
         "summary" : "Сводка",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "flow" : {
@@ -4708,7 +4792,7 @@
       "Amount" : "Сумма",
       "noRewards" : "Вознаграждений нет",
       "delegate" : "Застейкать повторно",
-      "undelegate" : "Вывести из стейкинга",
+      "undelegate" : "Разблокировать",
       "reward" : "Получить вознаграждения",
       "commission" : "Комиссия",
       "iDelegate" : "Я делегирую",
@@ -4720,7 +4804,7 @@
         "summary" : "Сводка",
         "verification" : "Проверка",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "flow" : {
@@ -4785,7 +4869,7 @@
         "method" : "Получить вознаграждения",
         "summary" : "Сводка",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "flow" : {
@@ -4822,7 +4906,7 @@
         "amountSubTitle" : "Сумма вывода из стейкинга",
         "summary" : "Сводка",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "flow" : {
@@ -4854,7 +4938,7 @@
         "method" : "Получить вознаграждение",
         "summary" : "Сводка",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "flow" : {
@@ -4897,6 +4981,7 @@
       "header" : "Голоса ({{total}})",
       "Amount" : "Кол-во",
       "noRewards" : "Нет доступных вознаграждений",
+      "warnDisableStakingMessage" : "В настоящий момент функция стейкинга Tron недоступна",
       "votes" : {
         "title" : "Голоса",
         "description" : "Чтобы начать получать вознаграждения, отдайте голоса за одного или нескольких Представителей.",
@@ -4915,7 +5000,7 @@
         "started" : {
           "title" : "Голосовать",
           "srOrCandidate" : "Суперпредставитель или Кандидат?",
-          "description" : "Отдайте голоса за одного или нескольких Суперпредставителей, чтобы начать получать вознаграждения.",
+          "description" : "Отдайте голоса за одного или нескольких Суперпредставителей, чтобы получать вознаграждения.",
           "button" : {
             "continue" : "Отдать голоса"
           }
@@ -5027,7 +5112,7 @@
     "addAsset" : {
       "stepperHeader" : {
         "selectAsset" : "Добавить актив",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "verification" : "Проверка",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
@@ -5157,7 +5242,7 @@
       "stepperHeader" : {
         "validators" : "Выбор валидаторов",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "steps" : {
@@ -5193,7 +5278,7 @@
         "starter" : "Получение вознаграждений",
         "amount" : "Сумма блокировки",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "steps" : {
@@ -5229,7 +5314,7 @@
       "stepperHeader" : {
         "amount" : "Сумма повторной блокировки",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "steps" : {
@@ -5252,7 +5337,7 @@
       "stepperHeader" : {
         "amount" : "Сумма разблокировки",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "steps" : {
@@ -5291,7 +5376,7 @@
       "stepperHeader" : {
         "info" : "Подробнее",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "steps" : {
@@ -5388,8 +5473,8 @@
       "commission" : "Комиссия",
       "iStake" : "Я стейкаю",
       "actions" : {
-        "unstake" : "Вывести из стейкинга",
-        "withdraw" : "Вывод средств"
+        "unstake" : "Разблокировать",
+        "withdraw" : "Вывести"
       },
       "drawer" : {
         "status" : "Статус",
@@ -5402,7 +5487,7 @@
       "stepperHeader" : {
         "amountSubTitle" : "Сумма для стейкинга",
         "selectDevice" : "Выбор устройства",
-        "connectDevice" : "Добавление устройства",
+        "connectDevice" : "Подключение устройства",
         "stepRange" : "Шаг {{currentStep}} из {{totalSteps}}"
       },
       "flow" : {
@@ -5446,6 +5531,7 @@
     "warnDelegation" : "Делегирование ваших голосов не гарантирует вознаграждений от выбранного валидатора.",
     "to" : "в",
     "from" : "с",
+    "yield" : "Ориент. доход",
     "forAnEstYield" : "ради ориент. дохода",
     "yieldPerYear" : "{{yield}}/год",
     "yieldInfos" : "Ставки доходности от",
@@ -5493,7 +5579,7 @@
       "redelegate" : "Переделегировать",
       "collectRewards" : "Получить вознаграждения",
       "undelegate" : "Отозвать",
-      "withdraw" : "Вывод средств"
+      "withdraw" : "Вывести"
     }
   },
   "ValidateOnDevice" : {
@@ -5573,6 +5659,7 @@
     "cta" : "Продолжить"
   },
   "exchange" : {
+    "count" : "+ ещё {{count}}",
     "buy" : {
       "screenTitle" : "КУПИТЬ КРИПТОВАЛЮТУ",
       "tabTitle" : "Покупка",
@@ -5700,21 +5787,51 @@
       }
     },
     "status" : {
-      "title" : "Обратите внимание",
-      "title_plural" : "Обратите внимание",
-      "desc" : {
-        "0" : "Они изучаются и скоро будут исправлены.",
-        "1" : "Если вы столкнулись с чем-то из этого, свяжитесь с <0>Поддержкой Ledger</0>"
+      "header" : "Состояние"
+    }
+  },
+  "browseWeb3" : {
+    "catalog" : {
+      "title" : "Исследуйте мир Web3",
+      "subtitle" : "Познакомьтесь с миром Web3, интегрированным в Ledger",
+      "section" : {
+        "recentlyUsed" : "Недавние",
+        "categories" : "Категории",
+        "clearAll" : "Очистить все"
       },
-      "cta" : {
-        "ok" : "Понятно"
+      "branch" : {
+        "soon" : "Скоро",
+        "experimental" : "экспериментальная функция",
+        "debug" : "отладка"
       },
-      "ok" : {
-        "title" : "Приложение Ledger Live запущено и работает",
-        "desc" : "<0>Что-то не работает? Проверьте </0><1>состояние наших серверов</1>"
+      "banner" : {
+        "title" : "Исследуйте наш Каталог приложений",
+        "description" : "Откройте для себя новый мир криптовалют. Универсальный безопасный доступ к любым сервисам: DeFi-приложениям, NFT и многому другому."
       },
-      "error" : {
-        "title" : "В Ledger Live возникли проблемы"
+      "twitterBanner" : {
+        "description" : "Воспользуйтесь хэштегом и расскажите нам, какие услуги вы хотели бы видеть у нас",
+        "tweetText" : "Следующим дополнением к приложению Ledger должно стать..."
+      },
+      "pollCTA" : {
+        "title" : "Опрос",
+        "description" : "Какой услуги вам не хватает в Ledger Live?"
+      },
+      "developerCTA" : {
+        "title" : "Для разработчиков",
+        "description" : "Информация о том, как интегрировать собственные приложения в Ledger Live."
+      }
+    },
+    "disclaimer" : {
+      "title" : "Стороннее приложение",
+      "description" : "Вы будете перенаправлены к приложению, которое не принадлежит компании Ledger.",
+      "legalAdvice" : "Данное приложение не принадлежит компании Ledger. Компания не несёт ответственности за потерю средств или качество обслуживания данного приложения.\n\nВсегда тщательно проверяйте информацию на экране устройства.",
+      "legalAdviceShort" : "Ledger не несёт ответственности за любые потери средств. Всегда тщательно проверяйте информацию на экране устройства.",
+      "checkbox" : "Больше не напоминать",
+      "CTA" : "Продолжить"
+    },
+    "webPlatformPlayer" : {
+      "infoPanel" : {
+        "website" : "Сайт"
       }
     }
   },
@@ -5791,7 +5908,7 @@
       "priceStatistics" : "Статистика цены",
       "price" : "Цена",
       "tradingVolume" : "Торговый объём",
-      "24hLowHight" : "Макс/Мин (24 часа)",
+      "24hLowHight" : "Мин/Макс (24 часа)",
       "7dLowHigh" : "Мин/Макс (Неделя)",
       "allTimeHigh" : "Исторический макс.",
       "allTimeLow" : "Исторический мин.",
@@ -5817,10 +5934,13 @@
       "reload" : "Обновить",
       "noCryptosFound" : "Монеты не найдены",
       "noCurrencyFound" : "Валюта не найдена",
+      "noAppFound" : "Приложений не найдено",
+      "notFound" : "Ничего нет",
       "noSearchResultsFor" : "К сожалению, монеты по запросу <0>{{search}}</0> не найдены. Повторите поиск по другому запросу.",
       "noCurrencySearchResultsFor" : "К сожалению, монеты по запросу <0>{{search}}</0> не найдены. Повторите поиск с другими параметрами. Повторите поиск по другому запросу.",
       "noSearchResults" : "К сожалению, не удалось ничего найти.",
       "retrySearchKeyword" : "Повторите поиск по другому запросу.",
+      "retrySearchKeywordAndUrl" : "Повторите поиск с другим запросом или откройте <Link>{{search}}</Link> вне приложения Ledger Live.",
       "retrySearchParams" : "Повторите поиск с другими параметрами.",
       "trackFavAssets" : "Следите за избранными активами",
       "clickOnStarIcon" : "Нажмите на звёздочку рядом с активом, чтобы добавить его в избранные.",
@@ -5839,6 +5959,13 @@
     "gallery" : {
       "allNft" : "Все NFT",
       "addNew" : "Добавить"
+    },
+    "designedForStax" : {
+      "title" : "<0>Разработано для</0><1>Ledger</1><2>Stax</2>",
+      "drawer" : {
+        "description" : "В этом NFT есть дополнительная картинка, созданная специально для экрана E Ink® в Ledger Stax.\n\nОна будет использоваться при установке этого NFT в качестве экрана блокировки.",
+        "cta" : "Понятно"
+      }
     },
     "viewer" : {
       "properties" : "Свойства",
@@ -5859,9 +5986,10 @@
       "txDetails" : "Детали транзакции"
     },
     "modalDisabled" : {
-      "title" : "Функция отправки недоступна",
+      "title" : "Функция отправки недоступна на iOS",
       "body" : "В связи с последними требованиями App Store отправка NFT временно недоступна. Вы по-прежнему можете использовать настольную версию Ledger Live для отправки NFT.",
-      "contactSupport" : "Дополнительная информация доступна в статье нашей Поддержки."
+      "learnMore" : "Подробнее",
+      "continue" : "Понятно!"
     }
   },
   "ApplicationVersion" : "v {{version}}",
@@ -5896,9 +6024,11 @@
     "drawer" : {
       "options" : {
         "uploadFromPhone" : "Выбрать из галереи изображений",
-        "selectFromNFTGallery" : "Выбрать из галереи NFT"
+        "selectFromNFTGallery" : "Выбрать из галереи NFT",
+        "remove" : "Удалить изображение"
       }
     },
+    "toastRemove" : "Изображение экрана блокировки удалено",
     "cropImage" : "Обрезка",
     "chooseConstrast" : "Указать контраст",
     "uploadAnotherImage" : "Загрузить другое изображение",
@@ -5914,7 +6044,7 @@
     },
     "confirmCrop" : "Подтвердить обрезку",
     "confirmContrast" : "Подтвердить контраст",
-    "nftEntryPointButtonLabel" : "Установить на экран блокировки Ledger Stax",
+    "nftEntryPointButtonLabel" : "Установить на экран блокировки",
     "customImage" : "Пользовательское изображение",
     "doThisLater" : "Не сейчас",
     "preview" : {
@@ -5988,10 +6118,10 @@
     "nftGallery" : {
       "filters" : {
         "selectAndHide" : "Выбрать и скрыть",
-        "hide" : "Скрыть {{count}} коллекцию",
+        "hide" : "Скрыть коллекции ({{count}})",
         "hide_plural" : "Скрыть коллекции: {{count}}",
-        "alertHide" : "1 коллекция скрыта. Отобразить её вновь можно в любой момент в Настройках.",
-        "alertHide_plural" : "Скрытых коллекций: {{count}}. Отобразить их вновь можно в любой момент в Настройках"
+        "alertHide" : "1 коллекция скрыта. Отобразить её вновь можно в любой момент во вкладке «Счета» в Настройках.",
+        "alertHide_plural" : "Скрытых коллекций: {{count}} Отобразить её вновь можно в любой момент во вкладке «Счета» в Настройках."
       },
       "empty" : {
         "title" : "Пока тут ничего нет",
@@ -6000,7 +6130,7 @@
         "supportLink" : "Как получить NFT с других кошельков?"
       },
       "receiveModal" : {
-        "title" : "Получить NFT можно так же, как и другие криптоактивы",
+        "title" : "Получать NFT можно так же как и другие криптоактивы",
         "bullets" : {
           "0" : "• Выберите блокчейн NFT",
           "1" : "• Выберите счёт для получения NFT"
@@ -6016,87 +6146,22 @@
       "media" : {
         "tag" : "{{count}} NFT"
       }
-    }
+    },
+    "referralProgram" : "10$"
   },
   "servicesWidget" : {
     "title" : "Сервисы",
     "subTitle" : "Управление услугами Ledger",
     "protect" : {
-      "title" : "Protect",
       "status" : {
         "new" : {
           "title" : "Новинка",
-          "desc" : "Резервная копия вашей фразы восстановления",
-          "0" : {
-            "title" : "Ledger доверяют более 5 миллионов человек"
-          },
-          "1" : {
-            "title" : "Фраза восстановления безопасно привязана к вашей личности"
-          },
-          "2" : {
-            "title" : "Шифрование первоклассного уровня"
-          },
-          "3" : {
-            "title" : "Фраза делится на 3 части, которые хранятся децентрализованно. Украсть её будет невозможно"
-          },
+          "desc" : "Восстановите доступ к кошельку без фразы восстановления.",
           "actions" : {
-            "learnMore" : "Подробнее",
-            "alreadySubscribed" : "Уже подписаны на Protect?"
-          }
-        },
-        "confirmIdentity" : {
-          "title" : "Требуется ваше действие",
-          "desc" : "Подтвердите вашу личность и выполните все задания, чтобы защитить фразу восстановления.",
-          "actions" : {
-            "confirmNow" : "Подтвердить",
-            "viewDetails" : "Подробнее"
-          }
-        },
-        "addPayment" : {
-          "title" : "Требуется ваше действие",
-          "desc" : "Добавьте платёжные реквизиты и выполните все задания, чтобы защитить свою фразу восстановления.",
-          "actions" : {
-            "addNow" : "Добавить",
-            "viewDetails" : "Подробнее"
-          }
-        },
-        "paymentRejected" : {
-          "title" : "Платёж отклонён",
-          "desc" : "Ваш платёж в размере 5$ не прошёл. Пожалуйста, отредактируйте платёжные реквизиты.",
-          "actions" : {
-            "editNow" : "Редактировать",
-            "viewDetails" : "Подробнее"
-          }
-        },
-        "subscriptionCanceled" : {
-          "title" : "Подписка приостановлена",
-          "desc" : "Ваша подписка приостановлена ввиду отсутствия оплаты за 3 месяца.",
-          "actions" : {
-            "contactLedgerSupport" : "Связаться с Поддержкой Ledger",
-            "viewDetails" : "Подробнее"
-          }
-        },
-        "active" : {
-          "title" : "Активно",
-          "desc" : "Ваша фраза восстановления под надёжной защитой",
-          "actions" : {
-            "viewDetails" : "Подробнее"
+            "learnMore" : "Какая от этого польза?",
+            "alreadySubscribed" : "Уже авторизовались? <LinkAccount>Посмотреть подписку</LinkAccount>"
           }
         }
-      }
-    }
-  },
-  "protect" : {
-    "login" : {
-      "title" : "Вход",
-      "desc" : "Авторизуйтесь с помощью аккаунта Ledger для управления подпиской Protect.",
-      "email" : "Email",
-      "password" : "Пароль",
-      "cta" : "Войти",
-      "forgotPassword" : "Забыли пароль?",
-      "errors" : {
-        "emptyEmail" : "Поле Email не может быть пустым",
-        "emptyPassword" : "Поле с паролем не может быть пустым"
       }
     }
   },
@@ -6104,5 +6169,30 @@
     "title" : "Новостная рассылка",
     "poweredByCryptopanic" : "Разработано Cryptopanic",
     "noPosts" : "Пока здесь ничего нет"
+  },
+  "deviceConnect" : {
+    "title" : "Добавление устройства"
+  },
+  "stake" : {
+    "noFundsModal" : {
+      "title" : "Покупайте, обменивайте или получайте",
+      "text" : "У вас не хватает {{coin}} для стейкинга",
+      "description" : "Не хватает монет? Ничего страшного. Купить, обменять или получить криптоактивы можно полностью безопасно прямо в Ledger Live.",
+      "options" : {
+        "buy" : {
+          "title" : "Купить",
+          "body" : "Покупайте через проверенных операторов"
+        },
+        "swap" : {
+          "title" : "Обменять",
+          "label" : "Популярно",
+          "body" : "Безопасно обменивайте криптоактивы"
+        },
+        "receive" : {
+          "title" : "Получить",
+          "body" : "Получайте криптоактивы прямо на счёт"
+        }
+      }
+    }
   }
 }

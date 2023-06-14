@@ -7,6 +7,7 @@ import {
 } from "@ledgerhq/live-common/account/index";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { useRoute } from "@react-navigation/native";
 import { Icons } from "@ledgerhq/native-ui";
 import { useRampCatalog } from "@ledgerhq/live-common/platform/providers/RampCatalogProvider/index";
 import { getAllSupportedCryptoCurrencyIds } from "@ledgerhq/live-common/platform/providers/RampCatalogProvider/helpers";
@@ -20,6 +21,7 @@ import perFamilyAccountActions from "../../../generated/accountActions";
 import WalletConnect from "../../../icons/WalletConnect";
 import ZeroBalanceDisabledModalContent from "../../../components/FabActions/modals/ZeroBalanceDisabledModalContent";
 import { ActionButtonEvent } from "../../../components/FabActions";
+import { useCanShowStake } from "./useCanShowStake";
 
 type Props = {
   account: AccountLike;
@@ -31,18 +33,16 @@ const iconBuy = Icons.PlusMedium;
 const iconSell = Icons.MinusMedium;
 const iconSwap = Icons.BuyCryptoMedium;
 
-export default function useAccountActions({
-  account,
-  parentAccount,
-  colors,
-}: Props): {
+export default function useAccountActions({ account, parentAccount, colors }: Props): {
   mainActions: ActionButtonEvent[];
   secondaryActions: ActionButtonEvent[];
 } {
   const readOnlyModeEnabled = useSelector(readOnlyModeEnabledSelector);
+  const route = useRoute();
   const { t } = useTranslation();
 
   const currency = getAccountCurrency(account);
+  const canShowStake = useCanShowStake(currency);
 
   const balance = getAccountSpendableBalance(account);
   const isZeroBalance = !balance.gt(0);
@@ -50,10 +50,7 @@ export default function useAccountActions({
   // @ts-expect-error issue in typing
   const decorators = perFamilyAccountActions[mainAccount?.currency?.family];
 
-  const isEthereum = currency.id === "ethereum";
-  const isWalletConnectSupported = ["ethereum", "bsc", "polygon"].includes(
-    currency.id,
-  );
+  const isWalletConnectSupported = ["ethereum", "bsc", "polygon"].includes(currency.id);
 
   const rampCatalog = useRampCatalog();
 
@@ -62,9 +59,7 @@ export default function useAccountActions({
       return [false, false];
     }
 
-    const allBuyableCryptoCurrencyIds = getAllSupportedCryptoCurrencyIds(
-      rampCatalog.value.onRamp,
-    );
+    const allBuyableCryptoCurrencyIds = getAllSupportedCryptoCurrencyIds(rampCatalog.value.onRamp);
     const allSellableCryptoCurrencyIds = getAllSupportedCryptoCurrencyIds(
       rampCatalog.value.offRamp,
     );
@@ -75,9 +70,7 @@ export default function useAccountActions({
     ];
   }, [rampCatalog.value, currency]);
 
-  const swapSelectableCurrencies = useSelector(
-    swapSelectableCurrenciesSelector,
-  );
+  const swapSelectableCurrencies = useSelector(swapSelectableCurrenciesSelector);
   const availableOnSwap = swapSelectableCurrencies.includes(currency.id);
 
   const extraSendActionParams = useMemo(
@@ -198,13 +191,14 @@ export default function useAccountActions({
     ...extraReceiveActionParams,
   };
 
-  const baseActions =
+  const familySpecificMainActions: Array<ActionButtonEvent> =
     (decorators &&
-      decorators.getActions &&
-      decorators.getActions({
+      decorators.getMainActions &&
+      decorators.getMainActions({
         account,
         parentAccount,
         colors,
+        parentRoute: route,
       })) ||
     [];
 
@@ -212,32 +206,25 @@ export default function useAccountActions({
     ...(availableOnSwap ? [actionButtonSwap] : []),
     ...(!readOnlyModeEnabled && canBeBought ? [actionButtonBuy] : []),
     ...(!readOnlyModeEnabled && canBeSold ? [actionButtonSell] : []),
+    ...(!readOnlyModeEnabled
+      ? familySpecificMainActions.filter(action => action.id !== "stake" || canShowStake)
+      : []),
     ...(!readOnlyModeEnabled ? [SendAction] : []),
     ReceiveAction,
   ];
+
+  const familySpecificSecondaryActions =
+    (decorators &&
+      decorators.getSecondaryActions &&
+      decorators.getSecondaryActions({
+        account,
+        parentAccount,
+        colors,
+      })) ||
+    [];
+
   const secondaryActions = [
-    ...baseActions,
-    ...(isEthereum
-      ? [
-          {
-            id: "stake",
-            navigationParams: [
-              NavigatorName.Base,
-              {
-                screen: ScreenName.PlatformApp,
-                params: {
-                  platform: "lido",
-                  name: "Lido",
-                },
-              },
-            ],
-            label: t("account.stake"),
-            Icon: Icons.ClaimRewardsMedium,
-            event: "Stake Ethereum Account Button",
-            eventProperties: { currencyName: currency?.name },
-          },
-        ]
-      : []),
+    ...familySpecificSecondaryActions,
     ...(isWalletConnectSupported
       ? [
           {

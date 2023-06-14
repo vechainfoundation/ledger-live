@@ -9,11 +9,7 @@ import {
   ListRenderItemInfo,
 } from "react-native";
 import { useTranslation } from "react-i18next";
-import {
-  getMainAccount,
-  getAccountUnit,
-  getAccountCurrency,
-} from "@ledgerhq/live-common/account/index";
+import { getMainAccount, getFeesCurrency, getFeesUnit } from "@ledgerhq/live-common/account/index";
 import { useTheme } from "@react-navigation/native";
 import type { Account, AccountLike, FeeStrategy } from "@ledgerhq/types-live";
 import type { Transaction } from "@ledgerhq/live-common/generated/types";
@@ -63,8 +59,8 @@ export default function SelectFeesStrategy({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const mainAccount = getMainAccount(account, parentAccount);
-  const currency = getAccountCurrency(mainAccount);
-  const unit = getAccountUnit(mainAccount);
+  const currency = getFeesCurrency(mainAccount);
+  const unit = getFeesUnit(currency);
   const { feesStrategy } = transaction;
   const [isNetworkFeeHelpOpened, setNetworkFeeHelpOpened] = useState(false);
   const toggleNetworkFeeHelpModal = useCallback(
@@ -83,8 +79,7 @@ export default function SelectFeesStrategy({
       });
       onStrategySelect({
         amount: item.amount,
-        label:
-          (item as { forceValueLabel?: string }).forceValueLabel ?? item.label,
+        label: (item as { forceValueLabel?: string }).forceValueLabel ?? item.label,
         userGasLimit: (item as { userGasLimit?: BigNumber }).userGasLimit,
         txParameters: item.txParameters,
       });
@@ -95,16 +90,12 @@ export default function SelectFeesStrategy({
   const renderItem = ({ item }: ListRenderItemInfo<FeeStrategy>) => (
     <TouchableOpacity
       onPress={() => onPressStrategySelect(item)}
-      disabled={
-        disabledStrategies ? disabledStrategies.includes(item.label) : false
-      }
+      disabled={disabledStrategies ? disabledStrategies.includes(item.label) : false}
       style={[
         styles.feeButton,
         {
-          borderColor:
-            feesStrategy === item.label ? colors.live : colors.background,
-          backgroundColor:
-            feesStrategy === item.label ? colors.lightLive : colors.lightFog,
+          borderColor: feesStrategy === item.label ? colors.live : colors.background,
+          backgroundColor: feesStrategy === item.label ? colors.lightLive : colors.lightFog,
         },
       ]}
     >

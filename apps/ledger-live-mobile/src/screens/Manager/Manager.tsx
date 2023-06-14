@@ -8,6 +8,7 @@ import { CommonActions } from "@react-navigation/native";
 import getDeviceInfo from "@ledgerhq/live-common/hw/getDeviceInfo";
 import { withDevice } from "@ledgerhq/live-common/hw/deviceAccess";
 import isFirmwareUpdateVersionSupported from "@ledgerhq/live-common/hw/isFirmwareUpdateVersionSupported";
+import useLatestFirmware from "@ledgerhq/live-common/hooks/useLatestFirmware";
 import { useApps } from "./shared";
 import AppsScreen from "./AppsScreen";
 import GenericErrorBottomModal from "../../components/GenericErrorBottomModal";
@@ -20,12 +21,8 @@ import { useLockNavigation } from "../../components/RootNavigator/CustomBlockRou
 import { setLastSeenDeviceInfo } from "../../actions/settings";
 import { ScreenName } from "../../const";
 import FirmwareUpdateScreen from "../../components/FirmwareUpdate";
-import useLatestFirmware from "../../hooks/useLatestFirmware";
 import { ManagerNavigatorStackParamList } from "../../components/RootNavigator/types/ManagerNavigator";
-import {
-  BaseComposite,
-  StackNavigatorProps,
-} from "../../components/RootNavigator/types/helpers";
+import { BaseComposite, StackNavigatorProps } from "../../components/RootNavigator/types/helpers";
 
 type NavigationProps = BaseComposite<
   StackNavigatorProps<ManagerNavigatorStackParamList, ScreenName.ManagerMain>
@@ -87,8 +84,10 @@ const Manager = ({ navigation, route }: NavigationProps) => {
     dependencies: App[];
   } | null>(null);
   /** uninstall app with dependencies modal state */
-  const [appUninstallWithDependencies, setAppUninstallWithDependencies] =
-    useState<{ dependents: App[]; app: App } | null>(null);
+  const [appUninstallWithDependencies, setAppUninstallWithDependencies] = useState<{
+    dependents: App[];
+    app: App;
+  } | null>(null);
 
   /** open error modal each time a new error appears in state.currentError */
   useEffect(() => {
@@ -113,10 +112,7 @@ const Manager = ({ navigation, route }: NavigationProps) => {
     reduxDispatch(setLastSeenDeviceInfo(dmi));
   }, [device, state.installed, deviceInfo, reduxDispatch]);
 
-  const installedApps = useMemo(
-    () => state.installed.map(({ name }) => name),
-    [state.installed],
-  );
+  const installedApps = useMemo(() => state.installed.map(({ name }) => name), [state.installed]);
 
   /**
    * Resets the navigation params in order to unlock navigation
@@ -144,10 +140,7 @@ const Manager = ({ navigation, route }: NavigationProps) => {
     [setQuitManagerAction],
   );
 
-  const resetStorageWarning = useCallback(
-    () => setStorageWarning(null),
-    [setStorageWarning],
-  );
+  const resetStorageWarning = useCallback(() => setStorageWarning(null), [setStorageWarning]);
 
   const onCloseFirmwareUpdate = useCallback(
     (restoreApps?: boolean) => {
@@ -174,6 +167,12 @@ const Manager = ({ navigation, route }: NavigationProps) => {
     },
     [device, installedApps, navigation, refreshDeviceInfo],
   );
+
+  const onBackFromNewUpdateUx = useCallback(() => {
+    navigation.replace(ScreenName.Manager, {
+      device,
+    });
+  }, [device, navigation]);
 
   return (
     <>
@@ -203,6 +202,7 @@ const Manager = ({ navigation, route }: NavigationProps) => {
         tab={tab}
         result={result}
         onLanguageChange={refreshDeviceInfo}
+        onBackFromUpdate={onBackFromNewUpdateUx}
       />
       <GenericErrorBottomModal error={error} onClose={closeErrorModal} />
       <QuitManagerModal
@@ -212,10 +212,7 @@ const Manager = ({ navigation, route }: NavigationProps) => {
         installQueue={installQueue}
         uninstallQueue={uninstallQueue}
       />
-      <StorageWarningModal
-        warning={storageWarning}
-        onClose={resetStorageWarning}
-      />
+      <StorageWarningModal warning={storageWarning} onClose={resetStorageWarning} />
       <AppDependenciesModal
         appInstallWithDependencies={appInstallWithDependencies!}
         onClose={resetAppInstallWithDependencies}

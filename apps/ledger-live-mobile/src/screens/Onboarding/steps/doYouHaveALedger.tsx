@@ -10,7 +10,7 @@ import { ScreenName } from "../../../const";
 import StyledStatusBar from "../../../components/StyledStatusBar";
 import Button from "../../../components/wrappedUi/Button";
 import { TrackScreen, updateIdentify } from "../../../analytics";
-import { setFirstConnectionHasDevice } from "../../../actions/settings";
+import { setFirstConnectionHasDevice, setReadOnlyMode } from "../../../actions/settings";
 import { AnalyticsContext } from "../../../analytics/AnalyticsContext";
 import { StackNavigatorProps } from "../../../components/RootNavigator/types/helpers";
 import { OnboardingNavigatorParamList } from "../../../components/RootNavigator/types/OnboardingNavigator";
@@ -59,17 +59,16 @@ function OnboardingStepDoYouHaveALedgerDevice({ navigation }: NavigationProps) {
 
   useFocusEffect(
     useCallback(() => {
+      dispatch(setReadOnlyMode(true));
       setScreen && setScreen("Has Device?");
 
       return () => {
         setSource("Has Device?");
       };
-    }, [setSource, setScreen]),
+    }, [dispatch, setScreen, setSource]),
   );
 
-  const imageSource = useFeature("staxWelcomeScreen")?.enabled
-    ? sourceStax
-    : source;
+  const imageSource = useFeature("staxWelcomeScreen")?.enabled ? sourceStax : source;
 
   return (
     // @ts-expect-error Bindings are wrong…
@@ -78,11 +77,7 @@ function OnboardingStepDoYouHaveALedgerDevice({ navigation }: NavigationProps) {
       <Flex flex={1} bg="background.main">
         <StyledStatusBar barStyle="light-content" />
         <Box flex={1} justifyContent="center" alignItems="center" mt={8} mx={7}>
-          <Image
-            source={imageSource}
-            resizeMode={"contain"}
-            style={{ flex: 1, width: "100%" }}
-          />
+          <Image source={imageSource} resizeMode={"contain"} style={{ flex: 1, width: "100%" }} />
         </Box>
         <Flex px={6} pb={6}>
           <Text variant="h4" fontWeight="semiBold" pb={8}>

@@ -4,12 +4,9 @@ import { EnvName, setEnv, setEnvUnsafe } from "@ledgerhq/live-common/env";
 import simple from "@ledgerhq/live-common/logs/simple";
 import { listen } from "@ledgerhq/logs";
 import { setSupportedCurrencies } from "@ledgerhq/live-common/currencies/index";
-import { setPlatformVersion } from "@ledgerhq/live-common/platform/version";
-import { PLATFORM_VERSION } from "@ledgerhq/live-common/platform/constants";
 import { setWalletAPIVersion } from "@ledgerhq/live-common/wallet-api/version";
 import { WALLET_API_VERSION } from "@ledgerhq/live-common/wallet-api/constants";
 
-setPlatformVersion(PLATFORM_VERSION);
 setWalletAPIVersion(WALLET_API_VERSION);
 
 setSupportedCurrencies([
@@ -58,6 +55,25 @@ setSupportedCurrencies([
   "songbird",
   "flare",
   "near",
+  "optimism",
+  "optimism_goerli",
+  "arbitrum",
+  "arbitrum_goerli",
+  "rsk",
+  "bittorrent",
+  "kava_evm",
+  "evmos_evm",
+  "energy_web",
+  "astar",
+  "metis",
+  "boba",
+  "moonriver",
+  "velas_evm",
+  "syscoin",
+  "axelar",
+  "onomy",
+  "persistence",
+  "quicksilver",
 ]);
 
 for (const k in process.env) setEnvUnsafe(k as EnvName, process.env[k]);
@@ -76,7 +92,7 @@ const winstonFormatConsole = combine(
     message: `${type}: ${message}`,
   }))(),
   format.colorize(),
-  simple()
+  simple(),
 );
 const levels = {
   error: 0,
@@ -95,7 +111,7 @@ if (VERBOSE_FILE) {
       format: winstonFormatJSON,
       filename: VERBOSE_FILE,
       level,
-    })
+    }),
   );
 }
 
@@ -106,7 +122,7 @@ if (VERBOSE && VERBOSE !== "json") {
       // FIXME: this option is not recognzed by winston API
       // colorize: true,
       level,
-    })
+    }),
   );
 } else {
   logger.add(
@@ -114,20 +130,15 @@ if (VERBOSE && VERBOSE !== "json") {
       format: winstonFormatJSON,
       silent: !VERBOSE,
       level,
-    })
+    }),
   );
 }
 
-listen((log) => {
+listen(log => {
   const { type } = log;
   let level = "info";
 
-  if (
-    type === "apdu" ||
-    type === "hw" ||
-    type === "speculos" ||
-    type.includes("debug")
-  ) {
+  if (type === "apdu" || type === "hw" || type === "speculos" || type.includes("debug")) {
     level = "debug";
   } else if (type.includes("warn")) {
     level = "warn";

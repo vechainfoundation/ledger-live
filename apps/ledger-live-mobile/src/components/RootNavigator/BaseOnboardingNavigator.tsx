@@ -12,7 +12,6 @@ import ImportAccountsNavigator from "./ImportAccountsNavigator";
 import PasswordAddFlowNavigator from "./PasswordAddFlowNavigator";
 import PasswordModifyFlowNavigator from "./PasswordModifyFlowNavigator";
 import { getStackNavigatorConfig } from "../../navigation/navigatorConfig";
-import styles from "../../navigation/styles";
 import Question from "../../icons/Question";
 import BuyDeviceNavigator from "./BuyDeviceNavigator";
 import { BaseOnboardingNavigatorParamList } from "./types/BaseOnboardingNavigator";
@@ -28,16 +27,10 @@ const hitSlop = {
 
 type ErrorHeaderInfoNavigatorProps = RootComposite<
   | StackNavigatorProps<BaseNavigatorStackParamList, ScreenName.PairDevices>
-  | StackNavigatorProps<
-      BaseOnboardingNavigatorParamList,
-      ScreenName.PairDevices
-    >
+  | StackNavigatorProps<BaseOnboardingNavigatorParamList, ScreenName.PairDevices>
 >;
 
-export const ErrorHeaderInfo = ({
-  route,
-  navigation,
-}: ErrorHeaderInfoNavigatorProps) => {
+export const ErrorHeaderInfo = ({ route, navigation }: ErrorHeaderInfoNavigatorProps) => {
   const { colors } = useTheme();
   const openInfoModal = useCallback(() => {
     // FIXME: OnboardingInfoModal belongs to the "OnboardingNavigator", not the "BaseOnboardingNavigator"
@@ -47,6 +40,7 @@ export const ErrorHeaderInfo = ({
       sceneInfoKey: "pairNewErrorInfoModalProps",
     });
   }, [navigation]);
+
   return route.params?.hasError ? (
     <TouchableOpacity
       style={{
@@ -62,10 +56,7 @@ export const ErrorHeaderInfo = ({
 export default function BaseOnboardingNavigator() {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const stackNavigationConfig = useMemo(
-    () => getStackNavigatorConfig(colors, true),
-    [colors],
-  );
+  const stackNavigationConfig = useMemo(() => getStackNavigatorConfig(colors, true), [colors]);
   return (
     <Stack.Navigator
       screenOptions={{
@@ -73,18 +64,9 @@ export default function BaseOnboardingNavigator() {
         headerShown: false,
       }}
     >
-      <Stack.Screen
-        name={NavigatorName.Onboarding}
-        component={OnboardingNavigator}
-      />
-      <Stack.Screen
-        name={NavigatorName.SyncOnboarding}
-        component={SyncOnboardingNavigator}
-      />
-      <Stack.Screen
-        name={NavigatorName.ImportAccounts}
-        component={ImportAccountsNavigator}
-      />
+      <Stack.Screen name={NavigatorName.Onboarding} component={OnboardingNavigator} />
+      <Stack.Screen name={NavigatorName.SyncOnboarding} component={SyncOnboardingNavigator} />
+      <Stack.Screen name={NavigatorName.ImportAccounts} component={ImportAccountsNavigator} />
       <Stack.Screen
         name={NavigatorName.BuyDevice}
         component={BuyDeviceNavigator}
@@ -92,18 +74,7 @@ export default function BaseOnboardingNavigator() {
           headerShown: false,
         }}
       />
-      <Stack.Screen
-        name={ScreenName.PairDevices}
-        component={PairDevices}
-        options={({ navigation, route }) => ({
-          title: "",
-          headerRight: () => (
-            <ErrorHeaderInfo route={route} navigation={navigation} />
-          ),
-          headerShown: true,
-          headerStyle: styles.headerNoShadow,
-        })}
-      />
+      <Stack.Screen name={ScreenName.PairDevices} component={PairDevices} />
       <Stack.Screen
         name={ScreenName.EditDeviceName}
         component={EditDeviceName}
@@ -113,10 +84,7 @@ export default function BaseOnboardingNavigator() {
           headerShown: true,
         }}
       />
-      <Stack.Screen
-        name={NavigatorName.PasswordAddFlow}
-        component={PasswordAddFlowNavigator}
-      />
+      <Stack.Screen name={NavigatorName.PasswordAddFlow} component={PasswordAddFlowNavigator} />
       <Stack.Screen
         name={NavigatorName.PasswordModifyFlow}
         component={PasswordModifyFlowNavigator}

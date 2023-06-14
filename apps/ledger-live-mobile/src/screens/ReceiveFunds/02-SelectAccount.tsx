@@ -4,12 +4,7 @@ import { useSelector } from "react-redux";
 
 import { Flex } from "@ledgerhq/native-ui";
 import { useTranslation } from "react-i18next";
-import {
-  Account,
-  AccountLike,
-  SubAccount,
-  TokenAccount,
-} from "@ledgerhq/types-live";
+import { Account, AccountLike, SubAccount, TokenAccount } from "@ledgerhq/types-live";
 import { makeEmptyTokenAccount } from "@ledgerhq/live-common/account/index";
 import { flattenAccountsByCryptoCurrencyScreenSelector } from "../../reducers/accounts";
 import { ScreenName } from "../../const";
@@ -27,10 +22,7 @@ type SubAccountEnhanced = SubAccount & {
 function ReceiveSelectAccount({
   navigation,
   route,
-}: StackNavigatorProps<
-  ReceiveFundsStackParamList,
-  ScreenName.ReceiveSelectAccount
->) {
+}: StackNavigatorProps<ReceiveFundsStackParamList, ScreenName.ReceiveSelectAccount>) {
   const currency = route?.params?.currency;
   const { t } = useTranslation();
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
@@ -52,8 +44,7 @@ function ReceiveSelectAccount({
         ? parentAccounts!.reduce<AccountLike[]>((accs, pa) => {
             const tokenAccounts = (pa as Account).subAccounts
               ? (pa as Account).subAccounts?.filter(
-                  acc =>
-                    acc.type === "TokenAccount" && acc.token.id === currency.id,
+                  acc => acc.type === "TokenAccount" && acc.token.id === currency.id,
                 )
               : [];
 
@@ -87,8 +78,7 @@ function ReceiveSelectAccount({
         navigation.navigate(ScreenName.ReceiveConfirmation, {
           ...route.params,
           accountId: (account as SubAccountEnhanced)?.parentId || account.id,
-          createTokenAccount: (account as SubAccountEnhanced)
-            ?.triggerCreateAccount,
+          createTokenAccount: (account as SubAccountEnhanced)?.triggerCreateAccount,
         });
       }
     },
@@ -124,13 +114,14 @@ function ReceiveSelectAccount({
 
   return currency && aggregatedAccounts && aggregatedAccounts.length > 1 ? (
     <>
-      <TrackScreen
-        category="ReceiveFunds"
-        name="Receive Account Select"
-        currency={currency.name}
-      />
+      <TrackScreen category="ReceiveFunds" name="Receive Account Select" currency={currency.name} />
       <Flex p={6}>
-        <LText fontSize="32px" fontFamily="InterMedium" semiBold>
+        <LText
+          fontSize="32px"
+          fontFamily="InterMedium"
+          semiBold
+          testID="receive-header-step2-title"
+        >
           {t("transfer.receive.selectAccount.title")}
         </LText>
         <LText variant="body" color="neutral.c70">
@@ -140,6 +131,7 @@ function ReceiveSelectAccount({
         </LText>
       </Flex>
       <FlatList
+        testID="receive-header-step2-accounts"
         data={aggregatedAccounts}
         renderItem={renderItem}
         keyExtractor={keyExtractor}

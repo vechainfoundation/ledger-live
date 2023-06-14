@@ -4,27 +4,33 @@ export type FeatureId =
   | "brazePushNotifications"
   | "brazeLearn"
   | "llmNewDeviceSelection"
-  | "llmUsbFirmwareUpdate"
+  | "llmNewFirmwareUpdateUx"
   | "ratingsPrompt"
   | "counterValue"
-  | "deviceLocalization"
   | "deviceInitialApps"
   | "buyDeviceFromLive"
   | "ptxSmartRouting"
+  | "ptxEarn"
   | "currencyAvalancheCChain"
-  | "currencyOsmosis"
-  | "currencyOsmosisMobile"
-  | "currencyFantom"
-  | "currencyMoonbeam"
-  | "currencyCronos"
-  | "currencySongbird"
-  | "currencyFlare"
-  | "currencyNear"
-  | "currencyFantomMobile"
-  | "currencyMoonbeamMobile"
-  | "currencyCronosMobile"
-  | "currencySongbirdMobile"
-  | "currencyFlareMobile"
+  | "currencyOptimism"
+  | "currencyOptimismGoerli"
+  | "currencyArbitrum"
+  | "currencyArbitrumGoerli"
+  | "currencyRsk"
+  | "currencyBittorrent"
+  | "currencyKavaEvm"
+  | "currencyEvmosEvm"
+  | "currencyEnergyWeb"
+  | "currencyAstar"
+  | "currencyMetis"
+  | "currencyBoba"
+  | "currencyMoonriver"
+  | "currencyVelasEvm"
+  | "currencySyscoin"
+  | "currencyAxelar"
+  | "currencyOnomy"
+  | "currencyPersistence"
+  | "currencyQuicksilver"
   | "ptxSmartRoutingMobile"
   | "mockFeature"
   | "multibuyNavigation"
@@ -34,6 +40,8 @@ export type FeatureId =
   | "customImage"
   | "referralProgramDiscoverCard"
   | "referralProgramDesktopBanner"
+  | "referralProgramDesktopSidebar"
+  | "referralProgramMobile"
   | "disableNftSend"
   | "disableNftLedgerMarket"
   | "disableNftRaribleOpensea"
@@ -46,16 +54,22 @@ export type FeatureId =
   | "postOnboardingAssetsTransfer"
   | "firebaseEnvironmentReadOnly"
   | "protectServicesMobile"
+  | "protectServicesDesktop"
   | "swapShowDexQuotes"
+  | "swapWalletApiPartnerList"
   | "stakePrograms"
   | "portfolioExchangeBanner"
   | "objkt"
   | "stakeAccountBanner"
-  | "newsfeedPage";
+  | "newsfeedPage"
+  | "domainInputResolution"
+  | "discover"
+  | "protectServicesDiscoverDesktop"
+  | "protectServicesDesktop";
 
 /**  We use objects instead of direct booleans for potential future improvements
 like feature versioning etc */
-export type Feature = {
+export type Feature<T = any> = {
   /** If false, the feature is disabled (for every languages regardless of the languages_whitelisted option) */
   enabled: boolean;
   /** The `desktop_version` option is desktop specific, it has no impact on mobile */
@@ -82,7 +96,7 @@ export type Feature = {
   /** Whether the remote value of this object was overriden by an environment variable */
   overriddenByEnv?: boolean;
   /** Additional params */
-  params?: any;
+  params?: T;
 };
 
 /** */

@@ -1,10 +1,4 @@
-import React, {
-  useMemo,
-  useState,
-  useCallback,
-  useEffect,
-  ReactNode,
-} from "react";
+import React, { useMemo, useState, useCallback, useEffect, ReactNode } from "react";
 
 import {
   ScrollView,
@@ -23,7 +17,7 @@ import {
   getFloorPrice,
 } from "@ledgerhq/live-common/nft/index";
 import { BigNumber } from "bignumber.js";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Box, Button, Icons, Text, Flex } from "@ledgerhq/native-ui";
 import { useTranslation, Trans } from "react-i18next";
 import Clipboard from "@react-native-community/clipboard";
@@ -33,10 +27,7 @@ import {
   NFTMetadataResponse,
   NFTCollectionMetadataResponse,
 } from "@ledgerhq/types-live";
-import {
-  FeatureToggle,
-  useFeature,
-} from "@ledgerhq/live-common/featureFlags/index";
+import { FeatureToggle, useFeature } from "@ledgerhq/live-common/featureFlags/index";
 import { getCryptoCurrencyById } from "@ledgerhq/live-common/currencies/index";
 import {
   CompositeNavigationProp,
@@ -56,15 +47,18 @@ import NftPropertiesList from "./NftPropertiesList";
 import CurrencyIcon from "../CurrencyIcon";
 import { State } from "../../reducers/types";
 import type { NftNavigatorParamList } from "../RootNavigator/types/NftNavigator";
-import type {
-  StackNavigatorNavigation,
-  StackNavigatorProps,
-} from "../RootNavigator/types/helpers";
+import type { StackNavigatorNavigation, StackNavigatorProps } from "../RootNavigator/types/helpers";
 import type { BaseNavigatorStackParamList } from "../RootNavigator/types/BaseNavigator";
 import { AccountsNavigatorParamList } from "../RootNavigator/types/AccountsNavigator";
 import InfoModal from "../../modals/Info";
 import { notAvailableModalInfo } from "../../screens/Nft/NftInfoNotAvailable";
 import { track, TrackScreen } from "../../analytics";
+import { DesignedForStaxDrawer, DesignedForStaxText } from "./DesignedForStax";
+import {
+  hasSeenStaxEnabledNftsPopupSelector,
+  knownDeviceModelIdsSelector,
+} from "../../reducers/settings";
+import { setHasSeenStaxEnabledNftsPopup } from "../../actions/settings";
 
 type Props = CompositeScreenProps<
   | StackNavigatorProps<NftNavigatorParamList, ScreenName.NftViewer>
@@ -104,9 +98,7 @@ const Section = ({
   copiedString?: string;
 }) => {
   const [copied, setCopied] = useState(false);
-  const [timeoutFunction, setTimeoutFunction] = useState<TimeoutReturn | null>(
-    null,
-  );
+  const [timeoutFunction, setTimeoutFunction] = useState<TimeoutReturn | null>(null);
   const copy = useCallback(() => {
     if (typeof value === "undefined") return null;
 
@@ -131,10 +123,7 @@ const Section = ({
         {copyAvailable ? (
           <View>
             <TouchableOpacity onPress={copy} style={{ marginLeft: 10 }}>
-              <Icons.CopyMedium
-                size={16}
-                color={copied ? "neutral.c80" : "primary.c80"}
-              />
+              <Icons.CopyMedium size={16} color={copied ? "neutral.c80" : "primary.c80"} />
             </TouchableOpacity>
             {copied ? (
               <Text variant={"body"} color="neutral.c80" marginLeft={3}>
@@ -152,25 +141,23 @@ const Section = ({
 const NftViewer = ({ route }: Props) => {
   const { params } = route;
   const { nft } = params;
+  const dispatch = useDispatch();
   const { status: nftStatus, metadata: nftMetadata } = useNftMetadata(
     nft?.contract,
     nft?.tokenId,
     nft?.currencyId,
   ) as {
     status: NFTResource["status"];
-    metadata?: NFTMetadataResponse["result"] &
-      NFTCollectionMetadataResponse["result"];
+    metadata?: NFTMetadataResponse["result"] & NFTCollectionMetadataResponse["result"];
   };
-  const currency = useMemo(
-    () => getCryptoCurrencyById(nft.currencyId),
-    [nft.currencyId],
-  );
-  const { status: collectionStatus, metadata: collectionMetadata } =
-    useNftCollectionMetadata(nft?.contract, nft?.currencyId) as {
-      status: NFTResource["status"];
-      metadata?: NFTMetadataResponse["result"] &
-        NFTCollectionMetadataResponse["result"];
-    };
+  const currency = useMemo(() => getCryptoCurrencyById(nft.currencyId), [nft.currencyId]);
+  const { status: collectionStatus, metadata: collectionMetadata } = useNftCollectionMetadata(
+    nft?.contract,
+    nft?.currencyId,
+  ) as {
+    status: NFTResource["status"];
+    metadata?: NFTMetadataResponse["result"] & NFTCollectionMetadataResponse["result"];
+  };
   const { t } = useTranslation();
   const navigation =
     useNavigation<
@@ -185,6 +172,9 @@ const NftViewer = ({ route }: Props) => {
   const account = useSelector<State, Account | undefined>(state =>
     accountSelector(state, { accountId }),
   )!;
+
+  const knownDeviceModelIds = useSelector(knownDeviceModelIdsSelector);
+  const hasSeenStaxEnabledNftsPopup = useSelector(hasSeenStaxEnabledNftsPopupSelector);
 
   const [bottomModalOpen, setBottomModalOpen] = useState(false);
   const isLoading = nftStatus === "loading" || collectionStatus === "loading";
@@ -236,8 +226,7 @@ const NftViewer = ({ route }: Props) => {
       params: {
         accountId: account.id,
         // FIXME: does the parentAccount field actually exist?
-        parentId: (account as { parentAccount?: { id: string } })?.parentAccount
-          ?.id,
+        parentId: (account as { parentAccount?: { id: string } })?.parentAccount?.id,
         transaction,
       },
     });
@@ -247,26 +236,9 @@ const NftViewer = ({ route }: Props) => {
     if (isLoading && !nftMetadata?.properties?.length) {
       return (
         <Box flexDirection={"row"} px={6}>
-          <Skeleton
-            height={"54px"}
-            width={"120px"}
-            borderRadius={1}
-            mr={6}
-            loading={true}
-          />
-          <Skeleton
-            height={"54px"}
-            width={"120px"}
-            borderRadius={1}
-            mr={6}
-            loading={true}
-          />
-          <Skeleton
-            height={"54px"}
-            width={"120px"}
-            borderRadius={1}
-            loading={true}
-          />
+          <Skeleton height={"54px"} width={"120px"} borderRadius={1} mr={6} loading={true} />
+          <Skeleton height={"54px"} width={"120px"} borderRadius={1} mr={6} loading={true} />
+          <Skeleton height={"54px"} width={"120px"} borderRadius={1} loading={true} />
         </Box>
       );
     }
@@ -303,16 +275,37 @@ const NftViewer = ({ route }: Props) => {
 
   const NftComponent = useCallback(
     () => (
-      <NftMedia
-        resizeMode="contain"
-        style={styles.image}
-        metadata={nftMetadata}
-        mediaFormat={"big"}
-        status={nftStatus}
-      />
+      <>
+        <NftMedia
+          resizeMode="contain"
+          style={styles.image}
+          metadata={nftMetadata}
+          mediaFormat={"big"}
+          status={nftStatus}
+        >
+          {knownDeviceModelIds.stax && !!nftMetadata?.staxImage ? (
+            <Flex zIndex={1000} position="absolute" bottom={0} width="100%">
+              <DesignedForStaxText size="medium" />
+            </Flex>
+          ) : null}
+        </NftMedia>
+      </>
     ),
-    [nftMetadata, nftStatus],
+    [knownDeviceModelIds, nftMetadata, nftStatus],
   );
+
+  const [isStaxDrawerOpen, setStaxDrawerOpen] = useState<boolean>(false);
+
+  const handleStaxModalClose = useCallback(() => {
+    setStaxDrawerOpen(false);
+    dispatch(setHasSeenStaxEnabledNftsPopup(true));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!hasSeenStaxEnabledNftsPopup && knownDeviceModelIds.stax && nftMetadata?.staxImage) {
+      setStaxDrawerOpen(true);
+    }
+  }, [hasSeenStaxEnabledNftsPopup, knownDeviceModelIds, nftMetadata]);
 
   const [isOpen, setOpen] = useState<boolean>(false);
   const onOpenModal = useCallback(() => {
@@ -324,8 +317,7 @@ const NftViewer = ({ route }: Props) => {
     });
     setOpen(false);
   }, []);
-  const isNFTDisabled =
-    useFeature("disableNftSend")?.enabled && Platform.OS === "ios";
+  const isNFTDisabled = useFeature("disableNftSend")?.enabled && Platform.OS === "ios";
 
   return (
     <>
@@ -333,12 +325,10 @@ const NftViewer = ({ route }: Props) => {
       <InfoModal
         isOpened={isOpen}
         onClose={onCloseModal}
-        data={notAvailableModalInfo}
+        data={notAvailableModalInfo(onCloseModal)}
       />
-      <ScrollView
-        contentContainerStyle={styles.scrollView}
-        testID={"nft-viewer-page-scrollview"}
-      >
+      <DesignedForStaxDrawer isOpen={isStaxDrawerOpen} onClose={handleStaxModalClose} />
+      <ScrollView contentContainerStyle={styles.scrollView} testID={"nft-viewer-page-scrollview"}>
         <Box mx={6}>
           <Flex flexDirection={"row"} alignItems={"center"}>
             <CurrencyIcon currency={currency} size={20} />
@@ -403,18 +393,8 @@ const NftViewer = ({ route }: Props) => {
             )}
           </Box>
 
-          <Box
-            mb={8}
-            flexWrap={"nowrap"}
-            flexDirection={"row"}
-            justifyContent={"center"}
-          >
-            <Box
-              flexGrow={1}
-              flexShrink={1}
-              mr={6}
-              style={styles.sendButtonContainer}
-            >
+          <Box mb={8} flexWrap={"nowrap"} flexDirection={"row"} justifyContent={"center"}>
+            <Box flexGrow={1} flexShrink={1} mr={6} style={styles.sendButtonContainer}>
               <Button
                 type="main"
                 Icon={Icons.ArrowFromBottomMedium}
@@ -425,11 +405,7 @@ const NftViewer = ({ route }: Props) => {
               </Button>
             </Box>
             {nftMetadata?.links && (
-              <Box
-                style={styles.ellipsisButtonContainer}
-                flexShrink={0}
-                width={"48px"}
-              >
+              <Box style={styles.ellipsisButtonContainer} flexShrink={0} width={"48px"}>
                 <Button
                   type="main"
                   Icon={Icons.OthersMedium}
@@ -453,9 +429,7 @@ const NftViewer = ({ route }: Props) => {
           </SectionContainer>
         )}
 
-        {description && (
-          <Section title={t("nft.viewer.description")}>{description}</Section>
-        )}
+        {description && <Section title={t("nft.viewer.description")}>{description}</Section>}
 
         <Section
           title={t("nft.viewer.tokenContract")}
@@ -474,10 +448,7 @@ const NftViewer = ({ route }: Props) => {
         {nft?.standard === "ERC1155" && (
           <>
             <TouchableOpacity onPress={closeModal}>
-              <Section
-                title={t("nft.viewer.quantity")}
-                value={nft?.amount?.toFixed()}
-              />
+              <Section title={t("nft.viewer.quantity")} value={nft?.amount?.toFixed()} />
             </TouchableOpacity>
           </>
         )}

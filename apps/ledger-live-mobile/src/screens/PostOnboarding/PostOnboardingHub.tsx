@@ -3,6 +3,7 @@ import { Divider, Flex, Icons, Log, Text } from "@ledgerhq/native-ui";
 import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   cancelAnimation,
   interpolate,
@@ -23,23 +24,16 @@ import { getDeviceModel } from "@ledgerhq/devices";
 import { DeviceModelId } from "@ledgerhq/types-devices";
 import PostOnboardingActionRow from "../../components/PostOnboarding/PostOnboardingActionRow";
 import { NavigatorName, ScreenName } from "../../const";
-import {
-  BaseComposite,
-  StackNavigatorProps,
-} from "../../components/RootNavigator/types/helpers";
+import { BaseComposite, StackNavigatorProps } from "../../components/RootNavigator/types/helpers";
 import { PostOnboardingNavigatorParamList } from "../../components/RootNavigator/types/PostOnboardingNavigator";
-import DeviceSetupView from "../../components/DeviceSetupView";
 import { useCompleteActionCallback } from "../../logic/postOnboarding/useCompleteAction";
-import { TrackScreen } from "../../analytics";
+import { track, TrackScreen } from "../../analytics";
 import Link from "../../components/wrappedUi/Link";
 
 const AnimatedFlex = Animated.createAnimatedComponent(Flex);
 
 type NavigationProps = BaseComposite<
-  StackNavigatorProps<
-    PostOnboardingNavigatorParamList,
-    ScreenName.PostOnboardingHub
-  >
+  StackNavigatorProps<PostOnboardingNavigatorParamList, ScreenName.PostOnboardingHub>
 >;
 
 const PostOnboardingHub = ({ navigation, route }: NavigationProps) => {
@@ -67,11 +61,10 @@ const PostOnboardingHub = ({ navigation, route }: NavigationProps) => {
      * Complete claim NFT action if the route param completed is true
      * */
     () => {
-      route &&
-        route.params &&
-        route.params.completed &&
-        route.params.completed === "true" &&
+      if (route?.params?.completed === "true") {
+        track("deeplink", { action: "Claim NFT return to setup" });
         completePostOnboardingAction(PostOnboardingActionId.claimNft);
+      }
     },
     [clearLastActionCompleted, completePostOnboardingAction, route],
   );
@@ -96,9 +89,7 @@ const PostOnboardingHub = ({ navigation, route }: NavigationProps) => {
 
   const animationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clearAnimationTimeout = useCallback(() => {
-    !allDone &&
-      animationTimeout.current &&
-      clearTimeout(animationTimeout.current);
+    !allDone && animationTimeout.current && clearTimeout(animationTimeout.current);
   }, [allDone]);
 
   const triggerEndAnimation = useCallback(() => {
@@ -134,13 +125,7 @@ const PostOnboardingHub = ({ navigation, route }: NavigationProps) => {
       clearAnimationTimeout();
       cancelAnimation(animDoneValue);
     };
-  }, [
-    clearAnimationTimeout,
-    navigation,
-    navigateToMainScreen,
-    animDoneValue,
-    animationTimeout,
-  ]);
+  }, [clearAnimationTimeout, navigation, navigateToMainScreen, animDoneValue, animationTimeout]);
 
   useEffect(() => clearAnimationTimeout);
 
@@ -164,21 +149,25 @@ const PostOnboardingHub = ({ navigation, route }: NavigationProps) => {
     [animDoneValue],
   );
 
-  const productName = getDeviceModel(
-    deviceModelId || DeviceModelId.nanoX,
-  )?.productName;
+  const productName = getDeviceModel(deviceModelId || DeviceModelId.nanoX)?.productName;
+
+  const safeAreaInsets = useSafeAreaInsets();
 
   return (
-    <DeviceSetupView hasCloseButton>
+    <>
       <TrackScreen
         key={allDone.toString()}
         category={
-          allDone
-            ? "User has completed all post-onboarding actions"
-            : "Post-onboarding hub"
+          allDone ? "User has completed all post-onboarding actions" : "Post-onboarding hub"
         }
       />
-      <Flex px={6} py={7} justifyContent="space-between" flex={1}>
+      <Flex
+        px={6}
+        py={7}
+        justifyContent="space-between"
+        flex={1}
+        paddingBottom={safeAreaInsets.bottom}
+      >
         <Text variant="h1Inter" fontWeight="semiBold" mb={8}>
           {allDone
             ? t("postOnboarding.hub.allDoneTitle", {
@@ -213,13 +202,10 @@ const PostOnboardingHub = ({ navigation, route }: NavigationProps) => {
           justifyContent="center"
           alignItems="center"
         >
-          <Flex
-            backgroundColor="background.main"
-            style={StyleSheet.absoluteFillObject}
-          />
+          <Flex backgroundColor="background.main" style={StyleSheet.absoluteFillObject} />
           <AnimatedFlex style={doneContentStyle}>
             <Flex flexDirection="column" alignItems="center" p={8}>
-              <Icons.CircledCheckSolidMedium color="success.c100" size={54} />
+              <Icons.CircledCheckSolidMedium color="success.c50" size={54} />
               <Flex height={83} />
               <Log>{t("postOnboarding.hub.done")}</Log>
               <Flex height={100} />
@@ -227,7 +213,7 @@ const PostOnboardingHub = ({ navigation, route }: NavigationProps) => {
           </AnimatedFlex>
         </AnimatedFlex>
       )}
-    </DeviceSetupView>
+    </>
   );
 };
 

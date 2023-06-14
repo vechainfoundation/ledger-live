@@ -8,8 +8,7 @@ import { StackNavigatorNavigation } from "../../../../components/RootNavigator/t
 import { SettingsNavigatorStackParamList } from "../../../../components/RootNavigator/types/SettingsNavigator";
 
 export default function Debugging() {
-  const navigation =
-    useNavigation<StackNavigatorNavigation<SettingsNavigatorStackParamList>>();
+  const navigation = useNavigation<StackNavigatorNavigation<SettingsNavigatorStackParamList>>();
 
   return (
     <SettingsNavigationScrollView>
@@ -42,6 +41,12 @@ export default function Debugging() {
         desc="Debug Camera permissions"
         iconLeft={<Icons.ClipboardListCheckMedium size={32} color="black" />}
         onPress={() => navigation.navigate(ScreenName.DebugCameraPermissions)}
+      />
+      <SettingsRow
+        title="Bluetooth and location services"
+        desc="Bluetooth related permissions and enabled services checks"
+        iconLeft={<Icons.ClipboardListCheckMedium size={32} color="black" />}
+        onPress={() => navigation.navigate(ScreenName.DebugBluetoothAndLocationServices)}
       />
     </SettingsNavigationScrollView>
   );

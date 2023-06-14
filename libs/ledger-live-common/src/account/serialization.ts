@@ -1,45 +1,10 @@
 import { BigNumber } from "bignumber.js";
 import {
-  toBitcoinResourcesRaw,
-  fromBitcoinResourcesRaw,
-} from "../families/bitcoin/serialization";
-import {
-  toCosmosResourcesRaw,
-  fromCosmosResourcesRaw,
-} from "../families/cosmos/serialization";
-import {
-  toPolkadotResourcesRaw,
-  fromPolkadotResourcesRaw,
-} from "@ledgerhq/coin-polkadot/serialization";
-import {
-  toTezosResourcesRaw,
-  fromTezosResourcesRaw,
-} from "../families/tezos/serialization";
-import {
-  toElrondResourcesRaw,
-  fromElrondResourcesRaw,
-} from "../families/elrond/serialization";
-import {
-  toCryptoOrgResourcesRaw,
-  fromCryptoOrgResourcesRaw,
-} from "../families/crypto_org/serialization";
-
-import {
-  toSolanaResourcesRaw,
-  fromSolanaResourcesRaw,
-} from "../families/solana/serialization";
-
-import {
-  toCeloResourcesRaw,
-  fromCeloResourcesRaw,
-} from "../families/celo/serialization";
-
-import {
   getCryptoCurrencyById,
+  findCryptoCurrencyById,
   getTokenById,
   findTokenById,
 } from "../currencies";
-import { inferFamilyFromAccountId } from "./index";
 import accountByFamily from "../generated/account";
 import { isAccountEmpty } from "./helpers";
 import type { SwapOperation, SwapOperationRaw } from "../exchange/swap/types";
@@ -47,10 +12,7 @@ import {
   emptyHistoryCache,
   generateHistoryFromOperations,
 } from "@ledgerhq/coin-framework/account/balanceHistoryCache";
-import {
-  fromCardanoResourceRaw,
-  toCardanoResourceRaw,
-} from "../families/cardano/serialization";
+import { inferFamilyFromAccountId } from "@ledgerhq/coin-framework/account/index";
 
 import type {
   Account,
@@ -74,31 +36,7 @@ import {
   toOperationRaw as commonToOperationRaw,
   fromOperationRaw as commonFromOperationRaw,
 } from "@ledgerhq/coin-framework/account/serialization";
-import { CosmosAccount, CosmosAccountRaw } from "../families/cosmos/types";
-import { BitcoinAccount, BitcoinAccountRaw } from "../families/bitcoin/types";
-import {
-  PolkadotAccount,
-  PolkadotAccountRaw,
-} from "@ledgerhq/coin-polkadot/types";
-import { ElrondAccount, ElrondAccountRaw } from "../families/elrond/types";
-import {
-  CryptoOrgAccount,
-  CryptoOrgAccountRaw,
-} from "../families/crypto_org/types";
-import { SolanaAccount, SolanaAccountRaw } from "../families/solana/types";
-import { TezosAccount, TezosAccountRaw } from "../families/tezos/types";
-import { CeloAccount, CeloAccountRaw } from "../families/celo/types";
 import { getAccountBridge } from "../bridge";
-
-export { toCosmosResourcesRaw, fromCosmosResourcesRaw };
-export { toBitcoinResourcesRaw, fromBitcoinResourcesRaw };
-export { toPolkadotResourcesRaw, fromPolkadotResourcesRaw };
-export { toTezosResourcesRaw, fromTezosResourcesRaw };
-export { toElrondResourcesRaw, fromElrondResourcesRaw };
-export { toCryptoOrgResourcesRaw, fromCryptoOrgResourcesRaw };
-export { toCardanoResourceRaw, fromCardanoResourceRaw };
-export { toSolanaResourcesRaw, fromSolanaResourcesRaw };
-export { toCeloResourcesRaw, fromCeloResourcesRaw };
 
 export function toBalanceHistoryRaw(b: BalanceHistory): BalanceHistoryRaw {
   return b.map(({ date, value }) => [date.toISOString(), value.toString()]);
@@ -111,12 +49,9 @@ export function fromBalanceHistoryRaw(b: BalanceHistoryRaw): BalanceHistory {
 }
 export const toOperationRaw = (
   operation: Operation,
-  preserveSubOperation?: boolean
+  preserveSubOperation?: boolean,
 ): OperationRaw => {
-  const copy: OperationRaw = commonToOperationRaw(
-    operation,
-    preserveSubOperation
-  );
+  const copy: OperationRaw = commonToOperationRaw(operation, preserveSubOperation);
 
   let e = copy.extra;
 
@@ -141,13 +76,9 @@ export { inferSubOperations } from "@ledgerhq/coin-framework/account/serializati
 export const fromOperationRaw = (
   operation: OperationRaw,
   accountId: string,
-  subAccounts?: SubAccount[] | null | undefined
+  subAccounts?: SubAccount[] | null | undefined,
 ): Operation => {
-  const res: Operation = commonFromOperationRaw(
-    operation,
-    accountId,
-    subAccounts
-  );
+  const res: Operation = commonFromOperationRaw(operation, accountId, subAccounts);
 
   let e = res.extra;
 
@@ -195,14 +126,13 @@ export function fromTokenAccountRaw(raw: TokenAccountRaw): TokenAccount {
     creationDate,
     balance,
     spendableBalance,
-    compoundBalance,
     balanceHistoryCache,
     swapHistory,
     approvals,
   } = raw;
   const token = getTokenById(tokenId);
 
-  const convertOperation = (op) => fromOperationRaw(op, id);
+  const convertOperation = op => fromOperationRaw(op, id);
 
   const res = {
     type: "TokenAccount",
@@ -211,15 +141,9 @@ export function fromTokenAccountRaw(raw: TokenAccountRaw): TokenAccount {
     token,
     starred: starred || false,
     balance: new BigNumber(balance),
-    spendableBalance: spendableBalance
-      ? new BigNumber(spendableBalance)
-      : new BigNumber(balance),
-    compoundBalance: compoundBalance
-      ? new BigNumber(compoundBalance)
-      : undefined,
+    spendableBalance: spendableBalance ? new BigNumber(spendableBalance) : new BigNumber(balance),
     creationDate: new Date(creationDate || Date.now()),
-    operationsCount:
-      raw.operationsCount || (operations && operations.length) || 0,
+    operationsCount: raw.operationsCount || (operations && operations.length) || 0,
     operations: (operations || []).map(convertOperation),
     pendingOperations: (pendingOperations || []).map(convertOperation),
     swapHistory: (swapHistory || []).map(fromSwapOperationRaw),
@@ -240,7 +164,6 @@ export function toTokenAccountRaw(ta: TokenAccount): TokenAccountRaw {
     pendingOperations,
     balance,
     spendableBalance,
-    compoundBalance,
     balanceHistoryCache,
     swapHistory,
     approvals,
@@ -253,12 +176,11 @@ export function toTokenAccountRaw(ta: TokenAccount): TokenAccountRaw {
     tokenId: token.id,
     balance: balance.toString(),
     spendableBalance: spendableBalance.toString(),
-    compoundBalance: compoundBalance ? compoundBalance.toString() : undefined,
     balanceHistoryCache,
     creationDate: ta.creationDate.toISOString(),
     operationsCount,
-    operations: operations.map((o) => toOperationRaw(o)),
-    pendingOperations: pendingOperations.map((o) => toOperationRaw(o)),
+    operations: operations.map(o => toOperationRaw(o)),
+    pendingOperations: pendingOperations.map(o => toOperationRaw(o)),
     swapHistory: (swapHistory || []).map(toSwapOperationRaw),
     approvals,
   };
@@ -281,7 +203,7 @@ export function fromChildAccountRaw(raw: ChildAccountRaw): ChildAccount {
   } = raw;
   const currency = getCryptoCurrencyById(currencyId);
 
-  const convertOperation = (op) => fromOperationRaw(op, id);
+  const convertOperation = op => fromOperationRaw(op, id);
 
   const res: ChildAccount = {
     type: "ChildAccount",
@@ -330,8 +252,8 @@ export function toChildAccountRaw(ca: ChildAccount): ChildAccountRaw {
     balance: balance.toString(),
     balanceHistoryCache,
     creationDate: creationDate.toISOString(),
-    operations: operations.map((o) => toOperationRaw(o)),
-    pendingOperations: pendingOperations.map((o) => toOperationRaw(o)),
+    operations: operations.map(o => toOperationRaw(o)),
+    pendingOperations: pendingOperations.map(o => toOperationRaw(o)),
     swapHistory: (swapHistory || []).map(toSwapOperationRaw),
   };
 }
@@ -356,14 +278,10 @@ export function toSubAccountRaw(subAccount: SubAccount): SubAccountRaw {
       return toTokenAccountRaw(subAccount);
 
     default:
-      throw new Error(
-        "invalid subAccount.type=" + (subAccount as SubAccount).type
-      );
+      throw new Error("invalid subAccount.type=" + (subAccount as SubAccount).type);
   }
 }
-export function fromAccountLikeRaw(
-  rawAccountLike: AccountRawLike
-): AccountLike {
+export function fromAccountLikeRaw(rawAccountLike: AccountRawLike): AccountLike {
   if ("type" in rawAccountLike) {
     //$FlowFixMe
     return fromSubAccountRaw(rawAccountLike);
@@ -397,6 +315,7 @@ export function fromAccountRaw(rawAccount: AccountRaw): Account {
     blockHeight,
     endpointConfig,
     currencyId,
+    feesCurrencyId,
     unitMagnitude,
     operations,
     operationsCount,
@@ -415,7 +334,7 @@ export function fromAccountRaw(rawAccount: AccountRaw): Account {
   const subAccounts =
     subAccountsRaw &&
     subAccountsRaw
-      .map((ta) => {
+      .map(ta => {
         if (ta.type === "TokenAccountRaw") {
           if (findTokenById(ta.tokenId)) {
             return fromTokenAccountRaw(ta);
@@ -426,12 +345,12 @@ export function fromAccountRaw(rawAccount: AccountRaw): Account {
       })
       .filter(Boolean);
   const currency = getCryptoCurrencyById(currencyId);
-  const unit =
-    currency.units.find((u) => u.magnitude === unitMagnitude) ||
-    currency.units[0];
+  const feesCurrency =
+    (feesCurrencyId && (findCryptoCurrencyById(feesCurrencyId) || findTokenById(feesCurrencyId))) ||
+    undefined;
+  const unit = currency.units.find(u => u.magnitude === unitMagnitude) || currency.units[0];
 
-  const convertOperation = (op) =>
-    fromOperationRaw(op, id, subAccounts as SubAccount[]);
+  const convertOperation = op => fromOperationRaw(op, id, subAccounts as SubAccount[]);
 
   const res: Account = {
     type: "Account",
@@ -461,11 +380,12 @@ export function fromAccountRaw(rawAccount: AccountRaw): Account {
     pendingOperations: (pendingOperations || []).map(convertOperation),
     unit,
     currency,
+    feesCurrency,
     lastSyncDate: new Date(lastSyncDate || 0),
     swapHistory: [],
     syncHash,
     balanceHistoryCache: balanceHistoryCache || emptyHistoryCache,
-    nfts: nfts?.map((n) => fromNFTRaw(n)),
+    nfts: nfts?.map(n => fromNFTRaw(n)),
   };
   res.balanceHistoryCache = generateHistoryFromOperations(res);
 
@@ -489,68 +409,6 @@ export function fromAccountRaw(rawAccount: AccountRaw): Account {
   }
 
   switch (res.currency.family) {
-    case "cosmos": {
-      const cosmosResourcesRaw = (rawAccount as CosmosAccountRaw)
-        .cosmosResources;
-      if (cosmosResourcesRaw)
-        (res as CosmosAccount).cosmosResources =
-          fromCosmosResourcesRaw(cosmosResourcesRaw);
-      break;
-    }
-    case "tezos": {
-      const tezosResourcesRaw = (rawAccount as TezosAccountRaw).tezosResources;
-      if (tezosResourcesRaw)
-        (res as TezosAccount).tezosResources =
-          fromTezosResourcesRaw(tezosResourcesRaw);
-      break;
-    }
-    case "bitcoin": {
-      const bitcoinResourcesRaw = (rawAccount as BitcoinAccountRaw)
-        .bitcoinResources;
-      if (bitcoinResourcesRaw)
-        (res as BitcoinAccount).bitcoinResources =
-          fromBitcoinResourcesRaw(bitcoinResourcesRaw);
-      break;
-    }
-    case "polkadot": {
-      const polkadotResourcesRaw = (rawAccount as PolkadotAccountRaw)
-        .polkadotResources;
-      if (polkadotResourcesRaw)
-        (res as PolkadotAccount).polkadotResources =
-          fromPolkadotResourcesRaw(polkadotResourcesRaw);
-      break;
-    }
-    case "elrond": {
-      const elrondResourcesRaw = (rawAccount as ElrondAccountRaw)
-        .elrondResources;
-      if (elrondResourcesRaw)
-        (res as ElrondAccount).elrondResources =
-          fromElrondResourcesRaw(elrondResourcesRaw);
-      break;
-    }
-    case "solana": {
-      const solanaResourcesRaw = (rawAccount as SolanaAccountRaw)
-        .solanaResources;
-      if (solanaResourcesRaw)
-        (res as SolanaAccount).solanaResources =
-          fromSolanaResourcesRaw(solanaResourcesRaw);
-      break;
-    }
-    case "crypto_org": {
-      const cryptoOrgResourcesRaw = (rawAccount as CryptoOrgAccountRaw)
-        .cryptoOrgResources;
-      if (cryptoOrgResourcesRaw)
-        (res as CryptoOrgAccount).cryptoOrgResources =
-          fromCryptoOrgResourcesRaw(cryptoOrgResourcesRaw);
-      break;
-    }
-    case "celo": {
-      const celoResourcesRaw = (rawAccount as CeloAccountRaw).celoResources;
-      if (celoResourcesRaw)
-        (res as CeloAccount).celoResources =
-          fromCeloResourcesRaw(celoResourcesRaw);
-      break;
-    }
     default: {
       const bridge = getAccountBridge(res);
       const assignFromAccountRaw = bridge.assignFromAccountRaw;
@@ -581,6 +439,7 @@ export function toAccountRaw(account: Account): AccountRaw {
     freshAddresses,
     blockHeight,
     currency,
+    feesCurrency,
     creationDate,
     operationsCount,
     operations,
@@ -611,15 +470,19 @@ export function toAccountRaw(account: Account): AccountRaw {
     syncHash,
     creationDate: creationDate.toISOString(),
     operationsCount,
-    operations: (operations || []).map((o) => toOperationRaw(o)),
-    pendingOperations: (pendingOperations || []).map((o) => toOperationRaw(o)),
+    operations: (operations || []).map(o => toOperationRaw(o)),
+    pendingOperations: (pendingOperations || []).map(o => toOperationRaw(o)),
     currencyId: currency.id,
     unitMagnitude: unit.magnitude,
     lastSyncDate: lastSyncDate.toISOString(),
     balance: balance.toFixed(),
     spendableBalance: spendableBalance.toFixed(),
-    nfts: nfts?.map((n) => toNFTRaw(n)),
+    nfts: nfts?.map(n => toNFTRaw(n)),
   };
+
+  if (feesCurrency) {
+    res.feesCurrencyId = feesCurrency.id;
+  }
 
   if (balanceHistoryCache) {
     res.balanceHistoryCache = balanceHistoryCache;
@@ -638,76 +501,6 @@ export function toAccountRaw(account: Account): AccountRaw {
   }
 
   switch (account.currency.family) {
-    case "cosmos": {
-      const cosmosAccount = account as CosmosAccount;
-      if (cosmosAccount.cosmosResources) {
-        (res as CosmosAccountRaw).cosmosResources = toCosmosResourcesRaw(
-          cosmosAccount.cosmosResources
-        );
-      }
-      break;
-    }
-    case "tezos": {
-      const tezosAccount = account as TezosAccount;
-      if (tezosAccount.tezosResources) {
-        (res as TezosAccountRaw).tezosResources = toTezosResourcesRaw(
-          tezosAccount.tezosResources
-        );
-      }
-      break;
-    }
-    case "bitcoin": {
-      const bitcoinAccount = account as BitcoinAccount;
-      if (bitcoinAccount.bitcoinResources) {
-        (res as BitcoinAccountRaw).bitcoinResources = toBitcoinResourcesRaw(
-          bitcoinAccount.bitcoinResources
-        );
-      }
-      break;
-    }
-    case "polkadot": {
-      const polkadotAccount = account as PolkadotAccount;
-      if (polkadotAccount.polkadotResources) {
-        (res as PolkadotAccountRaw).polkadotResources = toPolkadotResourcesRaw(
-          polkadotAccount.polkadotResources
-        );
-      }
-      break;
-    }
-    case "elrond": {
-      const elrondAccount = account as ElrondAccount;
-      if (elrondAccount.elrondResources) {
-        (res as ElrondAccountRaw).elrondResources = toElrondResourcesRaw(
-          elrondAccount.elrondResources
-        );
-      }
-      break;
-    }
-    case "solana": {
-      const solanaAccount = account as SolanaAccount;
-      if (solanaAccount.solanaResources) {
-        (res as SolanaAccountRaw).solanaResources = toSolanaResourcesRaw(
-          solanaAccount.solanaResources
-        );
-      }
-      break;
-    }
-    case "crypto_org": {
-      const crytpoOrgAccount = account as CryptoOrgAccount;
-      if (crytpoOrgAccount.cryptoOrgResources) {
-        (res as CryptoOrgAccountRaw).cryptoOrgResources =
-          toCryptoOrgResourcesRaw(crytpoOrgAccount.cryptoOrgResources);
-      }
-      break;
-    }
-    case "celo": {
-      const celoAccount = account as CeloAccount;
-      if (celoAccount.celoResources)
-        (res as CeloAccountRaw).celoResources = toCeloResourcesRaw(
-          celoAccount.celoResources
-        );
-      break;
-    }
     default: {
       const bridge = getAccountBridge(account);
       const assignToAccountRaw = bridge.assignToAccountRaw;

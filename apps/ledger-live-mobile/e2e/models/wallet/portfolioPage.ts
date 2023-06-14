@@ -1,8 +1,6 @@
-import {
-  getElementById,
-  tapByElement,
-  waitForElementByID,
-} from "../../helpers";
+import { getElementById, openDeeplink, tapByElement, waitForElementByID } from "../../helpers";
+
+const baseLink = "portfolio";
 
 export default class PortfolioPage {
   emptyPortfolioComponent = () => getElementById("PortfolioEmptyAccount");
@@ -14,5 +12,9 @@ export default class PortfolioPage {
 
   async waitForPortfolioPageToLoad() {
     await waitForElementByID("settings-icon");
+  }
+
+  async openViaDeeplink() {
+    await openDeeplink(baseLink);
   }
 }

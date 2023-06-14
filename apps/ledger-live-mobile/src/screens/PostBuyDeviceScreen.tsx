@@ -21,10 +21,7 @@ const StyledSafeAreaView = styled(SafeAreaView)`
 `;
 
 type NavigationProp = RootNavigationComposite<
-  StackNavigatorNavigation<
-    BaseNavigatorStackParamList,
-    ScreenName.PostBuyDeviceScreen
-  >
+  StackNavigatorNavigation<BaseNavigatorStackParamList, ScreenName.PostBuyDeviceScreen>
 >;
 
 export default function PostBuyDeviceScreen() {
@@ -49,13 +46,13 @@ export default function PostBuyDeviceScreen() {
         <TrackScreen category="Congratulations" source="Ledger Website" />
         <Flex justifyContent="center" alignItems="center">
           <Box bg={"success.c30"} p={6} mb={7} borderRadius={999}>
-            <Box bg={"success.c50"} p={6} borderRadius={999}>
+            <Box bg={"success.c20"} p={6} borderRadius={999}>
               <Box
                 height={98}
                 width={98}
                 alignItems={"center"}
                 justifyContent={"center"}
-                bg={"success.c80"}
+                bg={"success.c40"}
                 borderRadius={999}
               >
                 <Icons.CheckAloneMedium size="48px" />
@@ -65,11 +62,7 @@ export default function PostBuyDeviceScreen() {
           <Text textAlign="center" variant="h4" mb={5}>
             {t("postBuyDevice.title")}
           </Text>
-          <Text
-            textAlign="center"
-            variant="bodyLineHeight"
-            color={"neutral.c80"}
-          >
+          <Text textAlign="center" variant="bodyLineHeight" color={"neutral.c80"}>
             {t("postBuyDevice.desc")}
           </Text>
         </Flex>

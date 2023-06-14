@@ -1,16 +1,7 @@
 import React, { ReactNode } from "react";
-import {
-  getAccountName,
-  getAccountSpendableBalance,
-} from "@ledgerhq/live-common/account/index";
-import {
-  getAccountCurrency,
-  getAccountUnit,
-} from "@ledgerhq/live-common/account/helpers";
-import {
-  DerivationMode,
-  getTagDerivationMode,
-} from "@ledgerhq/live-common/derivation";
+import { getAccountName, getAccountSpendableBalance } from "@ledgerhq/live-common/account/index";
+import { getAccountCurrency, getAccountUnit } from "@ledgerhq/live-common/account/helpers";
+import { DerivationMode, getTagDerivationMode } from "@ledgerhq/coin-framework/derivation";
 import { AccountLike } from "@ledgerhq/types-live";
 import { Flex, Tag, Text } from "@ledgerhq/native-ui";
 import { useTheme } from "styled-components/native";
@@ -61,17 +52,12 @@ const AccountCard = ({
       >
         <CurrencyIcon
           currency={currency}
-          color={disabled ? colors.neutral.c40 : undefined}
+          disabled={disabled}
+          color={colors.constant.white}
           size={32}
           circle
         />
-        <Flex
-          flexGrow={1}
-          flexShrink={1}
-          marginLeft={3}
-          flexDirection="row"
-          alignItems="center"
-        >
+        <Flex flexGrow={1} flexShrink={1} marginLeft={3} flexDirection="row" alignItems="center">
           <Flex minWidth={20} flexShrink={1}>
             <Text
               variant="paragraph"
@@ -91,11 +77,7 @@ const AccountCard = ({
             <CurrencyUnitValue
               showCode
               unit={unit}
-              value={
-                useFullBalance
-                  ? account.balance
-                  : getAccountSpendableBalance(account)
-              }
+              value={useFullBalance ? account.balance : getAccountSpendableBalance(account)}
             />
           </Text>
         </Flex>

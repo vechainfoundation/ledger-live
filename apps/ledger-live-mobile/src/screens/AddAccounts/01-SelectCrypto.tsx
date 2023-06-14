@@ -44,57 +44,93 @@ const renderEmptyList = () => (
   </View>
 );
 
-const listSupportedTokens = () =>
-  listTokens().filter(t => isCurrencySupported(t.parentCurrency));
+const listSupportedTokens = () => listTokens().filter(t => isCurrencySupported(t.parentCurrency));
 
 export default function AddAccountsSelectCrypto({ navigation, route }: Props) {
   const { colors } = useTheme();
   const devMode = useEnv("MANAGER_DEV_MODE");
   const { filterCurrencyIds = [], currency } = route.params || {};
 
-  const osmo = useFeature("currencyOsmosisMobile");
-  const fantom = useFeature("currencyFantomMobile");
-  const moonbeam = useFeature("currencyMoonbeamMobile");
-  const cronos = useFeature("currencyCronosMobile");
-  const songbird = useFeature("currencySongbirdMobile");
-  const flare = useFeature("currencyFlareMobile");
-  const near = useFeature("currencyNear");
+  const axelar = useFeature("currencyAxelar");
+  const onomy = useFeature("currencyOnomy");
+  const quicksilver = useFeature("currencyQuicksilver");
+  const persistence = useFeature("currencyPersistence");
   const avaxCChain = useFeature("currencyAvalancheCChain");
+  const optimism = useFeature("currencyOptimism");
+  const optimismGoerli = useFeature("currencyOptimismGoerli");
+  const arbitrum = useFeature("currencyArbitrum");
+  const arbitrumGoerli = useFeature("currencyArbitrumGoerli");
+  const rsk = useFeature("currencyRsk");
+  const bittorrent = useFeature("currencyBittorrent");
+  const kavaEvm = useFeature("currencyKavaEvm");
+  const evmosEvm = useFeature("currencyEvmosEvm");
+  const energyWeb = useFeature("currencyEnergyWeb");
+  const astar = useFeature("currencyAstar");
+  const metis = useFeature("currencyMetis");
+  const boba = useFeature("currencyBoba");
+  const moonriver = useFeature("currencyMoonriver");
+  const velasEvm = useFeature("currencyVelasEvm");
+  const syscoin = useFeature("currencySyscoin");
 
   const featureFlaggedCurrencies = useMemo(
     () => ({
-      osmo,
-      fantom,
-      moonbeam,
-      cronos,
-      songbird,
-      flare,
-      near,
+      axelar,
+      onomy,
+      quicksilver,
+      persistence,
       avalanche_c_chain: avaxCChain,
+      optimism,
+      optimism_goerli: optimismGoerli,
+      arbitrum,
+      arbitrum_goerli: arbitrumGoerli,
+      rsk,
+      bittorrent,
+      kava_evm: kavaEvm,
+      evmos_evm: evmosEvm,
+      energy_web: energyWeb,
+      astar,
+      metis,
+      boba,
+      moonriver,
+      velas_evm: velasEvm,
+      syscoin,
     }),
-    [osmo, fantom, moonbeam, cronos, songbird, flare, near, avaxCChain],
+    [
+      avaxCChain,
+      optimism,
+      optimismGoerli,
+      arbitrum,
+      arbitrumGoerli,
+      rsk,
+      bittorrent,
+      kavaEvm,
+      evmosEvm,
+      energyWeb,
+      astar,
+      metis,
+      boba,
+      moonriver,
+      velasEvm,
+      syscoin,
+      axelar,
+      onomy,
+      persistence,
+      quicksilver,
+    ],
   );
 
   const cryptoCurrencies = useMemo(() => {
-    const currencies = [
-      ...listSupportedCurrencies(),
-      ...listSupportedTokens(),
-    ].filter(
-      ({ id }) =>
-        filterCurrencyIds.length <= 0 || filterCurrencyIds.includes(id),
+    const currencies = [...listSupportedCurrencies(), ...listSupportedTokens()].filter(
+      ({ id }) => filterCurrencyIds.length <= 0 || filterCurrencyIds.includes(id),
     );
     const deactivatedCurrencies = Object.entries(featureFlaggedCurrencies)
       .filter(([, feature]) => !feature?.enabled)
       .map(([name]) => name);
 
-    const currenciesFiltered = currencies.filter(
-      c => !deactivatedCurrencies.includes(c.id),
-    );
+    const currenciesFiltered = currencies.filter(c => !deactivatedCurrencies.includes(c.id));
 
     if (!devMode) {
-      return currenciesFiltered.filter(
-        c => c.type !== "CryptoCurrency" || !c.isTestnetFor,
-      );
+      return currenciesFiltered.filter(c => c.type !== "CryptoCurrency" || !c.isTestnetFor);
     }
     return currenciesFiltered;
   }, [devMode, featureFlaggedCurrencies, filterCurrencyIds]);

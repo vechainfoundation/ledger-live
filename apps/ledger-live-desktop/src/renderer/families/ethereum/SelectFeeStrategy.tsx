@@ -1,5 +1,4 @@
 import React, { memo } from "react";
-
 import styled from "styled-components";
 import { BigNumber } from "bignumber.js";
 import {
@@ -56,7 +55,7 @@ const FeesWrapper = styled(Tabbable)`
   }
 `;
 
-const FeesHeader = styled(Box)`
+const FeesHeader = styled(Box)<{ selected?: boolean; disabled?: boolean }>`
   color: ${p =>
     p.selected
       ? p.theme.colors.palette.primary.main
@@ -71,7 +70,7 @@ const FeesValue = styled(Box)`
   text-align: center;
 `;
 
-const ApproximateTransactionTime = styled(Box)`
+const ApproximateTransactionTime = styled(Box)<{ selected?: boolean }>`
   flex-direction: row;
   align-items: center;
   border-radius: 3px;
