@@ -545,18 +545,6 @@ const coreum = {
   }),
 };
 
-const secretNetwork = {
-  ...generateGenericCosmosTest("secret_network"),
-};
-
-const stargaze = {
-  ...generateGenericCosmosTest("stargaze"),
-};
-
-const coreum = {
-  ...generateGenericCosmosTest("coreum"),
-};
-
 export default {
   axelar,
   cosmos,
