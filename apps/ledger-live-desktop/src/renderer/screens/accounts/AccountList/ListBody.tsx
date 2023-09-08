@@ -1,8 +1,8 @@
 import React from "react";
 import { Account, PortfolioRange, AccountLike, TokenAccount } from "@ledgerhq/types-live";
 import Box from "~/renderer/components/Box";
-import AccountItem from "../AccountRowItem";
-import AccountItemPlaceholder from "../AccountRowItem/Placeholder";
+import AccountRowItem from "../AccountRowItem";
+import AccountRowItemPlaceholder from "../AccountRowItem/Placeholder";
 type Props = {
   visibleAccounts: AccountLike[];
   hiddenAccounts: AccountLike[];
@@ -25,15 +25,16 @@ const ListBody = ({
   <Box id="accounts-list">
     {[...visibleAccounts, ...(showNewAccount ? [null] : []), ...hiddenAccounts].map((account, i) =>
       !account ? (
-        <AccountItemPlaceholder key="placeholder" />
+        <AccountRowItemPlaceholder key="placeholder" />
       ) : (
-        <AccountItem
+        <AccountRowItem
           hidden={i >= visibleAccounts.length}
           key={account.id}
           account={account as TokenAccount | Account}
           search={search}
           parentAccount={account.type !== "Account" ? lookupParentAccount(account.parentId) : null}
           range={range}
+          dynamicSignificantDigits={2}
           onClick={onAccountClick}
         />
       ),

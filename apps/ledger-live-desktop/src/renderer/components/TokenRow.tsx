@@ -14,6 +14,7 @@ type Props = {
   account: AccountLike;
   nested?: boolean;
   disableRounding?: boolean;
+  dynamicSignificantDigits?: number;
   parentAccount: Account;
   onClick: (b: AccountLike, a: Account) => void;
   range: PortfolioRange;
@@ -45,14 +46,19 @@ class TokenRow extends PureComponent<Props> {
   };
 
   render() {
-    const { account, range, nested, disableRounding } = this.props;
+    const { account, range, nested, disableRounding, dynamicSignificantDigits } = this.props;
     const currency = getAccountCurrency(account);
     const unit = currency.units[0];
     const Row = nested ? NestedRow : TableRow;
     return (
       <Row className="token-row" onClick={this.onClick} tabIndex={-1}>
         <Header nested={nested} account={account} />
-        <Balance unit={unit} balance={account.balance} disableRounding={disableRounding} />
+        <Balance
+          unit={unit}
+          balance={account.balance}
+          disableRounding={disableRounding}
+          dynamicSignificantDigits={dynamicSignificantDigits}
+        />
         <Countervalue account={account} currency={currency} range={range} />
         <Delta account={account} range={range} />
         <Star
