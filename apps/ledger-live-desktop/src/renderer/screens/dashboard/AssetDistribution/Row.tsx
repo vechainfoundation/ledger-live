@@ -16,6 +16,7 @@ import Bar from "./Bar";
 import { setTrackingSource } from "~/renderer/analytics/TrackPage";
 import { localeSelector } from "~/renderer/reducers/settings";
 import { DistributionItem } from "@ledgerhq/types-live";
+import { TokenCurrency } from "@ledgerhq/types-cryptoassets";
 
 type Props = {
   item: DistributionItem;
@@ -101,6 +102,7 @@ const Row = ({ item: { currency, amount, distribution }, isVisible }: Props) => 
       pathname: `/asset/${currency.id}`,
     });
   }, [currency, history]);
+
   return (
     <Wrapper onClick={onClick} data-test-id={`asset-row-${currency.name.toLowerCase()}`}>
       <Asset>
@@ -138,6 +140,10 @@ const Row = ({ item: { currency, amount, distribution }, isVisible }: Props) => 
             color={"palette.text.shade80"}
             unit={currency.units[0]}
             val={amount}
+            dynamicSignificantDigits={
+              currency.dynamicSignificantDigits ||
+              (currency as TokenCurrency).parentCurrency?.dynamicSignificantDigits
+            }
             fontSize={3}
             showCode
           />

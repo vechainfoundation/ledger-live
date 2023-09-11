@@ -30,7 +30,6 @@ const ListBody = ({
         if (!account) return <AccountRowItemPlaceholder key="placeholder" />;
         else {
           const currency = getAccountCurrency(account);
-          console.log(`🚀 ~ currency:`, currency);
           return (
             <AccountRowItem
               hidden={i >= visibleAccounts.length}
