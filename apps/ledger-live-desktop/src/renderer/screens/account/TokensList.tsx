@@ -49,6 +49,7 @@ function TokensList({ account }: Props) {
       }),
     );
   }, [dispatch, account]);
+
   const [collapsed, setCollapsed] = useState(true);
   const toggleCollapse = useCallback(() => setCollapsed(s => !s), []);
   if (!account.subAccounts) return null;
