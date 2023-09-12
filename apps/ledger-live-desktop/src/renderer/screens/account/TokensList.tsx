@@ -41,6 +41,7 @@ function TokensList({ account }: Props) {
     },
     [history],
   );
+
   const onReceiveClick = useCallback(() => {
     dispatch(
       openModal("MODAL_RECEIVE", {
