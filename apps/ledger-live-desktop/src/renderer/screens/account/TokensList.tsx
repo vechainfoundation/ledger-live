@@ -30,6 +30,7 @@ function TokensList({ account }: Props) {
   const [range] = useTimeRange();
   const dispatch = useDispatch();
   const history = useHistory();
+
   const onAccountClick = useCallback(
     (account: AccountLike, parentAccount: Account) => {
       history.push({
