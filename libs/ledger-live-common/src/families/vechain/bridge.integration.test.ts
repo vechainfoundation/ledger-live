@@ -27,6 +27,10 @@ const dataset: DatasetTest<Transaction> = {
   currencies: {
     vechain: {
       FIXME_ignoreAccountFields: ["balance", "spendableBalance", "estimateMaxSpendable"], // the balance depends on VTHO and it's earned without operations
+      IgnorePrepareTransactionFields: [
+        "ref stability on self transaction", //blockref is not deterministic
+        "can be run in parallel and all yield same results", //blockref is not deterministic
+      ],
       scanAccounts: vechainScanAccounts1,
       accounts: [
         {
