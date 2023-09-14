@@ -23,21 +23,21 @@ listSupported.push(getCryptoCurrencyById("vechain"));
 setSupportedCurrencies(listSupported.map(c => c.id) as CryptoCurrencyId[]);
 
 const dataset: DatasetTest<Transaction> = {
-  implementations: ["js"],
+  implementations: ["js", "mock"],
   currencies: {
     vechain: {
       FIXME_ignoreAccountFields: ["balance", "spendableBalance", "estimateMaxSpendable"], // the balance depends on VTHO and it's earned without operations
       scanAccounts: vechainScanAccounts1,
+
       accounts: [
         {
           raw: vechain1 as AccountRaw,
-          implementations: ["js"],
           transactions: [
             {
               name: "Send VET",
               transaction: fromTransactionRaw({
                 family: "vechain",
-                estimatedFees: "0",
+                estimatedFees: "210000000000000000",
                 recipient: "0xcf130b42ae31c4931298b4b1c0f1d974b8732957",
                 amount: "1000000000000000000",
                 body: {
@@ -71,7 +71,7 @@ const dataset: DatasetTest<Transaction> = {
                 family: "vechain",
                 subAccountId:
                   "js:2:vechain:0x0fe6688548f0C303932bB197B0A96034f1d74dba:vechain+vechain%2Fvtho",
-                estimatedFees: "210000000000000000",
+                estimatedFees: "515180000000000000",
                 recipient: "0xcf130b42ae31c4931298b4b1c0f1d974b8732957",
                 amount: "1000000000000000000",
                 body: {
@@ -131,7 +131,7 @@ const dataset: DatasetTest<Transaction> = {
               name: "VET balance not enough",
               transaction: fromTransactionRaw({
                 family: "vechain",
-                estimatedFees: "0",
+                estimatedFees: "210000000000000000",
                 recipient: "0xcf130b42ae31c4931298b4b1c0f1d974b8732957",
                 amount: "20000000000000000000",
                 body: {
@@ -167,7 +167,7 @@ const dataset: DatasetTest<Transaction> = {
                 family: "vechain",
                 subAccountId:
                   "js:2:vechain:0x0fe6688548f0C303932bB197B0A96034f1d74dba:vechain+vechain%2Fvtho",
-                estimatedFees: "0",
+                estimatedFees: "515820000000000000",
                 recipient: "0xcf130b42ae31c4931298b4b1c0f1d974b8732957",
                 amount: "20000000000000000000",
                 body: {
@@ -207,13 +207,12 @@ const dataset: DatasetTest<Transaction> = {
         },
         {
           raw: vechain2 as AccountRaw,
-          implementations: ["js"],
           transactions: [
             {
               name: "Not enough VTHO to pay fees",
               transaction: fromTransactionRaw({
                 family: "vechain",
-                estimatedFees: "0",
+                estimatedFees: "210000000000000000",
                 recipient: "0xcf130b42ae31c4931298b4b1c0f1d974b8732957",
                 amount: "1000000000000000000",
                 body: {
