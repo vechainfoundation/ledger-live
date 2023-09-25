@@ -1,4 +1,4 @@
-import { HEX_PREFIX } from "../constants";
+import { DEFAULT_GAS_COEFFICIENT, HEX_PREFIX } from "../constants";
 import crypto from "crypto";
 import BigNumber from "bignumber.js";
 import { Transaction as ThorTransaction } from "thor-devkit";
@@ -6,7 +6,7 @@ import params from "../contracts/abis/params";
 import { BASE_GAS_PRICE_KEY, PARAMS_ADDRESS } from "../contracts/constants";
 import { Query } from "../api/types";
 import { query } from "../api/sdk";
-import { Account, AccountLike, TokenAccount } from "@ledgerhq/types-live";
+import { Account, TokenAccount } from "@ledgerhq/types-live";
 import { Transaction, TransactionInfo } from "../types";
 import { isValid } from "./address-utils";
 import { calculateClausesVtho } from "../js-transaction";
@@ -81,7 +81,7 @@ export const calculateTransactionInfo = async (
 ): Promise<TransactionInfo> => {
   const { subAccounts } = account;
   const { amount: oldAmount, useAllAmount, subAccountId } = transaction;
-  const maxTokenFees = fixedMaxTokenFees || (await calculateMaxFeesToken(account, transaction));
+  const maxTokenFees = fixedMaxTokenFees || (await calculateMaxFeesToken(transaction));
 
   const tokenAccount =
     subAccountId && subAccounts
@@ -116,25 +116,14 @@ export const calculateTransactionInfo = async (
   };
 };
 
-export const calculateMaxFeesToken = async (
-  account: AccountLike,
-  transaction: Transaction,
-): Promise<BigNumber> => {
-  const accountTmp = account.type === "Account" ? account?.subAccounts?.[0] : account;
-
-  if (
-    transaction.subAccountId &&
-    transaction.recipient &&
-    isValid(transaction.recipient) &&
-    accountTmp
-  ) {
+export const calculateMaxFeesToken = async (transaction: Transaction): Promise<BigNumber> => {
+  if (transaction.recipient && isValid(transaction.recipient)) {
     const clauses = await calculateClausesVtho(transaction, transaction.amount);
     const gas = await estimateGas({
       ...transaction,
       body: { ...transaction.body, clauses: clauses },
     });
-    const estimatedFees = new BigNumber(gas);
-    return estimatedFees;
+    return await calculateFee(new BigNumber(gas), DEFAULT_GAS_COEFFICIENT);
   }
   return new BigNumber(0);
 };
