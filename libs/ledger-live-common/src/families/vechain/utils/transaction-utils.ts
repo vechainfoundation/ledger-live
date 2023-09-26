@@ -9,7 +9,8 @@ import { query } from "../api/sdk";
 import { Account, TokenAccount } from "@ledgerhq/types-live";
 import { Transaction, TransactionInfo } from "../types";
 import { isValid } from "./address-utils";
-import { calculateClausesVtho } from "../js-transaction";
+import { calculateClausesVet, calculateClausesVtho } from "../js-transaction";
+import { ImpossibleToCalculateAmountAndFees } from "../errors";
 
 const GAS_COEFFICIENT = 15000;
 
@@ -144,37 +145,46 @@ export const calculateTransactionInfo = async (
 
   let amount = oldAmount;
   let amountBackup;
-  let tempTransaction = { ...transaction };
-  let balance;
-  let spendableBalance;
-  let maxEstimatedGasFees;
-  let maxEstimatedGas;
+  let tempTransaction = { ...transaction, amount };
+  let balance = account.balance;
+  let spendableBalance = account.balance;
+  let maxEstimatedGasFees = new BigNumber(0);
+  let maxEstimatedGas = 0;
 
-  do {
-    amountBackup = amount;
+  if (!amount.isNaN()) {
+    const MAX_ITERATIONS = 5; // it should never reach more than 2 iterations, but just in case
+    let iterations = 0;
+    do {
+      amountBackup = amount;
 
-    const estimatedGasAndFees = fixedMaxTokenFees || (await calculateMaxFeesToken(tempTransaction));
+      const estimatedGasAndFees =
+        fixedMaxTokenFees || (await calculateGasFees(tempTransaction, isTokenAccount));
 
-    maxEstimatedGasFees = estimatedGasAndFees.estimatedGasFees;
-    maxEstimatedGas = estimatedGasAndFees.estimatedGas;
+      maxEstimatedGasFees = estimatedGasAndFees.estimatedGasFees;
+      maxEstimatedGas = estimatedGasAndFees.estimatedGas;
 
-    if (isTokenAccount && tokenAccount) {
-      balance = tokenAccount.balance;
-      spendableBalance = tokenAccount.balance.minus(maxEstimatedGasFees).gt(0)
-        ? tokenAccount.balance.minus(maxEstimatedGasFees)
-        : new BigNumber(0);
-    } else {
-      balance = account.balance;
-      spendableBalance = account.balance;
+      if (isTokenAccount && tokenAccount) {
+        balance = tokenAccount.balance;
+        spendableBalance = tokenAccount.balance.minus(maxEstimatedGasFees).gt(0)
+          ? tokenAccount.balance.minus(maxEstimatedGasFees)
+          : new BigNumber(0);
+      } else {
+        balance = account.balance;
+        spendableBalance = account.balance;
+      }
+
+      amount = useAllAmount ? spendableBalance : oldAmount;
+
+      tempTransaction = {
+        ...tempTransaction,
+        amount,
+      };
+      iterations++;
+    } while (!amountBackup.isEqualTo(amount) && iterations < MAX_ITERATIONS);
+    if (iterations === MAX_ITERATIONS) {
+      throw new ImpossibleToCalculateAmountAndFees();
     }
-
-    amount = useAllAmount ? spendableBalance : oldAmount;
-
-    tempTransaction = {
-      ...tempTransaction,
-      amount,
-    };
-  } while (!amountBackup.isEqualTo(amount));
+  }
 
   return {
     isTokenAccount,
@@ -187,14 +197,20 @@ export const calculateTransactionInfo = async (
   };
 };
 
-export const calculateMaxFeesToken = async (
+export const calculateGasFees = async (
   transaction: Transaction,
+  isTokenAccount: boolean,
 ): Promise<{
   estimatedGas: number;
   estimatedGasFees: BigNumber;
 }> => {
   if (transaction.recipient && isValid(transaction.recipient)) {
-    const clauses = await calculateClausesVtho(transaction.recipient, transaction.amount);
+    let clauses;
+    if (isTokenAccount) {
+      clauses = await calculateClausesVtho(transaction.recipient, transaction.amount);
+    } else {
+      clauses = await calculateClausesVet(transaction.recipient, transaction.amount);
+    }
     const gas = await estimateGas({
       ...transaction,
       body: { ...transaction.body, clauses: clauses },

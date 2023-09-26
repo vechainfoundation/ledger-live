@@ -59,7 +59,7 @@ export const prepareTransaction = async (
     if (isTokenAccount) {
       clauses = await calculateClausesVtho(transaction.recipient, amount);
     } else {
-      clauses = await calculateClausesVet(transaction, amount);
+      clauses = await calculateClausesVet(transaction.recipient, amount);
     }
   }
 
@@ -79,15 +79,14 @@ export const calculateClausesVtho = async (
     value: 0,
     data: "0x",
   };
-
   updatedClause.data = VIP180.transfer.encode(recipient, amount.toFixed());
 
   clauses.push(updatedClause);
   return clauses;
 };
 
-const calculateClausesVet = async (
-  transaction: Transaction,
+export const calculateClausesVet = async (
+  recipient: string,
   amount: BigNumber,
 ): Promise<ThorTransaction.Clause[]> => {
   const clauses: ThorTransaction.Clause[] = [];
@@ -100,7 +99,7 @@ const calculateClausesVet = async (
   };
 
   updatedClause.value = `${HEX_PREFIX}${amount.toString(16)}`;
-  updatedClause.to = transaction.recipient;
+  updatedClause.to = recipient;
 
   clauses.push(updatedClause);
 
