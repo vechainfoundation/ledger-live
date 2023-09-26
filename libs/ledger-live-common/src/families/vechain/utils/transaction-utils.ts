@@ -74,14 +74,65 @@ export const calculateFee = async (gas: BigNumber, gasPriceCoef: number): Promis
   return new BigNumber(baseGasPrice).times(gasPriceCoef).idiv(255).plus(baseGasPrice).times(gas);
 };
 
+export const calculateTransactionEconomicInfo = async ({
+  isTokenAccount,
+  account,
+  tokenAccount,
+  transaction,
+  maxEstimatedGasFees,
+}: {
+  isTokenAccount: boolean;
+  account: Account;
+  tokenAccount?: TokenAccount;
+  transaction: Transaction;
+  maxEstimatedGasFees: BigNumber;
+}): Promise<{
+  amount: BigNumber;
+  balance: BigNumber;
+  spendableBalance: BigNumber;
+}> => {
+  const { amount: oldAmount, useAllAmount } = transaction;
+  let balance;
+  let spendableBalance;
+
+  if (isTokenAccount && tokenAccount) {
+    balance = tokenAccount.balance;
+    spendableBalance = tokenAccount.balance.minus(maxEstimatedGasFees).gt(0)
+      ? tokenAccount.balance.minus(maxEstimatedGasFees)
+      : new BigNumber(0);
+  } else {
+    balance = account.balance;
+    spendableBalance = account.balance;
+  }
+  const amount = useAllAmount ? spendableBalance : oldAmount;
+
+  return {
+    amount,
+    balance,
+    spendableBalance,
+  };
+};
+
+// Here there is a circular dependency between values, that is why we need the do-while loop
+// dependencies are:
+// useAllAmount: USER
+// amount: useAllAmount & spendableBalance
+// fees: amount
+// spendableBalance: fees & balance
+// balance: USER
+// circular dependency is:
+// amount -> spendableBalance -> fees -> amount
+
 export const calculateTransactionInfo = async (
   account: Account,
   transaction: Transaction,
-  fixedMaxTokenFees?: BigNumber,
+  fixedMaxTokenFees?: {
+    estimatedGas: number;
+    estimatedGasFees: BigNumber;
+  },
 ): Promise<TransactionInfo> => {
   const { subAccounts } = account;
-  const { amount: oldAmount, useAllAmount, subAccountId } = transaction;
-  const maxTokenFees = fixedMaxTokenFees || (await calculateMaxFeesToken(transaction));
+  const { amount: oldAmount, subAccountId, useAllAmount } = transaction;
 
   const tokenAccount =
     subAccountId && subAccounts
@@ -91,21 +142,39 @@ export const calculateTransactionInfo = async (
       : undefined;
   const isTokenAccount = !!tokenAccount;
 
+  let amount = oldAmount;
+  let amountBackup;
+  let tempTransaction = { ...transaction };
   let balance;
   let spendableBalance;
-  let amount;
+  let maxEstimatedGasFees;
+  let maxEstimatedGas;
 
-  if (isTokenAccount) {
-    balance = tokenAccount.balance;
-    spendableBalance = tokenAccount.balance.minus(maxTokenFees).gt(0)
-      ? tokenAccount.balance.minus(maxTokenFees)
-      : new BigNumber(0);
+  do {
+    amountBackup = amount;
+
+    const estimatedGasAndFees = fixedMaxTokenFees || (await calculateMaxFeesToken(tempTransaction));
+
+    maxEstimatedGasFees = estimatedGasAndFees.estimatedGasFees;
+    maxEstimatedGas = estimatedGasAndFees.estimatedGas;
+
+    if (isTokenAccount && tokenAccount) {
+      balance = tokenAccount.balance;
+      spendableBalance = tokenAccount.balance.minus(maxEstimatedGasFees).gt(0)
+        ? tokenAccount.balance.minus(maxEstimatedGasFees)
+        : new BigNumber(0);
+    } else {
+      balance = account.balance;
+      spendableBalance = account.balance;
+    }
+
     amount = useAllAmount ? spendableBalance : oldAmount;
-  } else {
-    balance = account.balance;
-    spendableBalance = account.balance;
-    amount = useAllAmount ? spendableBalance : oldAmount;
-  }
+
+    tempTransaction = {
+      ...tempTransaction,
+      amount,
+    };
+  } while (!amountBackup.isEqualTo(amount));
 
   return {
     isTokenAccount,
@@ -113,25 +182,33 @@ export const calculateTransactionInfo = async (
     spendableBalance,
     balance,
     tokenAccount,
+    estimatedFees: maxEstimatedGasFees.toString(),
+    estimatedGas: maxEstimatedGas,
   };
 };
 
-export const calculateMaxFeesToken = async (transaction: Transaction): Promise<BigNumber> => {
+export const calculateMaxFeesToken = async (
+  transaction: Transaction,
+): Promise<{
+  estimatedGas: number;
+  estimatedGasFees: BigNumber;
+}> => {
   if (transaction.recipient && isValid(transaction.recipient)) {
-    const clauses = await calculateClausesVtho(transaction, transaction.amount);
+    const clauses = await calculateClausesVtho(transaction.recipient, transaction.amount);
     const gas = await estimateGas({
       ...transaction,
       body: { ...transaction.body, clauses: clauses },
     });
-    return await calculateFee(new BigNumber(gas), DEFAULT_GAS_COEFFICIENT);
+    return {
+      estimatedGas: gas,
+      estimatedGasFees: await calculateFee(
+        new BigNumber(gas),
+        transaction.body.gasPriceCoef || DEFAULT_GAS_COEFFICIENT,
+      ),
+    };
   }
-  return new BigNumber(0);
-};
-
-export const calculateTotalSpent = (isToken: boolean, transaction: Transaction): BigNumber => {
-  if (isToken) {
-    return transaction.amount.plus(transaction.estimatedFees);
-  } else {
-    return transaction.amount;
-  }
+  return {
+    estimatedGas: 0,
+    estimatedGasFees: new BigNumber(0),
+  };
 };
