@@ -119,6 +119,7 @@ type Props = {
   account: TokenAccount | Account;
   parentAccount?: Account | null;
   disableRounding?: boolean;
+  dynamicSignificantDigits?: number;
   hideEmptyTokens?: boolean;
   onClick: (b: AccountLike, a?: Account | null) => void;
   hidden?: boolean;
@@ -186,6 +187,7 @@ class AccountRowItem extends PureComponent<Props, State> {
       hidden,
       onClick,
       disableRounding,
+      dynamicSignificantDigits,
       search,
       hideEmptyTokens,
     } = this.props;
@@ -284,6 +286,7 @@ class AccountRowItem extends PureComponent<Props, State> {
                             range={range}
                             account={token}
                             parentAccount={mainAccount}
+                            dynamicSignificantDigits={dynamicSignificantDigits}
                             onClick={onClick}
                           />
                         )}

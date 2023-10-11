@@ -7,14 +7,16 @@ class Balance extends PureComponent<{
   unit: Unit;
   balance: BigNumber;
   disableRounding?: boolean;
+  dynamicSignificantDigits?: number;
 }> {
   render() {
-    const { unit, balance, disableRounding } = this.props;
+    const { unit, balance, dynamicSignificantDigits, disableRounding } = this.props;
     return (
       <Box flex="30%" justifyContent="center" fontSize={4}>
         <FormattedVal
           alwaysShowSign={false}
           animateTicker={false}
+          dynamicSignificantDigits={dynamicSignificantDigits}
           ellipsis
           color="palette.text.shade100"
           unit={unit}

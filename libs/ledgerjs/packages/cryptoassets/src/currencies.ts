@@ -3022,6 +3022,7 @@ export const cryptocurrenciesById: Record<CryptoCurrencyId, CryptoCurrency> = {
     family: "vechain",
     blockAvgTime: 10,
     units: ethereumUnits("VET", "VET"),
+    dynamicSignificantDigits: 2,
     explorerViews: [
       {
         tx: "https://explore.vechain.org/transactions/$hash",

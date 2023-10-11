@@ -220,6 +220,8 @@ type CurrencyCommon = {
   units: Unit[];
   // a shorter version of code using the symbol of the currency. like Ƀ . not all cryptocurrencies have a symbol
   symbol?: string;
+  // Used to round the digits after the decimal point when formatting the balance
+  dynamicSignificantDigits?: number;
   // tells if countervalue need to be disabled (typically because colliding with other coins)
   disableCountervalue?: boolean;
   delisted?: boolean;

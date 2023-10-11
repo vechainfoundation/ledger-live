@@ -374,6 +374,7 @@ function convertVechainToken([
     name,
     ticker,
     disableCountervalue: !enableCountervalues,
+    dynamicSignificantDigits: 2,
     units: [
       {
         name,

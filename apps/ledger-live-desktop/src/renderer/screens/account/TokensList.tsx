@@ -1,7 +1,7 @@
 import React, { useCallback, useState, memo } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { listSubAccounts } from "@ledgerhq/live-common/account/helpers";
+import { getAccountCurrency, listSubAccounts } from "@ledgerhq/live-common/account/helpers";
 import { listTokenTypesForCryptoCurrency } from "@ledgerhq/live-common/currencies/index";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
@@ -21,6 +21,8 @@ import { useTimeRange } from "~/renderer/actions/settings";
 import TableContainer, { TableHeader } from "~/renderer/components/TableContainer";
 import AngleDown from "~/renderer/icons/AngleDown";
 import { getLLDCoinFamily } from "~/renderer/families";
+import { TokenCurrency } from "@ledgerhq/types-cryptoassets";
+
 type Props = {
   account: Account;
 };
@@ -53,15 +55,16 @@ function TokensList({ account }: Props) {
   const toggleCollapse = useCallback(() => setCollapsed(s => !s), []);
   if (!account.subAccounts) return null;
   const subAccounts = listSubAccounts(account);
-  const { currency } = account;
-  const family = currency.family;
-  const tokenTypes = listTokenTypesForCryptoCurrency(currency);
+  const { currency: currencyAcc } = account;
+  const currency = getAccountCurrency(account);
+  const family = currencyAcc.family;
+  const tokenTypes = listTokenTypesForCryptoCurrency(currencyAcc);
   const isTokenAccount = tokenTypes.length > 0;
   const isEmpty = subAccounts.length === 0;
   const shouldSliceList = subAccounts.length >= 5;
   if (!isTokenAccount && isEmpty) return null;
   const url =
-    currency && currency.type && tokenTypes && tokenTypes.length > 0
+    currencyAcc && currencyAcc.type && tokenTypes && tokenTypes.length > 0
       ? supportLinkByTokenType[tokenTypes[0] as keyof typeof supportLinkByTokenType]
       : null;
   const specific = getLLDCoinFamily(family)?.tokenList;
@@ -71,16 +74,16 @@ function TokensList({ account }: Props) {
   const placeholderLabel = t(
     hasSpecificTokenWording ? `tokensList.${family}.placeholder` : "tokensList.placeholder",
     {
-      currencyName: currency.name,
+      currencyName: currencyAcc.name,
     },
   );
   const linkLabel = t(hasSpecificTokenWording ? `tokensList.${family}.link` : "tokensList.link");
   const translationMap = {
     see: hasSpecificTokenWording
-      ? `tokensList.${currency.family}.seeTokens`
+      ? `tokensList.${currencyAcc.family}.seeTokens`
       : `tokensList.seeTokens`,
     hide: hasSpecificTokenWording
-      ? `tokensList.${currency.family}.hideTokens`
+      ? `tokensList.${currencyAcc.family}.hideTokens`
       : `tokensList.hideTokens`,
   };
   return (
@@ -121,7 +124,10 @@ function TokensList({ account }: Props) {
             account={token}
             parentAccount={account}
             onClick={onAccountClick}
-            disableRounding
+            dynamicSignificantDigits={
+              currency.dynamicSignificantDigits ||
+              (currency as TokenCurrency).parentCurrency?.dynamicSignificantDigits
+            }
           />
         </AccountContextMenu>
       ))}
