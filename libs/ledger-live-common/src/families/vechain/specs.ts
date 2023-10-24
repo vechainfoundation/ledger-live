@@ -17,24 +17,6 @@ const MIN_VET_TRANSACTION_AMOUNT = 1000000000000000000;
 const MAX_VTHO_FEE_FOR_VTHO_TRANSACTION = 1040000000000000000;
 const MAX_VTHO_FEE_FOR_VET_TRANSACTION = 420000000000000000;
 
-const prepareVeChainApp = async transport => {
-  // enter app vechain
-  await transport.button(SpeculosButton.BOTH);
-  // enable contract data
-  await transport.button(SpeculosButton.RIGHT);
-  await transport.button(SpeculosButton.BOTH);
-  await transport.button(SpeculosButton.BOTH);
-  await transport.button(SpeculosButton.RIGHT);
-  await transport.button(SpeculosButton.BOTH);
-  // enable multi-clause
-  await transport.button(SpeculosButton.RIGHT);
-  await transport.button(SpeculosButton.BOTH);
-  await transport.button(SpeculosButton.RIGHT);
-  await transport.button(SpeculosButton.BOTH);
-  await transport.button(SpeculosButton.RIGHT);
-  await transport.button(SpeculosButton.BOTH);
-};
-
 const vechainTest = {
   currency: getCryptoCurrencyById("vechain"),
   appQuery: {
@@ -43,7 +25,23 @@ const vechainTest = {
   },
   allowEmptyAccounts: true,
   genericDeviceAction: deviceAction.acceptTransaction,
-  onSpeculosDeviceCreated: async ({ transport }) => await prepareVeChainApp(transport),
+  onSpeculosDeviceCreated: async ({ transport }) => {
+    // enter app vechain
+    await transport.button(SpeculosButton.BOTH);
+    // enable contract data
+    await transport.button(SpeculosButton.RIGHT);
+    await transport.button(SpeculosButton.BOTH);
+    await transport.button(SpeculosButton.BOTH);
+    await transport.button(SpeculosButton.RIGHT);
+    await transport.button(SpeculosButton.BOTH);
+    // enable multi-clause
+    await transport.button(SpeculosButton.RIGHT);
+    await transport.button(SpeculosButton.BOTH);
+    await transport.button(SpeculosButton.RIGHT);
+    await transport.button(SpeculosButton.BOTH);
+    await transport.button(SpeculosButton.RIGHT);
+    await transport.button(SpeculosButton.BOTH);
+  },
 };
 
 const vet: AppSpec<Transaction> = {
@@ -94,7 +92,6 @@ const vet: AppSpec<Transaction> = {
         account,
         siblings,
         bridge,
-        maxSpendable,
       }: TransactionArg<Transaction>): TransactionRes<Transaction> => {
         if (!account.subAccounts?.[0]) throw new Error("no VTHO account");
         invariant(account.balance.gt(MIN_VET_TRANSACTION_AMOUNT), "Vechain: VET balance is empty");
@@ -105,9 +102,7 @@ const vet: AppSpec<Transaction> = {
         const sibling = pickSiblings(siblings, 4);
         const recipient = sibling.freshAddress;
         const transaction = bridge.createTransaction(account);
-        transaction.useAllAmount = true;
-        const amount = maxSpendable.integerValue();
-        const updates = [{ amount }, { recipient }];
+        const updates = [{ useAllAmount: true }, { recipient }];
         return {
           transaction,
           updates,
@@ -150,7 +145,6 @@ const vtho: AppSpec<Transaction> = {
           throw new Error("no VTHO account");
         const tokenAccount = account.subAccounts[0];
         const transaction = bridge.createTransaction(tokenAccount);
-        transaction.subAccountId = tokenAccount.id;
         const amount = tokenAccount.balance.div(2).integerValue();
         const updates = [{ amount }, { recipient }, { subAccountId: tokenAccount.id }];
 
@@ -193,13 +187,12 @@ const vtho: AppSpec<Transaction> = {
           !(account.subAccounts[0].type == "TokenAccount")
         )
           throw new Error("no VTHO account");
-        const tokenAccount = account.subAccounts[0];
-        const transaction = bridge.createTransaction(tokenAccount);
-        transaction.subAccountId = tokenAccount.id;
-        transaction.useAllAmount = true;
-        const amount = tokenAccount.spendableBalance.integerValue();
-
-        const updates = [{ amount }, { recipient }, { subAccountId: tokenAccount.id }];
+        const transaction = bridge.createTransaction(account);
+        const updates = [
+          { useAllAmount: true },
+          { recipient },
+          { subAccountId: account.subAccounts[0].id },
+        ];
         return {
           transaction,
           updates,
